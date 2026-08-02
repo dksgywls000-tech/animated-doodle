@@ -1,0 +1,1042 @@
+<!DOCTYPE html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B3540">
+<title>인스타 태그 하기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --track:#0B3540; --track-deep:#082A33; --lane:rgba(255,255,255,.10);
+    --bib:#F5F2EA; --bib-edge:#DCD6C6; --ink:#101416; --ink-soft:#5C6469;
+    --signal:#FF6A2B; --mint:#7FD4C1; --chalk:rgba(255,255,255,.62);
+    --kr:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+    --disp:"Oswald","Pretendard Variable",system-ui,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{background:var(--track);
+    background-image:repeating-linear-gradient(90deg,transparent 0 calc(100% / 6 - 1px),var(--lane) calc(100% / 6 - 1px),var(--lane) calc(100% / 6));
+    color:var(--bib);font-family:var(--kr);-webkit-font-smoothing:antialiased;padding:0 0 env(safe-area-inset-bottom)}
+  body.picking{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+  body.locked{overflow:hidden}
+  .wrap{max-width:760px;margin:0 auto;padding:0 14px}
+  header{padding:34px 0 20px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--chalk);text-transform:uppercase;margin:0 0 12px}
+  .eyebrow b{color:var(--signal);font-weight:700}
+  h1{font-family:var(--disp);font-weight:700;font-size:clamp(38px,13vw,72px);line-height:.88;letter-spacing:-.01em;margin:0;text-transform:uppercase}
+  h1 span{display:block;color:var(--signal)}
+  .sub{font-size:13px;color:var(--chalk);margin:14px 0 0;line-height:1.6}
+  .tally{margin:20px 0 0}
+  .tally-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--track-deep)}
+  .tally-bar i{display:block;height:100%}
+  .tally-m{background:var(--signal)} .tally-f{background:var(--mint)}
+  .tally-key{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--chalk)}
+  .tally-key span{display:flex;align-items:center;gap:6px}
+  .dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+
+  .panel{border:1px solid rgba(255,255,255,.2);border-radius:12px;margin-top:20px;overflow:hidden}
+  .panel>summary{list-style:none;cursor:pointer;padding:14px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:600}
+  .panel>summary::-webkit-details-marker{display:none}
+  .panel>summary .hint{font-family:var(--mono);font-size:10px;color:var(--chalk);letter-spacing:.06em}
+  .panel[open]>summary{border-bottom:1px solid rgba(255,255,255,.14)}
+  .panel-body{padding:14px}
+  .panel-body p{margin:0 0 10px;font-size:12.5px;line-height:1.7;color:var(--chalk)}
+  textarea{width:100%;min-height:130px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:var(--track-deep);color:var(--bib);padding:12px;font-family:var(--mono);font-size:13px;line-height:1.5;resize:vertical}
+  textarea::placeholder{color:rgba(255,255,255,.32)}
+  .btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .btn{flex:1 1 46%;min-height:46px;border-radius:10px;border:1px solid var(--bib);background:var(--bib);color:var(--track-deep);font-family:var(--kr);font-size:14px;font-weight:700;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--bib);border-color:rgba(255,255,255,.28);font-weight:600}
+  .log{margin-top:12px;font-size:12.5px;line-height:1.7;color:var(--mint)}
+  .log b{color:var(--signal)}
+
+  .controls{position:sticky;top:0;z-index:5;background:linear-gradient(var(--track) 76%,rgba(11,53,64,0));padding:12px 0 16px;margin-top:22px}
+  .filters{display:flex;gap:7px;margin-bottom:9px}
+  .filters button{flex:1;min-height:44px;border:1px solid rgba(255,255,255,.22);background:transparent;color:var(--bib);font-family:var(--kr);font-size:14px;font-weight:600;border-radius:10px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+  .filters button[aria-pressed="true"]{background:var(--bib);color:var(--track-deep);border-color:var(--bib)}
+  :focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+  .searchrow{display:flex;gap:7px}
+  input[type="search"]{flex:1;min-width:0;min-height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:var(--track-deep);color:var(--bib);padding:0 14px;font-family:var(--kr);font-size:15px}
+  input[type="search"]::placeholder{color:rgba(255,255,255,.38)}
+  #mode{flex:0 0 auto;min-height:44px;padding:0 15px;border-radius:10px;border:1px solid var(--signal);background:transparent;color:var(--signal);font-family:var(--kr);font-size:14px;font-weight:700;cursor:pointer}
+  #mode[aria-pressed="true"]{background:var(--signal);color:#101416}
+
+  .list{display:grid;gap:9px;padding-bottom:24px}
+  @media(min-width:620px){.list{grid-template-columns:1fr 1fr}}
+  .bib{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:12px;background:var(--bib);color:var(--ink);border-radius:12px;padding:13px 14px;text-decoration:none;border:1px solid var(--bib-edge);box-shadow:0 1px 0 rgba(0,0,0,.25);transition:transform .12s ease,box-shadow .12s ease;font:inherit;text-align:left;width:100%;cursor:pointer}
+  .bib:active{transform:translateY(1px)}
+  @media(hover:hover){.bib:hover{box-shadow:0 0 0 2px var(--signal)}}
+  .bib.pending{background:repeating-linear-gradient(135deg,#F5F2EA 0 9px,#EEEAE0 9px 18px);border-style:dashed;border-color:#B9B0A0}
+  .bib.on{box-shadow:0 0 0 3px var(--signal)}
+  .no{font-family:var(--disp);font-weight:600;font-size:26px;line-height:1;color:var(--ink);opacity:.28;text-align:right;font-variant-numeric:tabular-nums;transition:opacity .12s}
+  .bib.on .no{opacity:1;color:var(--signal)}
+  .who{min-width:0}
+  .id{font-family:var(--mono);font-size:14.5px;font-weight:600;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vow{font-size:14px;color:var(--ink-soft);margin-top:3px;line-height:1.35}
+  .vow em{font-style:normal;color:var(--signal);font-weight:700;margin-left:5px;font-size:12px}
+  .tags{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+  .sex{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:5px;line-height:1.4}
+  .sex.m{background:rgba(255,106,43,.14);color:#B33C0B}
+  .sex.f{background:rgba(23,143,120,.13);color:#0E6E5C}
+  .mk{font-family:var(--mono);font-size:10px;color:var(--ink-soft);letter-spacing:.08em}
+  .bib.pending .mk{color:#B33C0B;font-weight:700}
+  .empty{padding:30px 4px;color:var(--chalk);font-size:14px;line-height:1.7}
+  footer{padding:6px 0 40px;color:rgba(255,255,255,.34);font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;line-height:1.9}
+
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--track-deep);border-top:1px solid rgba(255,255,255,.16);padding:12px 14px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+  .dock[hidden]{display:none}
+  .dock-in{max-width:760px;margin:0 auto}
+  .dock-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .count{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--chalk)}
+  .count b{color:var(--signal);font-size:15px}
+  .mini{display:flex;gap:6px}
+  .mini button{min-height:34px;padding:0 11px;border-radius:8px;border:1px solid rgba(255,255,255,.24);background:transparent;color:var(--bib);font-family:var(--kr);font-size:12.5px;cursor:pointer}
+  .dock-btns{display:flex;gap:8px}
+  #copy{flex:1;min-height:48px;border-radius:10px;border:0;background:var(--signal);color:#101416;font-family:var(--kr);font-size:15px;font-weight:800;cursor:pointer}
+  #copy.done{background:var(--mint)}
+  #play{flex:0 0 auto;min-height:48px;padding:0 18px;border-radius:10px;border:0;background:var(--mint);color:#082A33;font-family:var(--kr);font-size:15px;font-weight:800;cursor:pointer}
+  #out{margin-top:9px;min-height:74px;font-size:13px}
+  #out[hidden]{display:none}
+
+  /* ── 게임 오버레이 ── */
+  .over{position:fixed;inset:0;z-index:60;background:var(--track);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .over[hidden]{display:none}
+  .over-in{max-width:760px;margin:0 auto;padding:16px 14px calc(40px + env(safe-area-inset-bottom))}
+  .ov-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .ov-top h2{font-family:var(--disp);font-size:30px;margin:0;text-transform:uppercase;letter-spacing:-.01em}
+  .ov-top p{margin:4px 0 0;font-family:var(--mono);font-size:11px;color:var(--chalk);letter-spacing:.06em}
+  #ovclose{flex:0 0 auto;min-height:40px;padding:0 14px;border-radius:9px;border:1px solid rgba(255,255,255,.26);background:transparent;color:var(--bib);font-family:var(--kr);font-size:13px;font-weight:600;cursor:pointer}
+  .seg{display:flex;gap:6px;background:var(--track-deep);padding:5px;border-radius:11px;margin-bottom:14px}
+  .seg button{flex:1;min-height:40px;border:0;border-radius:8px;background:transparent;color:var(--chalk);font-family:var(--kr);font-size:13.5px;font-weight:600;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--bib);color:var(--track-deep)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+  .tile{border:1px solid rgba(255,255,255,.2);background:transparent;border-radius:12px;padding:12px;text-align:left;color:var(--bib);font-family:var(--kr);cursor:pointer;min-height:78px}
+  .tile[aria-pressed="true"]{background:var(--bib);color:var(--track-deep);border-color:var(--bib)}
+  .tile .g{font-size:20px;line-height:1}
+  .tile .n{font-size:14.5px;font-weight:700;margin-top:6px}
+  .tile .d{font-size:11px;opacity:.7;margin-top:2px;line-height:1.4}
+  .stage{background:var(--track-deep);border-radius:14px;padding:14px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .row label{font-size:13px;color:var(--chalk)}
+  .row input[type="number"]{width:72px;min-height:40px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:var(--track);color:var(--bib);padding:0 10px;font-family:var(--mono);font-size:15px;text-align:center}
+  .chk{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--chalk);cursor:pointer}
+  .chk input{width:19px;height:19px;accent-color:var(--signal)}
+  .play{width:100%;min-height:50px;border-radius:11px;border:0;background:var(--signal);color:#101416;font-family:var(--kr);font-size:16px;font-weight:800;cursor:pointer;margin-top:4px}
+  .play:disabled{opacity:.45;cursor:default}
+  canvas{width:100%;display:block;border-radius:11px;background:var(--track);touch-action:manipulation}
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--chalk)}
+  .hud b{color:var(--signal);font-size:13px}
+  .depth{height:6px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:7px}
+  .depth i{display:block;height:100%;width:0;background:var(--signal);transition:width .1s linear}
+  .scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:11px}
+  .res{margin-top:14px}
+  .res h3{margin:0 0 8px;font-size:13px;color:var(--chalk);font-weight:600;letter-spacing:.04em}
+  .hit{display:flex;flex-wrap:wrap;gap:6px}
+  .hit span{background:var(--signal);color:#101416;border-radius:8px;padding:7px 11px;font-size:14px;font-weight:700}
+  .hit span.safe{background:rgba(255,255,255,.1);color:var(--bib);font-weight:600}
+  .order{margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--chalk);line-height:1.9;word-break:break-all}
+  .copyres{width:100%;min-height:44px;margin-top:12px;border-radius:10px;border:1px solid rgba(255,255,255,.26);background:transparent;color:var(--bib);font-family:var(--kr);font-size:13.5px;font-weight:600;cursor:pointer}
+  .teeth{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:7px;margin:12px 0}
+  .tooth{aspect-ratio:1;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:var(--bib);color:var(--track-deep);font-family:var(--disp);font-size:19px;font-weight:600;cursor:pointer}
+  .tooth.gone{background:transparent;color:rgba(255,255,255,.25);border-style:dashed;cursor:default}
+  .tooth.bite{background:var(--signal);color:#101416}
+  .turn{text-align:center;padding:12px;border-radius:11px;background:var(--track);margin-bottom:4px}
+  .turn small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--chalk);letter-spacing:.1em;margin-bottom:5px}
+  .turn b{font-size:20px;color:var(--signal);word-break:break-all}
+  .teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:12px}
+  .team{background:var(--track);border-radius:11px;padding:11px 12px}
+  .team h4{margin:0 0 7px;font-family:var(--disp);font-size:15px;letter-spacing:.04em}
+  .team div{font-size:13px;line-height:1.75;word-break:break-all}
+  .note{font-size:12px;color:var(--chalk);line-height:1.6;margin:10px 0 0}
+
+  /* ── 악어 ── */
+  .crocwrap{background:var(--track);border-radius:12px;padding:4px;margin:10px 0;overflow:hidden}
+  svg.croc{width:100%;height:auto;display:block}
+  .croc .upper{transform-box:view-box;transform-origin:45px 156px;transform:rotate(-26deg);
+    transition:transform .42s cubic-bezier(.34,1.45,.64,1)}
+  .croc.shut .upper{transform:rotate(3deg)}
+  .croc.bite{animation:shake .5s ease-out}
+  .croc .impact{opacity:0;transform-box:fill-box;transform-origin:center}
+  .croc.bite .impact{animation:pop .55s ease-out}
+  .croc .tooth{cursor:pointer}
+  .croc .tooth polygon{transition:transform .25s ease,fill .25s ease}
+  .croc .tooth.gone{cursor:default}
+  .croc .tooth.gone polygon{fill:#20505C;stroke:#0F3B45;transform:translateY(24px)}
+  .croc .tooth.up.gone polygon{transform:translateY(-24px)}
+  .croc .tooth.trap polygon{fill:#FF6A2B;stroke:#8A2E06}
+  @keyframes shake{0%,100%{transform:translateX(0) rotate(0)}
+    14%{transform:translateX(-9px) rotate(-1.6deg)}34%{transform:translateX(8px) rotate(1.6deg)}
+    56%{transform:translateX(-6px) rotate(-.8deg)}78%{transform:translateX(4px)}}
+  @keyframes pop{0%{opacity:0;transform:scale(.55)}22%{opacity:1;transform:scale(1.06)}
+    100%{opacity:0;transform:scale(1.25)}}
+  /* ── 직접 입력 ── */
+  .addgrid{display:flex;gap:8px}
+  .fld{flex:1;display:block}
+  .fld span{display:block;font-size:11.5px;color:var(--chalk);margin-bottom:5px;font-weight:600}
+  .fld input{width:100%;min-height:48px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+    background:var(--track-deep);color:var(--bib);padding:11px 12px;font-family:var(--kr);font-size:16px}
+  .fld input::placeholder{color:rgba(255,255,255,.3)}
+  .fld input:focus{outline:none;border-color:var(--signal)}
+  #nid{font-family:var(--mono);font-size:15px}
+  .sexrow{display:flex;gap:7px;margin-top:9px}
+  .sexrow button{flex:1;min-height:46px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+    background:transparent;color:var(--bib);font-family:var(--kr);font-size:15px;font-weight:600;cursor:pointer}
+  .sexrow button[data-s="m"][aria-pressed="true"]{background:var(--signal);border-color:var(--signal);color:#fff}
+  .sexrow button[data-s="f"][aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--track-deep)}
+  .mglist{display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow-y:auto}
+  .mgrow{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);
+    border-radius:9px;padding:9px 10px}
+  .mgrow .mgid{flex:1;min-width:0}
+  .mgrow .mgid b{display:block;font-family:var(--mono);font-size:13px;font-weight:600;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mgrow .mgid i{font-style:normal;font-size:12px;color:var(--chalk)}
+  .mgrow button{width:38px;height:38px;flex:0 0 38px;border-radius:8px;border:1px solid rgba(255,255,255,.2);
+    background:transparent;color:var(--bib);font-size:14px;cursor:pointer}
+  .mgrow button.danger{width:auto;flex:0 0 auto;padding:0 13px;background:var(--signal);
+    border-color:var(--signal);color:#fff;font-size:13px;font-weight:700;font-family:var(--kr)}
+  .mgrow.edit{display:block;background:rgba(255,255,255,.1)}
+  .mgedit>b{display:block;font-family:var(--mono);font-size:12.5px;color:var(--chalk);margin-bottom:8px}
+  .mgedit .mgname{width:100%;min-height:44px;border-radius:9px;border:1px solid rgba(255,255,255,.24);
+    background:var(--track-deep);color:var(--bib);padding:10px 11px;font-family:var(--kr);font-size:16px}
+  .mgedit .mgname:focus{outline:none;border-color:var(--signal)}
+  .mgsex{display:flex;gap:6px;margin-top:8px}
+  .mgsex button{flex:1;width:auto;height:42px;font-family:var(--kr);font-size:14px;font-weight:600}
+  .mgsex button[data-sx="m"][aria-pressed="true"]{background:var(--signal);border-color:var(--signal);color:#fff}
+  .mgsex button[data-sx="f"][aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--track-deep)}
+  .mgbtns{display:flex;gap:6px;margin-top:8px}
+  .mgbtns button{flex:1;width:auto;height:44px;font-family:var(--kr);font-size:14px;font-weight:700}
+  .mgbtns button.prime{background:var(--bib);border-color:var(--bib);color:var(--track-deep)}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow"><b>INSTAGRAM</b> · TAG LIST</p>
+    <h1>Insta<span>Tag</span></h1>
+    <p class="sub">아이디와 이름을 직접 입력해 명단을 쌓아둡니다.<br>카드를 누르면 인스타로 이동, <b>태그 담기</b>를 켜면 골라서 태그 복사와 랜덤 게임을 할 수 있습니다.</p>
+    <div class="tally">
+      <div class="tally-bar" id="bar" role="img" aria-label="남 4명, 여 1명"><i class="tally-m" style="width: 80%;"></i><i class="tally-f" style="width: 20%;"></i></div>
+      <div class="tally-key" id="key"><span><i class="dot tally-m"></i>남 4</span><span><i class="dot tally-f"></i>여 1</span><span>총 5명</span></div>
+    </div>
+  </header>
+
+  <details class="panel" open="">
+    <summary>명단에 추가 <span class="hint">TYPE → ADD</span></summary>
+    <div class="panel-body">
+      <div class="addgrid">
+        <label class="fld"><span>인스타 아이디</span>
+          <input type="text" id="nid" placeholder="@ 없이 입력" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></label>
+        <label class="fld"><span>이름</span>
+          <input type="text" id="nnm" placeholder="홍길동"></label>
+      </div>
+      <div class="sexrow" role="group" aria-label="성별">
+        <button type="button" data-s="m" aria-pressed="false">남</button>
+        <button type="button" data-s="f" aria-pressed="false">여</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn" id="add" type="button">추가하기</button>
+        <button class="btn ghost" id="save" type="button">명단 파일 저장</button>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </details>
+
+  <details class="panel" id="bulkpanel">
+    <summary>여러 명 한 번에 추가 <span class="hint">PASTE → ADD</span></summary>
+    <div class="panel-body">
+      <p>한 줄에 한 명씩, <code>아이디(또는 링크) , 이름 , 남/여</code> 순으로 붙여넣으세요.<br>
+         쉼표 · 탭 · 슬래시 · 띄어쓰기 모두 구분자로 읽고, 순서가 섞여 있어도 알아냅니다.</p>
+      <textarea id="bulk" placeholder="run_kim, 김러너, 남
+https://instagram.com/daily_park/  박데일리  여
+@office_lee / 이오피스 / 남"></textarea>
+      <div class="btnrow">
+        <button class="btn" id="bulkgo" type="button">붙여넣은 명단 추가</button>
+        <button class="btn ghost" id="bulkclear" type="button">입력칸 비우기</button>
+      </div>
+      <div class="log" id="bulklog"></div>
+    </div>
+  </details>
+
+  <details class="panel" id="mgpanel">
+    <summary>명단 관리 <span class="hint">EDIT · DELETE</span></summary>
+    <div class="panel-body">
+      <p>이름을 고치거나 명단에서 지울 수 있습니다.</p>
+      <div id="mglist" class="mglist"><div class="mgrow" data-h="yesterday_yousaidtomorrow_"><div class="mgid"><b>@yesterday_yousaidtomorrow_</b><i>진걸대표님 · 남</i></div><button type="button" data-act="edit" aria-label="수정">✎</button><button type="button" data-act="arm" aria-label="삭제">✕</button></div><div class="mgrow" data-h="minfre_e"><div class="mgid"><b>@minfre_e</b><i>성민형님 · 남</i></div><button type="button" data-act="edit" aria-label="수정">✎</button><button type="button" data-act="arm" aria-label="삭제">✕</button></div><div class="mgrow" data-h="seung_jun_0930"><div class="mgid"><b>@seung_jun_0930</b><i>승준코치 · 남</i></div><button type="button" data-act="edit" aria-label="수정">✎</button><button type="button" data-act="arm" aria-label="삭제">✕</button></div><div class="mgrow" data-h="jeong_seonha"><div class="mgid"><b>@jeong_seonha</b><i>선하매니저 · 여</i></div><button type="button" data-act="edit" aria-label="수정">✎</button><button type="button" data-act="arm" aria-label="삭제">✕</button></div><div class="mgrow" data-h="hyeonwoo.vibes"><div class="mgid"><b>@hyeonwoo.vibes</b><i>현우형님 · 남</i></div><button type="button" data-act="edit" aria-label="수정">✎</button><button type="button" data-act="arm" aria-label="삭제">✕</button></div></div>
+    </div>
+  </details>
+
+  <div class="controls">
+    <div class="filters" role="group" aria-label="성별 보기">
+      <button type="button" data-f="all" aria-pressed="true">전체 5</button>
+      <button type="button" data-f="m" aria-pressed="false">남 4</button>
+      <button type="button" data-f="f" aria-pressed="false">여 1</button>
+    </div>
+    <div class="searchrow">
+      <input type="search" id="q" placeholder="아이디 · 이름 검색" autocomplete="off" aria-label="아이디 또는 이름 검색">
+      <button type="button" id="mode" aria-pressed="false">태그 담기</button>
+    </div>
+  </div>
+
+  <div class="list" id="list"><a class="bib" href="https://instagram.com/yesterday_yousaidtomorrow_" target="_blank" rel="noopener"><div class="no">01</div><div class="who"><div class="id">yesterday_yousaidtomorrow_</div><div class="vow">진걸대표님</div></div><div class="tags"><span class="sex m">남</span></div></a><a class="bib" href="https://instagram.com/minfre_e" target="_blank" rel="noopener"><div class="no">02</div><div class="who"><div class="id">minfre_e</div><div class="vow">성민형님</div></div><div class="tags"><span class="sex m">남</span></div></a><a class="bib" href="https://instagram.com/seung_jun_0930" target="_blank" rel="noopener"><div class="no">03</div><div class="who"><div class="id">seung_jun_0930</div><div class="vow">승준코치</div></div><div class="tags"><span class="sex m">남</span></div></a><a class="bib" href="https://instagram.com/jeong_seonha" target="_blank" rel="noopener"><div class="no">04</div><div class="who"><div class="id">jeong_seonha</div><div class="vow">선하매니저</div></div><div class="tags"><span class="sex f">여</span></div></a><a class="bib" href="https://instagram.com/hyeonwoo.vibes" target="_blank" rel="noopener"><div class="no">05</div><div class="who"><div class="id">hyeonwoo.vibes</div><div class="vow">현우형님</div></div><div class="tags"><span class="sex m">남</span></div></a></div>
+  <p class="empty" id="empty" hidden="">찾는 사람이 없습니다. 검색어를 지우거나 다르게 입력해 보세요.</p>
+
+  <footer>
+    입력한 명단은 이 브라우저에 자동 저장됩니다<br>
+    기기를 바꾸거나 백업하려면 "명단 파일 저장"으로 새 파일을 받아두세요
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden="">
+  <div class="dock-in">
+    <div class="dock-top">
+      <span class="count"><b id="cnt">0</b>명 선택됨</span>
+      <div class="mini">
+        <button type="button" id="all">보이는 것 전체</button>
+        <button type="button" id="none">해제</button>
+      </div>
+    </div>
+    <div class="dock-btns">
+      <button type="button" id="copy">@아이디 복사</button>
+      <button type="button" id="play">게임</button>
+    </div>
+    <textarea id="out" readonly="" hidden="" aria-label="선택한 아이디 목록"></textarea>
+  </div>
+</div>
+
+<div class="over" id="over" hidden="">
+  <div class="over-in">
+    <div class="ov-top">
+      <div><h2>Random Game</h2><p id="ovsub"></p></div>
+      <button type="button" id="ovclose">닫기</button>
+    </div>
+    <div class="seg" id="nameseg" role="group" aria-label="이름 표시 방식">
+      <button type="button" data-k="0" aria-pressed="true">인스타 아이디</button>
+      <button type="button" data-k="1" aria-pressed="false">이름</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="stage" id="stage"></div>
+  </div>
+</div>
+
+<script>
+const SEED=[["yesterday_yousaidtomorrow_","진걸대표님","m","Y",1],["minfre_e","성민형님","m","Y",1],["seung_jun_0930","승준코치","m","Y",1],["jeong_seonha","선하매니저","f","Y",1],["hyeonwoo.vibes","현우형님","m","Y",1]];
+
+let P=SEED.slice(), filter='all', picking=false, nameMode=0, R=[];
+const picked=new Set();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const nm=p=>nameMode?(p[1]||p[0]):p[0];
+
+const visible=()=>{
+  const t=$('q').value.trim().toLowerCase();
+  return P.map((p,i)=>({p,n:i+1}))
+    .filter(({p})=>filter==='all'||p[2]===filter)
+    .filter(({p})=>!t||p[0].toLowerCase().includes(t)||p[1].toLowerCase().includes(t));
+};
+
+function paint(){
+  const m=P.filter(p=>p[2]==='m').length, f=P.length-m;
+  const bar=$('bar').children;
+  bar[0].style.width=(P.length?m/P.length*100:50)+'%';
+  bar[1].style.width=(P.length?f/P.length*100:50)+'%';
+  $('bar').setAttribute('aria-label','남 '+m+'명, 여 '+f+'명');
+  $('key').innerHTML='<span><i class="dot tally-m"></i>남 '+m+'</span><span><i class="dot tally-f"></i>여 '+f+
+    '</span><span>총 '+P.length+'명</span>';
+  document.querySelector('[data-f="all"]').textContent='전체 '+P.length;
+  document.querySelector('[data-f="m"]').textContent='남 '+m;
+  document.querySelector('[data-f="f"]').textContent='여 '+f;
+  render(); mgrender();
+}
+
+function render(){
+  const rows=visible();
+  $('list').innerHTML=rows.map(({p,n})=>{
+    const on=picked.has(p[0]);
+    const inner='<div class="no">'+(picking&&on?'✓':String(n).padStart(2,'0'))+'</div>'+
+      '<div class="who"><div class="id">'+esc(p[0])+'</div><div class="vow">'+esc(p[1])+
+      '</div></div><div class="tags"><span class="sex '+p[2]+'">'+
+      (p[2]==='m'?'남':'여')+'</span></div>';
+    const cls='bib'+(picking&&on?' on':'');
+    return picking
+      ? '<button type="button" class="'+cls+'" data-h="'+esc(p[0])+'" aria-pressed="'+on+'">'+inner+'</button>'
+      : '<a class="'+cls+'" href="https://instagram.com/'+encodeURIComponent(p[0].toLowerCase())+'" target="_blank" rel="noopener">'+inner+'</a>';
+  }).join('');
+  $('empty').hidden=rows.length>0;
+  $('cnt').textContent=picked.size;
+  $('copy').textContent='@아이디 복사'; $('copy').classList.remove('done');
+}
+
+/* ── 선택 ── */
+$('mode').addEventListener('click',()=>{
+  picking=!picking;
+  $('mode').setAttribute('aria-pressed',String(picking));
+  $('mode').textContent=picking?'담기 끄기':'태그 담기';
+  $('dock').hidden=!picking;
+  document.body.classList.toggle('picking',picking);
+  if(!picking){ picked.clear(); $('out').hidden=true; }
+  render();
+});
+$('list').addEventListener('click',e=>{
+  const b=e.target.closest('button.bib'); if(!b) return;
+  const h=b.dataset.h; picked.has(h)?picked.delete(h):picked.add(h); render();
+});
+$('all').addEventListener('click',()=>{ visible().forEach(({p})=>picked.add(p[0])); render(); });
+$('none').addEventListener('click',()=>{ picked.clear(); $('out').hidden=true; render(); });
+
+function copyText(text,btn,okLabel){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent=okLabel; btn.classList.add('done');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    btn.textContent=ok?okLabel:'복사가 막혀 있어요 · 길게 눌러 복사';
+    if(ok) btn.classList.add('done');
+  });
+}
+$('copy').addEventListener('click',()=>{
+  if(!picked.size){ $('copy').textContent='먼저 선택해 주세요'; return; }
+  const text=P.filter(p=>picked.has(p[0])).map(p=>'@'+p[0]).join('\n');
+  $('out').hidden=false; $('out').value=text;
+  copyText(text,$('copy'),'복사됨 · '+picked.size+'명');
+});
+
+/* ── 추가 / 관리 / 저장 ── */
+const KEY='insta-tag-list-v1';
+let sex=null;
+function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(P)); }catch(e){} }
+function restore(){
+  let stored=null;
+  try{ const raw=localStorage.getItem(KEY); if(raw) stored=JSON.parse(raw); }catch(e){}
+  if(!stored||!stored.length) return;
+  const seen=new Set(), out=[]; let split=0;
+  stored.concat(SEED).forEach(p=>{
+    if(!p||!p[0]) return;
+    const k=String(p[0]).toLowerCase();
+    if(seen.has(k)) return;
+    seen.add(k);
+    const sx=p[2]==='f'?'f':'m';
+    // 이름 안에 다른 사람 아이디가 섞여 들어간 예전 기록을 두 명으로 되돌린다
+    const nm2=tidyName(p[1]);
+    const hit=nm2.split(/\s+/).findIndex(t=>/^[A-Za-z0-9._]{4,}$/.test(t)&&/[._0-9]/.test(t));
+    if(hit>=0){
+      const t=nm2.split(/\s+/);
+      const h2=t[hit].replace(/^@+/,'');
+      if(!seen.has(h2.toLowerCase())){
+        out.push([clean(p[0]), t.slice(0,hit).join(' '), sx, 'Y', 1]);
+        seen.add(h2.toLowerCase());
+        out.push([h2, t.slice(hit+1).join(' '), sx, 'Y', 1]);
+        split++;
+        return;
+      }
+    }
+    out.push([clean(p[0]),nm2,sx,p[3]||'Y',1]);
+  });
+  P=out;
+  if(split) window._splitNote=split;
+}
+const clean=v=>String(v||'').trim().replace(/^@+/,'')
+  .replace(/^https?:\/\/(www\.)?instagram\.com\//i,'').replace(/[\/?#].*$/,'').trim();
+
+document.querySelectorAll('.sexrow button').forEach(b=>b.addEventListener('click',()=>{
+  sex=b.dataset.s;
+  document.querySelectorAll('.sexrow button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+}));
+
+function addOne(){
+  const id=clean($('nid').value), name=$('nnm').value.trim();
+  if(!id){ $('log').innerHTML='<b>인스타 아이디</b>를 입력해 주세요.'; $('nid').focus(); return; }
+  if(!/^[A-Za-z0-9._]+$/.test(id)){
+    $('log').innerHTML='<b>아이디에 쓸 수 없는 문자</b>가 있습니다. 영문·숫자·마침표·밑줄만 가능합니다.'; return; }
+  const dup=P.find(p=>p[0].toLowerCase()===id.toLowerCase());
+  if(dup){ $('log').innerHTML='<b>이미 있는 아이디</b>입니다 — @'+esc(dup[0])+(dup[1]?' ('+esc(dup[1])+')':''); return; }
+  if(!sex){ $('log').innerHTML='<b>성별</b>을 눌러 주세요. (팀 짜기와 남녀 집계에 쓰입니다)'; return; }
+  P.unshift([id,tidyName(name),sex,'Y',1]);
+  persist();
+  $('nid').value=''; $('nnm').value=''; $('nid').focus();
+  $('log').innerHTML='추가됨 — @'+esc(id)+(name?' · '+esc(name):'')+' <b>(총 '+P.length+'명)</b>';
+  paint();
+}
+$('add').addEventListener('click',addOne);
+['nid','nnm'].forEach(k=>$(k).addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ e.preventDefault(); addOne(); }}));
+
+/* ── 여러 명 한 번에 추가 ── */
+const SEXTOK=/^(남|남자|남성|m|male|f|여|여자|여성|female)$/i;
+const toSex=t=>/^(남|남자|남성|m|male)$/i.test(t)?'m':'f';
+function tidyName(v){
+  return String(v||'')
+    .replace(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/*/ig,' ')   // 링크 흔적
+    .replace(/\?\S*/g,' ')                                          // ?igsh=... 추적 파라미터
+    .replace(/[\/,;]+/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function parseBulk(text){
+  const rows=[], bad=[];
+  text.split(/\r?\n/).forEach(line=>{
+    let L=line.trim();
+    if(!L) return;
+    // ① 인스타 링크를 @아이디로 정규화 — 뒤에 붙는 ?igsh=... 쿼리까지 통째로 먹는다
+    L=L.replace(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/+([A-Za-z0-9._]+)[^\s,;]*/ig,' @$1 ');
+    // ② 아이디에 바로 붙은 쿼리도 떼어낸다 (minfre_e?igsh=...)
+    L=L.replace(/(@?[A-Za-z0-9._]+)\?\S*/g,' $1 ');
+    // ③ 한 줄에 아이디가 여러 개면 사람 수만큼 잘라낸다
+    const at=[]; const re=/@[A-Za-z0-9._]+/g; let m;
+    while((m=re.exec(L))!==null) at.push(m.index);
+    const segs = at.length>1
+      ? at.map((st,i)=>L.slice(st, i+1<at.length?at[i+1]:L.length))
+      : [L];
+    segs.forEach(seg=>{
+      const parts=seg.split(/[,\t]|\s+\/\s+|\/|\s+/).map(x=>x.trim()).filter(Boolean);
+      let sex=null, handle='', left=[];
+      parts.forEach(x=>{
+        if(!sex&&SEXTOK.test(x)){ sex=toSex(x); return; }
+        if(!handle&&/^@[A-Za-z0-9._]+$/.test(x)){ handle=x.slice(1); return; }
+        left.push(x);
+      });
+      if(!handle){
+        const k=left.findIndex(x=>/^@?[A-Za-z0-9._]+$/.test(x));
+        if(k>=0){ handle=left[k].replace(/^@+/,''); left.splice(k,1); }
+      }
+      const name=tidyName(left.join(' '));
+      const raw=seg.trim();
+      if(!raw) return;
+      if(!handle){ bad.push([raw,'아이디를 못 찾음']); return; }
+      if(!/^[A-Za-z0-9._]+$/.test(handle)){ bad.push([raw,'아이디 형식 오류']); return; }
+      if(!sex){ bad.push([raw,'남/여 없음']); return; }
+      rows.push([handle,name,sex,'Y',1]);
+    });
+  });
+  return {rows,bad};
+}
+$('bulkclear').addEventListener('click',()=>{ $('bulk').value=''; $('bulklog').innerHTML=''; });
+$('bulkgo').addEventListener('click',()=>{
+  const {rows,bad}=parseBulk($('bulk').value);
+  if(!rows.length&&!bad.length){ $('bulklog').innerHTML='<b>읽어낸 줄이 없습니다.</b> 형식을 확인해 주세요.'; return; }
+  const have=new Set(P.map(p=>p[0].toLowerCase()));
+  const added=[], dup=[];
+  rows.forEach(r=>{
+    const k=r[0].toLowerCase();
+    if(have.has(k)){ dup.push(r[0]); return; }
+    have.add(k); added.push(r);
+  });
+  if(added.length){ P=added.concat(P); persist(); paint(); }
+  const bits=[];
+  bits.push(added.length?'<b>'+added.length+'명 추가</b> — '+added.map(r=>esc(r[0])).join(', ')
+                        :'<b>추가된 사람이 없습니다.</b>');
+  if(dup.length) bits.push('이미 있어서 건너뜀 '+dup.length+'명 — '+dup.map(esc).join(', '));
+  if(bad.length) bits.push('<b>못 읽은 줄 '+bad.length+'개</b><br>'+
+    bad.slice(0,8).map(b=>'· '+esc(b[0].slice(0,40))+' <span style="opacity:.75">('+b[1]+')</span>').join('<br>')+
+    (bad.length>8?'<br>· 외 '+(bad.length-8)+'줄':''));
+  bits.push('현재 총 '+P.length+'명');
+  $('bulklog').innerHTML=bits.join('<br>');
+  if(added.length) $('bulk').value='';
+});
+
+let editing=null, armed=null;
+function mgrender(){
+  if(!P.length){
+    $('mglist').innerHTML='<p style="margin:0;color:var(--chalk);font-size:13px">아직 명단이 비어 있습니다.</p>';
+    return;
+  }
+  $('mglist').innerHTML=P.map(p=>{
+    const h=esc(p[0]);
+    if(editing===p[0]){
+      return '<div class="mgrow edit" data-h="'+h+'">'+
+        '<div class="mgedit">'+
+          '<b>@'+h+'</b>'+
+          '<input type="text" class="mgname" value="'+esc(p[1]||'')+'" placeholder="이름">'+
+          '<div class="mgsex">'+
+            '<button type="button" data-sx="m" aria-pressed="'+(p[2]==='m')+'">남</button>'+
+            '<button type="button" data-sx="f" aria-pressed="'+(p[2]==='f')+'">여</button>'+
+          '</div>'+
+          '<div class="mgbtns">'+
+            '<button type="button" data-act="ok" class="prime">저장</button>'+
+            '<button type="button" data-act="cancel">취소</button>'+
+          '</div>'+
+        '</div></div>';
+    }
+    const danger = armed===p[0];
+    return '<div class="mgrow" data-h="'+h+'">'+
+      '<div class="mgid"><b>@'+h+'</b><i>'+(p[1]?esc(p[1]):'이름 없음')+' · '+(p[2]==='m'?'남':'여')+'</i></div>'+
+      '<button type="button" data-act="edit" aria-label="수정">✎</button>'+
+      (danger
+        ? '<button type="button" data-act="del" class="danger">지우기</button>'
+        : '<button type="button" data-act="arm" aria-label="삭제">✕</button>')+
+      '</div>';
+  }).join('');
+}
+$('mglist').addEventListener('click',e=>{
+  const btn=e.target.closest('button'); if(!btn) return;
+  const row=btn.closest('.mgrow'); if(!row) return;
+  const h=row.dataset.h, act=btn.dataset.act;
+  const p=P.find(x=>x[0]===h); if(!p) return;
+
+  if(act==='arm'){                       // 1단계: 삭제 버튼 무장
+    armed=(armed===h?null:h); editing=null; mgrender();
+    clearTimeout(window._armT);
+    window._armT=setTimeout(()=>{ if(armed===h){ armed=null; mgrender(); } },5000);
+    return;
+  }
+  if(act==='del'){                       // 2단계: 실제 삭제
+    P=P.filter(x=>x[0]!==h); picked.delete(h); armed=null; editing=null;
+    persist(); paint();
+    $('log').innerHTML='삭제됨 — @'+esc(h)+' <b>(총 '+P.length+'명)</b>';
+    return;
+  }
+  if(act==='edit'){ editing=h; armed=null; mgrender();
+    const inp=$('mglist').querySelector('.mgrow.edit .mgname');
+    if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); }
+    return; }
+  if(act==='cancel'){ editing=null; mgrender(); return; }
+  if(btn.dataset.sx){
+    row.querySelectorAll('.mgsex button').forEach(x=>x.setAttribute('aria-pressed',String(x===btn)));
+    return;
+  }
+  if(act==='ok'){
+    const nm2=row.querySelector('.mgname').value;
+    const sxb=row.querySelector('.mgsex button[aria-pressed="true"]');
+    p[1]=tidyName(nm2);
+    if(sxb) p[2]=sxb.dataset.sx;
+    editing=null; persist(); paint();
+    $('log').innerHTML='수정됨 — @'+esc(h)+(p[1]?' · '+esc(p[1]):'');
+  }
+});
+$('mglist').addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  const row=e.target.closest('.mgrow.edit'); if(!row) return;
+  e.preventDefault();
+  row.querySelector('[data-act="ok"]').click();
+});
+
+$('save').addEventListener('click',()=>{
+  const html='<!DOCTYPE html>'+document.documentElement.outerHTML
+    .replace(/const SEED=\[[\s\S]*?\];/, 'const SEED='+JSON.stringify(P)+';');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.download='insta-tag-'+new Date().toISOString().slice(0,10)+'.html';
+  a.click(); URL.revokeObjectURL(a.href);
+});
+document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{
+  filter=b.dataset.f;
+  document.querySelectorAll('.filters button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  render();
+}));
+$('q').addEventListener('input',render);
+
+/* ═══════════ 랜덤 게임 ═══════════ */
+const GAMES=[
+  {k:'ball', g:'●', n:'핀볼 레이스', d:'긴 코스 끝까지 — 꼴찌가 걸림'},
+  {k:'wheel',g:'◎', n:'룰렛',        d:'돌려서 한 명씩 뽑기'},
+  {k:'croc', g:'▲', n:'악어 이빨',    d:'위아래 16개 중 물리면 걸림'},
+  {k:'team', g:'⬒', n:'랜덤 팀 짜기', d:'남녀 섞어서 팀 자동 배정'}
+];
+let curGame='ball', animRAF=0;
+
+$('play').addEventListener('click',()=>{
+  if(picked.size<2){ $('play').textContent='2명+'; setTimeout(()=>$('play').textContent='게임',1200); return; }
+  R=P.filter(p=>picked.has(p[0]));
+  $('over').hidden=false; document.body.classList.add('locked');
+  $('ovsub').textContent='선택 '+R.length+'명';
+  $('tiles').innerHTML=GAMES.map(g=>'<button type="button" class="tile" data-k="'+g.k+
+    '" aria-pressed="'+(g.k===curGame)+'"><div class="g">'+g.g+'</div><div class="n">'+g.n+
+    '</div><div class="d">'+g.d+'</div></button>').join('');
+  openGame(curGame);
+});
+$('ovclose').addEventListener('click',()=>{ cancelAnimationFrame(animRAF); $('over').hidden=true; document.body.classList.remove('locked'); });
+$('tiles').addEventListener('click',e=>{
+  const t=e.target.closest('.tile'); if(!t) return;
+  curGame=t.dataset.k;
+  document.querySelectorAll('.tile').forEach(x=>x.setAttribute('aria-pressed',String(x===t)));
+  openGame(curGame);
+});
+$('nameseg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  nameMode=+b.dataset.k;
+  document.querySelectorAll('#nameseg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  openGame(curGame);
+});
+function openGame(k){ cancelAnimationFrame(animRAF); animRAF=0; ({ball:gBall,wheel:gWheel,croc:gCroc,team:gTeam})[k]($('stage')); }
+
+function results(el,hitArr,orderText){
+  el.querySelector('.res')?.remove();
+  const d=document.createElement('div'); d.className='res';
+  d.innerHTML='<h3>걸린 사람 '+hitArr.length+'명</h3><div class="hit">'+
+    hitArr.map(p=>'<span>'+esc(nm(p))+'</span>').join('')+'</div>'+
+    (orderText?'<div class="order">'+esc(orderText)+'</div>':'')+
+    '<button type="button" class="copyres">걸린 사람 @아이디 복사</button>';
+  el.appendChild(d);
+  d.querySelector('.copyres').addEventListener('click',ev=>
+    copyText(hitArr.map(p=>'@'+p[0]).join('\n'),ev.target,'복사됨 · '+hitArr.length+'명'));
+}
+const COLS=['#FF6A2B','#7FD4C1','#F5F2EA','#FFC44D','#8FA9FF','#FF8FA3','#B6F09C','#FFA9E0'];
+
+/* ══ 1. 핀볼 레이스 ══════════════════════════════════
+   긴 세로 코스를 내려가며 카메라가 선두 공을 따라간다. */
+const WW=360;                                   // 코스 가로 폭
+function buildCourse(){
+  const segs=[], pegs=[], mills=[], zones=[];
+  const S=(x1,y1,x2,y2)=>segs.push({x1,y1,x2,y2});
+  // ① 출발 깔때기
+  S(8,150,150,250); S(352,150,212,250);
+  zones.push({y:0,   z:1.00, t:'START'});
+  // ② 핀 구간
+  zones.push({y:260, z:1.05, t:'PEG FIELD'});
+  for(let r=0;r<11;r++){ const y=310+r*52;
+    for(let i=0;i<6;i++) pegs.push({x:40+i*56+(r%2?28:0), y, r:6}); }
+  // ③ 지그재그 통로
+  zones.push({y:940, z:1.18, t:'ZIGZAG'});
+  S(8,960,300,1130); S(352,1180,60,1350); S(8,1400,300,1560);
+  // ④ 풍차 구간
+  zones.push({y:1620,z:1.28, t:'WINDMILL'});
+  mills.push({x:120,y:1760,len:78,arms:4,ang:0,spd:0.038});
+  mills.push({x:250,y:1950,len:78,arms:4,ang:0.5,spd:-0.048});
+  mills.push({x:180,y:2150,len:92,arms:3,ang:1,spd:0.032});
+  pegs.push({x:56,y:1880,r:15},{x:306,y:2080,r:15},{x:64,y:2240,r:13});
+  // ⑤ 분기 통로
+  zones.push({y:2360,z:1.30, t:'SPLIT'});
+  S(8,2360,96,2430); S(352,2360,264,2430);
+  S(122,2440,122,2720); S(238,2440,238,2720);
+  S(8,2780,148,2900); S(352,2780,214,2900);
+  // ⑥ 좁은 통로 + 바람개비
+  zones.push({y:2930,z:1.80, t:'FINAL GATE'});
+  S(148,2900,148,3390); S(214,2900,214,3390);
+  mills.push({x:181,y:3140,len:19,arms:4,ang:0,spd:0.085,gate:1});
+  mills.push({x:181,y:3290,len:19,arms:4,ang:0.8,spd:-0.105,gate:1});
+  // ⑦ 카오스 휠 — 크고 느린 풍차가 방을 통째로 휘젓는다
+  S(148,3390,30,3480); S(214,3390,330,3480);
+  S(8,3480,8,3980); S(352,3480,352,3980);
+  zones.push({y:3460,z:1.32, t:'CHAOS WHEEL'});
+  mills.push({x:180,y:3660,len:150,arms:5,ang:0,spd:0.011,chaos:1});
+  mills.push({x:180,y:3660,len:88, arms:3,ang:1.1,spd:-0.019,chaos:1});
+  S(8,3860,128,3980); S(352,3860,234,3980);
+  S(128,3980,128,4010); S(234,3980,234,4010);
+  mills.push({x:181,y:3945,len:62,arms:4,ang:0.3,spd:-0.013,chaos:1});
+  // ⑧ 결승
+  zones.push({y:4010,z:1.25, t:'FINISH'});
+  return {segs,pegs,mills,zones,finish:4085,H:4160};
+}
+function millSegs(m){
+  const out=[];
+  for(let a=0;a<m.arms;a++){
+    const t=m.ang+a*Math.PI*2/m.arms;
+    out.push({x1:m.x,y1:m.y,x2:m.x+Math.cos(t)*m.len,y2:m.y+Math.sin(t)*m.len,m});
+  }
+  return out;
+}
+function hitSeg(b,s,rest){
+  const dx=s.x2-s.x1, dy=s.y2-s.y1, L2=dx*dx+dy*dy||1;
+  let t=((b.x-s.x1)*dx+(b.y-s.y1)*dy)/L2; t=t<0?0:t>1?1:t;
+  const px=s.x1+dx*t, py=s.y1+dy*t;
+  let nx=b.x-px, ny=b.y-py, d=Math.hypot(nx,ny);
+  if(d>=b.r+3||d===0) return false;
+  nx/=d; ny/=d;
+  b.x=px+nx*(b.r+3.2); b.y=py+ny*(b.r+3.2);
+  const vn=b.vx*nx+b.vy*ny;
+  if(vn<0){ const tx=-ny, ty=nx, vt=b.vx*tx+b.vy*ty, nn=-vn*rest, nt=vt*0.99;
+    b.vx=nx*nn+tx*nt; b.vy=ny*nn+ty*nt; }
+  if(s.m){                                   // 회전 날개는 접선 속도를 실어준다
+    const rx=px-s.m.x, ry=py-s.m.y, k=s.m.chaos?2.6:1.5;
+    b.vx+=-ry*s.m.spd*k+(Math.random()-.5)*1.2;
+    b.vy+= rx*s.m.spd*k-(s.m.chaos?1.1:0.7);
+  }
+  return true;
+}
+function gBall(el){
+  const max=Math.max(1,R.length-1);
+  el.innerHTML='<div class="row"><label>걸릴 인원</label><input type="number" id="bk" min="1" max="'+max+
+    '" value="1"></div><canvas id="bcv"></canvas>'+
+    '<div class="hud"><span id="bzone">READY</span><span><b id="blead">–</b> 선두</span></div>'+
+    '<div class="depth"><i id="bdep"></i></div>'+
+    '<button type="button" class="play" id="brun">공 굴리기</button>'+
+    '<p class="note">깔때기 → 핀 → 지그재그 → 풍차 → 분기 → 좁은 통로 → 마지막 카오스 휠. 거대한 풍차가 공을 되돌려 보내 순위가 끝까지 뒤집힙니다. 화면은 선두 공을 따라갑니다.</p>';
+  const cv=$('bcv');
+  $('brun').addEventListener('click',()=>{
+    cancelAnimationFrame(animRAF);
+    const run=$('brun'), C=buildCourse();
+    const dpr=window.devicePixelRatio||1, cw=cv.clientWidth||330, ch=400;
+    cv.width=cw*dpr; cv.height=ch*dpr; cv.style.height=ch+'px';
+    const g=cv.getContext('2d');
+    const n=R.length, rad=n>26?5:n>16?5.5:6.5;
+    const balls=R.map((p,i)=>({p,i,x:44+((i*41)%(WW-88)),y:-40-((i*23)%260),
+      vx:(Math.random()-.5)*.8,vy:0,r:rad,col:COLS[i%COLS.length],done:false}));
+    balls.forEach(b=>{ b.ly=b.y; b.st=0; });
+    const order=[]; let camY=0, camX=WW/2, zoom=1, t0=performance.now();
+    run.disabled=true; run.textContent='진행 중…';
+
+    const step=()=>{
+      if(!document.body.contains(run)) return;
+      const timeUp=performance.now()-t0>110000;
+      C.mills.forEach(m=>m.ang+=m.spd);
+      const marms=[]; C.mills.forEach(m=>millSegs(m).forEach(a=>marms.push(a)));
+      for(let sub=0;sub<2;sub++){
+        balls.forEach(b=>{
+          if(b.done) return;
+          b.vy+=0.105; if(b.vy>5.5) b.vy=5.5;
+          b.vx*=0.998;
+          b.x+=b.vx*0.5; b.y+=b.vy*0.5;
+          if(b.x<8+b.r){ b.x=8+b.r; b.vx=Math.abs(b.vx)*0.72; }
+          if(b.x>WW-8-b.r){ b.x=WW-8-b.r; b.vx=-Math.abs(b.vx)*0.72; }
+          C.pegs.forEach(pg=>{
+            let nx=b.x-pg.x, ny=b.y-pg.y, d=Math.hypot(nx,ny);
+            if(d<b.r+pg.r&&d>0){ nx/=d; ny/=d;
+              b.x=pg.x+nx*(b.r+pg.r+.4); b.y=pg.y+ny*(b.r+pg.r+.4);
+              const vn=b.vx*nx+b.vy*ny;
+              if(vn<0){ const tx=-ny,ty=nx,vt=b.vx*tx+b.vy*ty,nn=-vn*0.72,nt=vt*0.96;
+                b.vx=nx*nn+tx*nt+(Math.random()-.5)*1.3; b.vy=ny*nn+ty*nt; } }
+          });
+          C.segs.forEach(sg=>{ if(Math.min(sg.y1,sg.y2)-40<b.y&&b.y<Math.max(sg.y1,sg.y2)+40) hitSeg(b,sg,0.62); });
+          marms.forEach(a=>{ if(Math.abs(b.y-a.m.y)<a.m.len+40) hitSeg(b,a,0.66); });
+          if(b.y>=C.finish){ b.done=true; order.push(b.p); }
+        });
+        // 공끼리 밀어내기 — 좁은 통로에서 줄을 서게 만든다
+        for(let a=0;a<balls.length;a++){ const A=balls[a]; if(A.done) continue;
+          for(let c=a+1;c<balls.length;c++){ const B=balls[c]; if(B.done) continue;
+            let dx=B.x-A.x, dy=B.y-A.y, d=Math.hypot(dx,dy), mn=A.r+B.r;
+            if(d<mn&&d>0){ dx/=d; dy/=d; const ov=(mn-d)/2;
+              A.x-=dx*ov; A.y-=dy*ov; B.x+=dx*ov; B.y+=dy*ov;
+              const p2=(B.vx-A.vx)*dx+(B.vy-A.vy)*dy;
+              if(p2<0){ A.vx+=dx*p2*.5; A.vy+=dy*p2*.5; B.vx-=dx*p2*.5; B.vy-=dy*p2*.5; } }
+          } }
+      }
+      balls.forEach(b=>{ if(b.done) return;
+        if(b.y-b.ly<2){ if(++b.st>300){ b.vx+=(Math.random()-.5)*7; b.vy+=3.5; b.st=0; } }
+        else { b.st=0; b.ly=b.y; } });
+      if(timeUp) shuffle(balls.filter(b=>!b.done)).forEach(b=>{ b.done=true; order.push(b.p); });
+
+      // 카메라 — 선두 공 추적 + 구간별 확대
+      const live=balls.filter(b=>!b.done);
+      const lead=live.length?live.reduce((a,b)=>b.y>a.y?b:a):null;
+      const ly=lead?lead.y:C.finish, lx=lead?lead.x:WW/2;
+      let zt=1, zone='FINISH';
+      for(const z of C.zones) if(ly>=z.y){ zt=z.z; zone=z.t; }
+      zoom+=(zt-zoom)*0.05;
+      camY+=(ly-camY)*0.12; camX+=(lx-camX)*0.08;
+      const halfW=cw/2/ (cw/WW*zoom);
+      const cx=Math.min(Math.max(camX,halfW),WW-halfW)||WW/2;
+
+      g.setTransform(dpr,0,0,dpr,0,0);
+      g.fillStyle='#0B3540'; g.fillRect(0,0,cw,ch);
+      const sc=cw/WW*zoom;
+      g.save();
+      g.translate(cw/2,ch*0.40); g.scale(sc,sc); g.translate(-cx,-camY);
+      // 코스 벽
+      g.strokeStyle='rgba(255,255,255,.10)'; g.lineWidth=3;
+      g.beginPath(); g.moveTo(8,0); g.lineTo(8,C.H); g.moveTo(WW-8,0); g.lineTo(WW-8,C.H); g.stroke();
+      // 구간 라벨
+      g.fillStyle='rgba(255,255,255,.11)'; g.font='700 26px sans-serif'; g.textAlign='center';
+      C.zones.forEach(z=>{ if(Math.abs(z.y-camY)<420) g.fillText(z.t,WW/2,z.y+30); });
+      // 결승선
+      g.strokeStyle='#FF6A2B'; g.lineWidth=4; g.setLineDash([9,7]);
+      g.beginPath(); g.moveTo(8,C.finish); g.lineTo(WW-8,C.finish); g.stroke(); g.setLineDash([]);
+      // 핀
+      g.fillStyle='rgba(255,255,255,.28)';
+      C.pegs.forEach(pg=>{ if(Math.abs(pg.y-camY)<400){ g.beginPath(); g.arc(pg.x,pg.y,pg.r,0,7); g.fill(); } });
+      // 고정 벽
+      g.strokeStyle='#7FD4C1'; g.lineWidth=6; g.lineCap='round';
+      C.segs.forEach(sg=>{ if(Math.abs((sg.y1+sg.y2)/2-camY)<460){
+        g.beginPath(); g.moveTo(sg.x1,sg.y1); g.lineTo(sg.x2,sg.y2); g.stroke(); } });
+      // 풍차 / 바람개비
+      C.mills.forEach(m=>{ if(Math.abs(m.y-camY)>m.len+420) return;
+        g.strokeStyle=m.chaos?'#FF8FA3':(m.gate?'#FFC44D':'#FF6A2B');
+        g.lineWidth=m.chaos?12:(m.gate?7:9);
+        millSegs(m).forEach(a=>{ g.beginPath(); g.moveTo(a.x1,a.y1); g.lineTo(a.x2,a.y2); g.stroke(); });
+        g.fillStyle='#F5F2EA'; g.beginPath(); g.arc(m.x,m.y,5,0,7); g.fill(); });
+      // 공 + 아이디 라벨
+      g.font='700 10px sans-serif'; g.textAlign='center';
+      balls.forEach(b=>{ if(b.done||Math.abs(b.y-camY)>430) return;
+        g.fillStyle=b.col; g.beginPath(); g.arc(b.x,b.y,b.r,0,7); g.fill();
+        const lab=nm(b.p).slice(0,9);
+        g.lineWidth=3; g.strokeStyle='rgba(8,42,51,.85)';
+        g.strokeText(lab,b.x,b.y-b.r-4); g.fillStyle=b.col; g.fillText(lab,b.x,b.y-b.r-4); });
+      if(lead){ g.strokeStyle='#FF6A2B'; g.lineWidth=2.5;
+        g.beginPath(); g.arc(lead.x,lead.y,lead.r+5,0,7); g.stroke(); }
+      g.restore();
+
+      $('bzone').textContent=zone;
+      $('blead').textContent=lead?nm(lead.p).slice(0,12):'–';
+      $('bdep').style.width=Math.min(100,ly/C.finish*100)+'%';
+
+      if(order.length<n) animRAF=requestAnimationFrame(step);
+      else{
+        run.disabled=false; run.textContent='다시 굴리기';
+        $('bzone').textContent='RACE OVER';
+        const k=Math.min(max,Math.max(1,+$('bk').value||1));
+        results(el,order.slice(-k).reverse(),'도착 순서 : '+order.map(p=>nm(p)).join(' → '));
+      }
+    };
+    step();
+  });
+}
+
+/* ══ 2. 룰렛 ══ */
+function gWheel(el){
+  const max=Math.max(1,R.length-1);
+  el.innerHTML='<div class="row"><label>뽑을 인원</label><input type="number" id="wk" min="1" max="'+max+
+    '" value="1"></div><canvas id="wcv"></canvas>'+
+    '<button type="button" class="play" id="wrun">돌리기</button>'+
+    '<p class="note">한 명이 뽑히면 그 사람을 빼고 다음 판을 돌립니다.</p>';
+  const cv=$('wcv'); let pool=R.slice(), hits=[], ang=0;
+  const paintW=()=>{
+    const {c,w}=fitCanvas(cv,300), cx=w/2, cy=150, rr=Math.min(cx,cy)-14, n=pool.length;
+    c.clearRect(0,0,w,300);
+    for(let i=0;i<n;i++){
+      const a0=ang+i*2*Math.PI/n, a1=a0+2*Math.PI/n;
+      c.beginPath(); c.moveTo(cx,cy); c.arc(cx,cy,rr,a0,a1); c.closePath();
+      c.fillStyle=COLS[i%COLS.length]; c.fill();
+      if(n<=18){ c.save(); c.translate(cx,cy); c.rotate(a0+Math.PI/n);
+        c.fillStyle='#101416'; c.font='600 11px sans-serif'; c.textAlign='right';
+        c.fillText(nm(pool[i]).slice(0,10),rr-8,4); c.restore(); }
+    }
+    c.beginPath(); c.arc(cx,cy,20,0,7); c.fillStyle='#082A33'; c.fill();
+    c.beginPath(); c.moveTo(cx-11,10); c.lineTo(cx+11,10); c.lineTo(cx,34);
+    c.closePath(); c.fillStyle='#FF6A2B'; c.fill();
+  };
+  paintW();
+  $('wrun').addEventListener('click',()=>{
+    const k=Math.min(max,Math.max(1,+$('wk').value||1));
+    if(hits.length>=k||pool.length<2){ pool=R.slice(); hits=[]; el.querySelector('.res')?.remove(); }
+    cancelAnimationFrame(animRAF);
+    const run=$('wrun'); run.disabled=true;
+    const n=pool.length, win=rnd(n), spin=Math.PI*2*(5+Math.random()*2);
+    const target=-(win*2*Math.PI/n)-(Math.PI/n)-Math.PI/2+spin, from=ang, t0=performance.now(), dur=3600;
+    (function anim(t){
+      if(!document.body.contains(run)) return;
+      const e=Math.min(1,(t-t0)/dur), k2=1-Math.pow(1-e,3);
+      ang=from+(target-from)*k2; paintW();
+      if(e<1) animRAF=requestAnimationFrame(anim);
+      else{
+        hits.push(pool[win]); pool.splice(win,1); ang%=Math.PI*2;
+        run.disabled=false;
+        run.textContent=hits.length>=k?'처음부터 다시':'다음 뽑기 ('+hits.length+'/'+k+')';
+        paintW(); results(el,hits,'');
+      }
+    })(performance.now());
+  });
+}
+function fitCanvas(cv,h){
+  const r=window.devicePixelRatio||1, w=cv.clientWidth||320;
+  cv.width=w*r; cv.height=h*r; cv.style.height=h+'px';
+  const c=cv.getContext('2d'); c.setTransform(r,0,0,r,0,0); return {c,w,h};
+}
+
+/* ══ 3. 악어 이빨 — 위 8 + 아래 8 = 16개 ══ */
+const TLOW=8, TUP=8, TEETH=TLOW+TUP;
+function crocSVG(){
+  let low='';
+  for(let i=0;i<TLOW;i++){ const cx=115+i*33;
+    low+='<g class="tooth" data-i="'+i+'">'+
+      '<polygon points="'+(cx-15)+',161 '+cx+',127 '+(cx+15)+',161" fill="#F5F2EA" stroke="#072A33" stroke-width="4" stroke-linejoin="round"/>'+
+      '<rect x="'+(cx-16.5)+'" y="120" width="33" height="52" fill="transparent"/></g>';
+  }
+  let up='';
+  for(let i=0;i<TUP;i++){ const cx=124+i*33;
+    up+='<g class="tooth up" data-i="'+(TLOW+i)+'">'+
+      '<polygon points="'+(cx-14)+',148 '+cx+',180 '+(cx+14)+',148" fill="#F5F2EA" stroke="#072A33" stroke-width="4" stroke-linejoin="round"/>'+
+      '<rect x="'+(cx-16)+'" y="136" width="32" height="50" fill="transparent"/></g>';
+  }
+  return '<div class="crocwrap"><svg class="croc" viewBox="0 -95 430 375" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="악어 이빨 게임">'+
+    '<rect x="92" y="98" width="248" height="66" rx="14" fill="#A8325A"/>'+
+    '<path d="M35,158 L35,200 Q35,224 64,224 L338,224 Q374,224 380,196 L382,158 Z" fill="#5FBF8F" stroke="#072A33" stroke-width="6" stroke-linejoin="round"/>'+
+    '<path d="M52,224 L52,206 Q52,196 66,196 L330,196 Q352,196 356,208 L358,224 Z" fill="#8FD9B8" opacity=".55"/>'+
+    low+
+    '<g class="upper">'+
+      '<path d="M35,158 L35,104 Q35,82 62,78 L250,70 Q332,66 364,110 L382,150 Q384,158 372,158 Z" fill="#5FBF8F" stroke="#072A33" stroke-width="6" stroke-linejoin="round"/>'+
+      up+
+      '<ellipse cx="98" cy="66" rx="30" ry="26" fill="#5FBF8F" stroke="#072A33" stroke-width="6"/>'+
+      '<circle cx="98" cy="62" r="14" fill="#F5F2EA" stroke="#072A33" stroke-width="4"/>'+
+      '<circle cx="102" cy="60" r="6.5" fill="#072A33"/>'+
+      '<ellipse cx="352" cy="100" rx="8" ry="5.5" fill="#072A33"/>'+
+      '<path d="M120,96 L150,96 M170,92 L200,92 M220,88 L250,88" stroke="#3E9E75" stroke-width="5" stroke-linecap="round"/>'+
+    '</g>'+
+    '<g class="impact">'+
+      '<line x1="240" y1="34" x2="246" y2="8" stroke="#FF6A2B" stroke-width="7" stroke-linecap="round"/>'+
+      '<line x1="300" y1="40" x2="316" y2="16" stroke="#FF6A2B" stroke-width="7" stroke-linecap="round"/>'+
+      '<line x1="352" y1="58" x2="378" y2="42" stroke="#FF6A2B" stroke-width="7" stroke-linecap="round"/>'+
+      '<line x1="180" y1="40" x2="172" y2="14" stroke="#FF6A2B" stroke-width="7" stroke-linecap="round"/>'+
+      '<line x1="392" y1="96" x2="420" y2="90" stroke="#FF6A2B" stroke-width="7" stroke-linecap="round"/>'+
+    '</g>'+
+  '</svg></div>';
+}
+function gCroc(el){
+  const max=Math.max(1,Math.min(TEETH-1,R.length-1));
+  el.innerHTML='<div class="row"><label>걸릴 인원</label><input type="number" id="ck" min="1" max="'+max+
+    '" value="1"></div><button type="button" class="play" id="cstart">게임 시작</button><div id="cbody"></div>'+
+    '<p class="note">차례가 된 사람이 이빨 하나를 누릅니다. 위 '+TUP+'개 + 아래 '+TLOW+'개 = '+TEETH+
+    '개라 최대 '+TEETH+'명까지 한 바퀴 돌 수 있습니다.</p>';
+  $('cstart').addEventListener('click',()=>{
+    const k=Math.min(max,Math.max(1,+$('ck').value||1));
+    const queue=shuffle(R), traps=new Set();
+    while(traps.size<k) traps.add(rnd(TEETH));
+    let qi=0, hits=[], done=false, busy=false;
+    const fresh=$('cbody').cloneNode(false); $('cbody').replaceWith(fresh);
+    fresh.innerHTML='<div class="turn"><small>지금 차례</small><b id="cturn"></b></div>'+crocSVG();
+    const svg=fresh.querySelector('svg.croc');
+    const turn=()=>{ fresh.querySelector('#cturn').textContent=done?'끝!':nm(queue[qi%queue.length]); };
+    turn();
+    fresh.addEventListener('click',e=>{
+      const t=e.target.closest('.tooth');
+      if(!t||done||busy) return;
+      const cl=t.getAttribute('class')||'';
+      if(cl.indexOf('gone')>=0||cl.indexOf('trap')>=0) return;
+      if(traps.has(+t.dataset.i)){
+        t.setAttribute('class',cl+' trap'); busy=true;
+        svg.classList.add('shut','bite');
+        hits.push(queue[qi%queue.length]); qi++;
+        if(hits.length>=k) done=true;
+        results(el,hits,'');
+        setTimeout(()=>svg.classList.remove('bite'),620);
+        setTimeout(()=>{ if(!done) svg.classList.remove('shut'); busy=false; turn(); },1350);
+      } else { t.setAttribute('class',cl+' gone'); qi++; turn(); }
+    });
+    $('cstart').textContent='처음부터 다시';
+  });
+}
+
+/* ══ 4. 랜덤 팀 짜기 ══ */
+function gTeam(el){
+  el.innerHTML='<div class="row"><label>팀 수</label><input type="number" id="tn" min="2" max="'+
+    Math.max(2,Math.floor(R.length/2))+'" value="'+Math.min(4,Math.max(2,Math.floor(R.length/4)||2))+
+    '"><label class="chk"><input type="checkbox" id="tb" checked>남녀 섞기</label></div>'+
+    '<button type="button" class="play" id="trun">팀 짜기</button><div id="tbody"></div>'+
+    '<p class="note">남녀 섞기를 켜면 각 팀의 성비를 최대한 고르게 맞춥니다.</p>';
+  $('trun').addEventListener('click',()=>{
+    const T=Math.max(2,Math.min(+$('tn').value||2,R.length));
+    const teams=Array.from({length:T},()=>[]);
+    if($('tb').checked){
+      let i=0;
+      [shuffle(R.filter(p=>p[2]==='m')),shuffle(R.filter(p=>p[2]==='f'))]
+        .forEach(g=>g.forEach(p=>teams[i++%T].push(p)));
+    } else shuffle(R).forEach((p,i)=>teams[i%T].push(p));
+    $('tbody').innerHTML='<div class="teams">'+teams.map((t,i)=>{
+      const m=t.filter(p=>p[2]==='m').length;
+      return '<div class="team" style="box-shadow:inset 0 0 0 2px '+COLS[i%COLS.length]+'44">'+
+        '<h4 style="color:'+COLS[i%COLS.length]+'">TEAM '+(i+1)+
+        ' <span style="font-size:11px;opacity:.7">남'+m+'·여'+(t.length-m)+'</span></h4><div>'+
+        t.map(p=>esc(nm(p))+' <span style="font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;vertical-align:1px;'+
+          (p[2]==='m'?'background:rgba(255,106,43,.22);color:#FF9A66':'background:rgba(127,212,193,.2);color:#7FD4C1')+
+          '">'+(p[2]==='m'?'남':'여')+'</span>').join('<br>')+'</div></div>';
+    }).join('')+'</div>';
+    $('trun').textContent='다시 짜기';
+  });
+}
+
+restore();
+paint();
+if(window._splitNote){
+  $('log').innerHTML='한 칸에 두 사람이 섞여 있던 기록 <b>'+window._splitNote+
+    '건</b>을 각각 나눴습니다. 명단 관리에서 이름을 확인해 주세요.';
+}
+</script>
+
+
+</body></html>
