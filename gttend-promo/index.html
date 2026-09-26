@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>GRACE TEN Promo</title>
+<style>
+@font-face{font-family:BHS;src:url(fonts/BlackHanSans.ttf)}
+@font-face{font-family:NKR;font-weight:400;src:url(fonts/NotoKR-400.ttf)}
+@font-face{font-family:NKR;font-weight:700;src:url(fonts/NotoKR-700.ttf)}
+@font-face{font-family:NKR;font-weight:900;src:url(fonts/NotoKR-900.ttf)}
+@font-face{font-family:ANT;src:url(fonts/Anton.ttf)}
+@font-face{font-family:ARC;src:url(fonts/ArchivoBlack.ttf)}
+@font-face{font-family:MONO;font-weight:700;src:url(fonts/SpaceMono.ttf)}
+:root{--ink:#05060a;--blue:#1f4bff;--blue2:#3d6bff;--deep:#0a1a6b;--white:#f4f3ee;--yel:#ffd60a}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#000;overflow:hidden}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--ink);color:var(--white);font-family:NKR,sans-serif}
+.abs{position:absolute}
+.full{position:absolute;inset:0}
+.center{display:flex;align-items:center;justify-content:center}
+.scene{position:absolute;inset:0;display:none}
+.bhs{font-family:BHS}
+.ant{font-family:ANT;letter-spacing:.01em}
+.arc{font-family:ARC}
+.mono{font-family:MONO;font-weight:700;letter-spacing:.18em}
+.nowrap{white-space:nowrap}
+.outline{color:transparent;-webkit-text-stroke:3px rgba(244,243,238,.9)}
+.photo{position:absolute;inset:-60px;background-size:cover;background-position:center;filter:grayscale(1) contrast(1.25) brightness(.8);opacity:0}
+.tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,26,107,.35),rgba(5,6,10,.85));mix-blend-mode:normal}
+svg{overflow:visible}
+</style>
+</head>
+<body>
+<div id="stage">
+ <svg width="0" height="0" style="position:absolute">
+  <defs>
+   <path id="spark" d="M0 -50 C6 -14 16 -5 62 0 C16 5 6 14 0 50 C-6 14 -16 5 -62 0 C-16 -5 -6 -14 0 -50Z"/>
+   <filter id="mbx" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur id="mbxd" stdDeviation="0 0"/></filter>
+   <filter id="mby" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur id="mbyd" stdDeviation="0 0"/></filter>
+  </defs>
+ </svg>
+
+ <div id="cam" class="full">
+
+  <!-- ============ S1 INTRO ============ -->
+  <div id="s1" class="scene">
+   <div id="s1glow" class="full" style="background:radial-gradient(circle at 50% 44%,rgba(31,75,255,.55),transparent 55%)"></div>
+   <svg id="s1svg" class="full" viewBox="0 0 1080 1920"></svg>
+   <div id="s1word" class="abs arc nowrap center" style="left:0;right:0;top:1000px;font-size:150px;line-height:1">GTTEND</div>
+   <div id="s1sub" class="abs mono center" style="left:0;right:0;top:1190px;font-size:34px;color:#9aa4c7">RUN CLUB&nbsp;&nbsp;PRESENTS</div>
+  </div>
+
+  <!-- ============ S2 WORDS ============ -->
+  <div id="s2" class="scene">
+   <div id="s2bg" class="full"></div>
+   <div id="s2echo" class="full"></div>
+   <div id="s2word" class="abs bhs nowrap center" style="left:-200px;right:-200px;top:0;bottom:0;font-size:400px;line-height:1"></div>
+   <div id="s2en" class="abs mono" style="left:80px;top:1480px;font-size:40px"></div>
+   <div id="s2num" class="abs ant" style="right:80px;top:1440px;font-size:120px;line-height:1"></div>
+   <div id="s2stack" class="abs" style="left:90px;top:520px"></div>
+  </div>
+
+  <!-- ============ S3 TITLE ============ -->
+  <div id="s3" class="scene">
+   <div id="s3photo" class="photo" style="background-image:url(img/run.jpg)"></div>
+   <div id="s3rays" class="abs" style="left:-900px;top:-500px;width:2880px;height:2880px;border-radius:50%;
+     background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(61,107,255,.55) 0deg 4deg,transparent 4deg 12deg)"></div>
+   <div class="full" style="background:radial-gradient(circle at 50% 46%,rgba(170,195,255,.85) 0%,rgba(31,75,255,.55) 16%,rgba(10,26,107,.4) 38%,rgba(5,6,10,.96) 72%)"></div>
+   <div id="s3club" class="abs arc center nowrap" style="left:0;right:0;top:470px;font-size:58px;font-style:italic">GTTEND RUN CLUB</div>
+   <div id="s3title" class="abs" style="left:0;right:0;top:560px;transform-origin:50% 50%"></div>
+   <div id="s3line" class="abs center mono nowrap" style="left:0;right:0;top:1330px;font-size:52px;letter-spacing:.14em"></div>
+   <svg id="s3stars" class="abs" style="left:0;top:1420px" width="1080" height="160" viewBox="0 0 1080 160"></svg>
+   <div id="s3kr" class="abs center nowrap" style="left:0;right:0;top:1600px;font-size:54px;font-weight:900"></div>
+  </div>
+
+  <!-- ============ S4 STATS ============ -->
+  <div id="s4" class="scene">
+   <div class="full" style="background:linear-gradient(180deg,#05060a 0%,#0a1440 100%)"></div>
+   <div id="s4head" class="abs mono" style="left:90px;top:330px;font-size:34px;color:var(--blue2)">HOW IT WORKS</div>
+   <div id="s4headkr" class="abs bhs" style="left:86px;top:380px;font-size:110px;line-height:1.1">룰은 단순하다.</div>
+   <div id="s4rows" class="abs" style="left:90px;top:620px;right:90px"></div>
+  </div>
+
+  <!-- ============ S5 WORKOUT ============ -->
+  <div id="s5" class="scene">
+   <div id="s5bg" class="full"></div>
+   <div id="s5photo" class="photo"></div>
+   <div id="s5tint" class="tint" style="opacity:0"></div>
+   <div id="s5ghost" class="abs ant outline nowrap" style="top:430px;left:0;font-size:560px;line-height:1;opacity:.18"></div>
+   <div id="s5top" class="abs" style="left:90px;right:90px;top:250px;display:flex;justify-content:space-between;align-items:flex-end">
+    <div><div class="mono" style="font-size:30px;color:var(--blue2)">WORKOUT</div><div id="s5st" class="ant" style="font-size:96px;line-height:1">STATION 01</div></div>
+    <div id="s5badge" class="ant" style="font-size:44px;background:var(--blue);padding:10px 22px;line-height:1.1">TOTAL 2KM RUN</div>
+   </div>
+   <svg id="s5fig" class="abs" style="left:190px;top:480px" width="700" height="700" viewBox="0 0 400 400"></svg>
+   <div id="s5name" class="abs" style="left:90px;top:1180px;right:90px">
+     <div id="s5kr" class="bhs nowrap" style="font-size:210px;line-height:1"></div>
+   </div>
+   <div id="s5spec" class="abs" style="left:90px;top:1405px;display:flex;align-items:center;gap:26px"></div>
+   <div id="s5bar" class="abs" style="left:90px;right:90px;top:1600px"></div>
+   <div id="s5sum" class="full" style="visibility:hidden"></div>
+  </div>
+
+  <!-- ============ S6 RULES ============ -->
+  <div id="s6" class="scene">
+   <div id="s6bg" class="full" style="background:#05060a"></div>
+   <div id="s6grid" class="full" style="opacity:.08;background-image:linear-gradient(#fff 2px,transparent 2px),linear-gradient(90deg,#fff 2px,transparent 2px);background-size:90px 90px"></div>
+   <div class="abs mono" style="left:90px;top:300px;font-size:34px;color:var(--blue2)">RULES</div>
+   <div id="s6num" class="abs ant" style="left:90px;top:340px;font-size:200px;line-height:1"></div>
+   <div id="s6vis" class="abs" style="left:90px;right:90px;top:700px;height:420px"></div>
+   <div id="s6kr" class="abs bhs" style="left:90px;right:60px;top:1170px;font-size:128px;line-height:1.12"></div>
+   <div id="s6en" class="abs mono" style="left:90px;top:1520px;font-size:34px;color:#9aa4c7"></div>
+  </div>
+
+  <!-- ============ S7 COMPLETE 10 ============ -->
+  <div id="s7" class="scene">
+   <div id="s7bg" class="full" style="background:var(--blue)"></div>
+   <div id="s7grid" class="abs" style="left:90px;right:90px;top:250px;display:grid;grid-template-columns:repeat(5,1fr);gap:22px"></div>
+   <div id="s7a" class="abs ant nowrap" style="left:60px;top:690px;font-size:186px;line-height:.95">COMPLETE 10.</div>
+   <div id="s7b" class="abs ant nowrap" style="left:60px;top:900px;font-size:186px;line-height:.95"><span style="background:#05060a;padding:0 24px">FINISH FIRST.</span></div>
+   <div id="s7kr" class="abs nowrap" style="left:90px;top:1250px;font-size:66px;font-weight:900;line-height:1.35"></div>
+   <div id="s7stamp" class="abs center bhs" style="left:600px;top:1440px;width:380px;height:220px;border:12px solid #fff;font-size:150px;color:#fff;border-radius:18px">완료</div>
+  </div>
+
+  <!-- ============ S8 HOOK ============ -->
+  <div id="s8" class="scene">
+   <div class="full" style="background:var(--white)"></div>
+   <div id="s8a" class="abs bhs" style="left:90px;top:620px;font-size:150px;line-height:1.15;color:#05060a"></div>
+   <div id="s8b" class="abs bhs" style="left:90px;top:1000px;right:60px;font-size:150px;line-height:1.15;color:#05060a"></div>
+  </div>
+
+  <!-- ============ S9 INFO ============ -->
+  <div id="s9" class="scene">
+   <div class="full" style="background:#05060a"></div>
+   <div id="s9rays" class="abs" style="left:-900px;top:-900px;width:2880px;height:2880px;border-radius:50%;opacity:.5;
+     background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(31,75,255,.5) 0deg 3deg,transparent 3deg 10deg)"></div>
+   <div class="full" style="background:radial-gradient(circle at 50% 30%,transparent 0%,rgba(5,6,10,.7) 45%,#05060a 75%)"></div>
+   <div id="s9lbl" class="abs mono" style="left:90px;top:300px;font-size:34px;color:var(--blue2)">SAVE THE DATE</div>
+   <div id="s9date" class="abs ant nowrap" style="left:80px;top:340px;font-size:470px;line-height:1"></div>
+   <div id="s9day" class="abs" style="left:90px;top:860px;display:flex;gap:24px;align-items:center"></div>
+   <div id="s9time" class="abs" style="left:90px;top:1010px;right:90px"></div>
+   <div id="s9place" class="abs" style="left:90px;top:1240px;right:90px"></div>
+   <div id="s9mq" class="abs" style="left:0;right:0;top:1660px;height:90px;overflow:hidden;border-top:2px solid rgba(255,255,255,.2);border-bottom:2px solid rgba(255,255,255,.2)">
+     <div id="s9mqi" class="abs mono nowrap" style="top:24px;left:0;font-size:36px;letter-spacing:.12em;color:#c9cfe6"></div>
+   </div>
+  </div>
+
+  <!-- ============ S10 END ============ -->
+  <div id="s10" class="scene">
+   <div id="s10photo" class="photo" style="background-image:url(img/duo.jpg)"></div>
+   <div id="s10glow" class="full" style="background:radial-gradient(circle at 50% 40%,rgba(31,75,255,.6),rgba(5,6,10,.9) 55%,#05060a 80%)"></div>
+   <svg id="s10svg" class="full" viewBox="0 0 1080 1920"></svg>
+   <div id="s10word" class="abs arc nowrap center" style="left:0;right:0;top:840px;font-size:150px;line-height:1">GTTEND</div>
+   <div id="s10sub" class="abs mono center" style="left:0;right:0;top:1015px;font-size:34px;color:#9aa4c7">RUN CLUB</div>
+   <div id="s10tag" class="abs bhs center nowrap" style="left:0;right:0;top:1180px;font-size:120px"></div>
+   <div id="s10dm" class="abs center" style="left:0;right:0;top:1400px"></div>
+   <div id="s10sweep" class="abs" style="top:-200px;width:260px;height:2400px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:rotate(18deg)"></div>
+  </div>
+
+  <!-- transition slabs -->
+  <div id="slabs" class="full" style="pointer-events:none"></div>
+ </div>
+
+ <!-- ============ HUD (not affected by camera) ============ -->
+ <div id="hud" class="full" style="pointer-events:none">
+  <svg class="full" viewBox="0 0 1080 1920" id="hudsvg"></svg>
+  <div id="hudtl" class="abs mono nowrap" style="left:92px;top:118px;font-size:26px;display:flex;align-items:center;gap:14px"></div>
+  <div id="hudtr" class="abs mono nowrap" style="right:92px;top:112px;font-size:40px;letter-spacing:.06em"></div>
+  <div id="hudbl" class="abs mono nowrap" style="left:92px;bottom:118px;font-size:24px;color:#aab"></div>
+  <div id="hudbr" class="abs mono nowrap" style="right:92px;bottom:118px;font-size:24px;color:#aab"></div>
+ </div>
+
+ <canvas id="grain" width="540" height="960" class="full" style="width:1080px;height:1920px;opacity:.13;mix-blend-mode:overlay;pointer-events:none"></canvas>
+ <div class="full" style="pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)"></div>
+ <div id="flash" class="full" style="background:#fff;opacity:0;pointer-events:none"></div>
+</div>
+
+<script>
+// ================================================================ utilities
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, x) => a + (b - a) * x;
+const E = {
+  lin: x => x,
+  outCubic: x => 1 - Math.pow(1 - x, 3),
+  inCubic: x => x * x * x,
+  inOutCubic: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  outExpo: x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x),
+  inExpo: x => x <= 0 ? 0 : Math.pow(2, 10 * x - 10),
+  inOutExpo: x => x <= 0 ? 0 : x >= 1 ? 1 : x < .5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2,
+  outBack: x => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  outElastic: x => x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - .75) * (2 * Math.PI / 3)) + 1,
+  outQuint: x => 1 - Math.pow(1 - x, 5),
+};
+// progress of t through [t0,t1] with easing
+const p = (t, t0, t1, e = E.lin) => e(clamp((t - t0) / (t1 - t0)));
+// value between a and b
+const k = (t, t0, t1, a, b, e = E.outCubic) => lerp(a, b, p(t, t0, t1, e));
+const css = (el, o) => { for (const key in o) el.style[key] = o[key]; };
+const show = (el, v) => el.style.visibility = v ? 'visible' : 'hidden';
+const SVGNS = 'http://www.w3.org/2000/svg';
+const sv = (tag, attrs = {}, parent) => { const e = document.createElementNS(SVGNS, tag); for (const a in attrs) e.setAttribute(a, attrs[a]); if (parent) parent.appendChild(e); return e; };
+const div = (html, style = '', parent, cls = '') => { const d = document.createElement('div'); d.innerHTML = html; if (style) d.style.cssText = style; if (cls) d.className = cls; if (parent) parent.appendChild(d); return d; };
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const noise1 = t => { const i = Math.floor(t), f = t - i, u = f * f * (3 - 2 * f); return lerp(hash(i), hash(i + 1), u) * 2 - 1; };
+const chroma = (d, a = .85) => d < .3 ? 'none' : `${-d}px 0 rgba(255,40,90,${a}), ${d}px 0 rgba(40,200,255,${a})`;
+const BEAT = .5;
+
+// ================================================================ timeline
+const T = {
+  s1: [0, 2], s2: [2, 4.5], s3: [4.5, 7.5], s4: [7.5, 9.5], s5: [9.5, 15.5],
+  s6: [15.5, 18.5], s7: [18.5, 20], s8: [20, 21.5], s9: [21.5, 23.5], s10: [23.5, 25.01],
+};
+const HITS = [2, 4.5, 7.5, 9.5, 18.5, 23.5];      // big camera/flash hits
+const SMALL = [2.5, 3, 3.5, 4, 10.5, 11.5, 12.5, 13.5, 14.5, 16.5, 17.5, 19, 21.5, 22, 22.5];
+
+// ================================================================ build: S1 / S10 logo sparks
+function buildSparks(svg, cx, cy, gap, size) {
+  const out = [];
+  for (let i = 0; i < 3; i++) {
+    const g = sv('g', {}, svg);
+    const ring = sv('circle', { cx: 0, cy: 0, r: 10, fill: 'none', stroke: '#3d6bff', 'stroke-width': 6 }, g);
+    const u = sv('use', { href: '#spark', fill: '#f4f3ee' }, g);
+    out.push({ g, ring, u, x: cx + (i - 1) * gap, y: cy, size });
+  }
+  return out;
+}
+const s1sparks = buildSparks($('s1svg'), 540, 820, 300, 1.95);
+const s10sparks = buildSparks($('s10svg'), 540, 660, 250, 1.6);
+
+// ================================================================ S2 words
+const WORDS = [
+  { kr: '뛰고,', en: 'RUN', bg: '#05060a', fg: '#f4f3ee' },
+  { kr: '밀고,', en: 'PUSH', bg: '#1f4bff', fg: '#f4f3ee' },
+  { kr: '당기고,', en: 'PULL', bg: '#f4f3ee', fg: '#05060a' },
+  { kr: '들고.', en: 'LIFT', bg: '#05060a', fg: '#3d6bff' },
+];
+const s2echo = [];
+for (let i = 0; i < 7; i++) s2echo.push(div('', 'position:absolute;left:-400px;right:-400px;text-align:center;font-size:400px;line-height:1;white-space:nowrap', $('s2echo'), 'bhs outline'));
+const s2stackRows = WORDS.map((w, i) => div(w.kr, 'font-size:190px;line-height:1.08;white-space:nowrap', $('s2stack'), 'bhs'));
+const s2tail = div('총 <span style="color:#3d6bff">10</span>개의 미션.', 'font-size:84px;font-weight:900;margin-top:40px;white-space:nowrap', $('s2stack'));
+
+// ================================================================ S3 title
+const TITLE = [['G', 'R', 'A', 'C', 'E'], ['T', 'E', 'N']];
+const titleLetters = [];
+{
+  TITLE.forEach((row, r) => {
+    const line = div('', `display:flex;justify-content:center;font-family:ANT;font-size:${r ? 400 : 330}px;line-height:${r ? .98 : .98};font-style:normal;transform:skewX(-9deg);white-space:nowrap`, $('s3title'));
+    row.forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.textContent = ch; s.style.display = 'inline-block';
+      s.style.color = r ? '#f4f3ee' : '#f4f3ee';
+      line.appendChild(s);
+      titleLetters.push({ el: s, r, i, n: row.length });
+    });
+  });
+}
+const s3line = $('s3line');
+const s3lineL = div('', 'height:4px;background:#f4f3ee;width:140px;margin-right:30px', s3line);
+const s3lineT = div('HYBRID SESSION', '', s3line);
+const s3lineR = div('', 'height:4px;background:#f4f3ee;width:140px;margin-left:30px', s3line);
+const s3stars = [0, 1, 2].map(i => { const g = sv('g', {}, $('s3stars')); sv('use', { href: '#spark', fill: '#ffd60a' }, g); return g; });
+$('s3kr').innerHTML = '<span>그레이스 텐 <span style="color:#3d6bff">:</span> 하이브리드 세션</span>';
+
+// ================================================================ S4 stats
+const STATS = [
+  { n: 8, kr: '팀', en: 'TEAMS' },
+  { n: 2, kr: '인 1팀', en: 'PEOPLE / TEAM' },
+  { n: 10, kr: '개의 체크', en: 'CHECKS' },
+  { n: 1, kr: '개의 목표', en: 'GOAL' },
+];
+const s4rows = STATS.map((s, i) => {
+  const row = div('', 'position:relative;height:250px;border-top:3px solid rgba(255,255,255,.18);overflow:hidden', $('s4rows'));
+  const inner = div('', 'position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;gap:40px', row);
+  const num = div('', 'font-family:ANT;font-size:230px;line-height:1;color:#3d6bff;width:300px;text-align:right;height:240px;overflow:hidden;position:relative', inner);
+  const reel = div('', 'position:absolute;right:0;top:0', num);
+  for (let d = 0; d <= s.n; d++) div(String(d), 'height:240px;line-height:240px', reel);
+  const lbl = div(`<div style="font-size:96px;font-weight:900;line-height:1.05;white-space:nowrap">${s.kr}</div><div class="mono" style="font-size:28px;color:#9aa4c7;margin-top:10px">${s.en}</div>`, '', inner);
+  const bar = div('', 'position:absolute;left:0;top:-3px;height:3px;background:#3d6bff;width:0', row);
+  return { row, inner, reel, lbl, bar, n: s.n };
+});
+
+// ================================================================ pictograms
+// joints: h(head) n(neck) p(pelvis) le lh re rh lk lf rk rf  (l = near/front limb)
+const POSES = {
+  run: [
+    { h: [222, 78], n: [212, 118], p: [190, 215], le: [245, 160], lh: [280, 128], re: [160, 165], rh: [132, 205], lk: [252, 252], lf: [236, 336], rk: [160, 272], rf: [104, 298] },
+    { h: [222, 72], n: [212, 112], p: [192, 208], le: [168, 158], lh: [140, 196], re: [244, 158], rh: [276, 124], lk: [158, 268], lf: [102, 290], rk: [256, 246], rf: [240, 332] },
+  ],
+  row: [
+    { h: [238, 150], n: [222, 185], p: [165, 285], le: [262, 232], lh: [298, 238], re: [262, 232], rh: [298, 238], lk: [238, 212], lf: [300, 296], rk: [238, 212], rf: [300, 296] },
+    { h: [168, 148], n: [178, 185], p: [222, 285], le: [150, 238], lh: [212, 244], re: [150, 238], rh: [212, 244], lk: [290, 262], lf: [318, 300], rk: [290, 262], rf: [318, 300] },
+  ],
+  ski: [
+    { h: [205, 88], n: [205, 126], p: [198, 222], le: [228, 80], lh: [248, 46], re: [228, 80], rh: [248, 46], lk: [212, 290], lf: [200, 360], rk: [212, 290], rf: [200, 360] },
+    { h: [262, 160], n: [238, 186], p: [170, 248], le: [262, 238], lh: [248, 290], re: [262, 238], rh: [248, 290], lk: [230, 298], lf: [206, 360], rk: [230, 298], rf: [206, 360] },
+  ],
+  lunge: [
+    { h: [200, 58], n: [200, 98], p: [200, 190], le: [172, 146], lh: [186, 190], re: [228, 146], rh: [214, 190], lk: [232, 262], lf: [250, 348], rk: [172, 270], rf: [142, 348] },
+    { h: [200, 118], n: [200, 158], p: [200, 250], le: [172, 206], lh: [186, 250], re: [228, 206], rh: [214, 250], lk: [270, 252], lf: [272, 348], rk: [168, 338], rf: [104, 348] },
+  ],
+  squat: [
+    { h: [200, 62], n: [200, 102], p: [200, 200], le: [166, 150], lh: [200, 136], re: [234, 150], rh: [200, 136], lk: [180, 278], lf: [172, 352], rk: [220, 278], rf: [228, 352] },
+    { h: [200, 150], n: [200, 190], p: [200, 282], le: [160, 232], lh: [200, 214], re: [240, 232], rh: [200, 214], lk: [140, 282], lf: [160, 352], rk: [260, 282], rf: [240, 352] },
+  ],
+};
+const figSvg = $('s5fig');
+const figEquip = sv('g', {}, figSvg);
+const figSpeed = sv('g', {}, figSvg);
+const FIG = {};
+const mkLine = (w, col) => sv('line', { 'stroke-width': w, stroke: col, 'stroke-linecap': 'round' }, figSvg);
+FIG.rUpA = mkLine(24, '#8e93a8'); FIG.rLoA = mkLine(22, '#8e93a8');
+FIG.rUpL = mkLine(30, '#8e93a8'); FIG.rLoL = mkLine(28, '#8e93a8'); FIG.rSh = mkLine(38, '#15318f');
+FIG.torso = mkLine(46, '#f4f3ee');
+FIG.lUpL = mkLine(30, '#f4f3ee'); FIG.lLoL = mkLine(28, '#f4f3ee'); FIG.lSh = mkLine(40, '#1f4bff'); FIG.hipSh = mkLine(46, '#1f4bff');
+FIG.lUpA = mkLine(24, '#f4f3ee'); FIG.lLoA = mkLine(22, '#f4f3ee');
+FIG.head = sv('circle', { r: 27, fill: '#f4f3ee' }, figSvg);
+const setL = (l, a, b) => { l.setAttribute('x1', a[0]); l.setAttribute('y1', a[1]); l.setAttribute('x2', b[0]); l.setAttribute('y2', b[1]); };
+const mix2 = (a, b, x) => [lerp(a[0], b[0], x), lerp(a[1], b[1], x)];
+function drawFig(pose) {
+  const P = pose;
+  const along = (a, b, x) => mix2(a, b, x);
+  setL(FIG.rUpA, P.n, P.re); setL(FIG.rLoA, P.re, P.rh);
+  setL(FIG.rUpL, P.p, P.rk); setL(FIG.rLoL, P.rk, P.rf); setL(FIG.rSh, P.p, along(P.p, P.rk, .5));
+  const tTop = along(P.n, P.p, .02);
+  setL(FIG.torso, tTop, P.p);
+  setL(FIG.lUpL, P.p, P.lk); setL(FIG.lLoL, P.lk, P.lf); setL(FIG.lSh, P.p, along(P.p, P.lk, .5));
+  setL(FIG.hipSh, along(P.p, P.n, .12), P.p);
+  setL(FIG.lUpA, P.n, P.le); setL(FIG.lLoA, P.le, P.lh);
+  FIG.head.setAttribute('cx', P.h[0]); FIG.head.setAttribute('cy', P.h[1]);
+}
+function posed(name, x) {
+  const [A, B] = POSES[name], o = {};
+  for (const j in A) o[j] = mix2(A[j], B[j], x);
+  return o;
+}
+
+// ================================================================ S5 stations
+const STATIONS = [
+  { id: 'run', kr: '달리기', en: 'RUN', dist: '500', unit: 'm', x: 4, bg: '#05060a' },
+  { id: 'row', kr: '로잉', en: 'ROW', dist: '500', unit: 'm', x: 1, bg: '#0b1b73' },
+  { id: 'ski', kr: '스키', en: 'SKI', dist: '500', unit: 'm', x: 1, bg: '#05060a' },
+  { id: 'lunge', kr: '런지', en: 'LUNGE', dist: '50', unit: 'reps', x: 2, bg: '#0b1b73' },
+  { id: 'squat', kr: '스쿼트', en: 'SQUAT', dist: '50', unit: 'reps', x: 2, bg: '#05060a' },
+];
+const ST0 = 9.5, STD = 1.0;
+const specNum = div('', 'font-family:ANT;font-size:170px;line-height:1', $('s5spec'));
+const specUnit = div('', 'font-family:ANT;font-size:80px;line-height:1;color:#9aa4c7;align-self:flex-end;margin-bottom:22px', $('s5spec'));
+const specX = div('', 'font-family:ANT;font-size:120px;line-height:1;background:#1f4bff;padding:14px 30px 10px', $('s5spec'));
+// check bar
+const barHead = div('', 'display:flex;justify-content:space-between;margin-bottom:22px', $('s5bar'));
+const barL = div('CHECKS', 'font-size:30px', barHead, 'mono');
+const barR = div('', 'font-size:30px', barHead, 'mono');
+const barCells = div('', 'display:grid;grid-template-columns:repeat(10,1fr);gap:12px', $('s5bar'));
+const cells = [];
+for (let i = 0; i < 10; i++) {
+  const c = div('', 'height:74px;border:3px solid rgba(255,255,255,.35);position:relative;overflow:hidden', barCells);
+  const f = div('', 'position:absolute;inset:0;background:#1f4bff;transform-origin:0 50%;transform:scaleX(0)', c);
+  const n = div(String(i + 1).padStart(2, '0'), 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px', c, 'mono');
+  cells.push({ c, f, n });
+}
+// cell fill times: run 1-4, row 5, ski 6, lunge 7-8, squat 9-10
+const cellT = [];
+{ let idx = 0; STATIONS.forEach((s, si) => { for (let j = 0; j < s.x; j++) cellT[idx++] = ST0 + si * STD + .05 + j * .07; }); }
+// summary (14.5-15.5): five mini figures
+const sumWrap = $('s5sum');
+const sumTitle = div('10 / 10', 'position:absolute;left:0;right:0;top:500px;text-align:center;font-family:ANT;font-size:260px;line-height:1', sumWrap);
+const sumSub = div('<span style="background:#1f4bff;padding:6px 22px">TOTAL 2KM RUN</span>', 'position:absolute;left:0;right:0;top:800px;text-align:center;font-family:ANT;font-size:70px', sumWrap);
+const sumRow = div('', 'position:absolute;left:60px;right:60px;top:960px;display:flex;justify-content:space-between', sumWrap);
+const sumItems = STATIONS.map(s => {
+  const it = div(`<div style="font-family:ANT;font-size:64px;line-height:1">${s.en}</div><div class="mono" style="font-size:24px;color:#9aa4c7;margin-top:8px">${s.dist}${s.unit === 'm' ? 'M' : ' REPS'} ×${s.x}</div>`, 'text-align:center;width:190px', sumRow);
+  return it;
+});
+
+// equipment drawing per station
+function drawEquip(id, x, t) {
+  figEquip.innerHTML = ''; figSpeed.innerHTML = '';
+  const st = { stroke: '#f4f3ee', 'stroke-width': 10, 'stroke-linecap': 'round', fill: 'none' };
+  if (id === 'run') {
+    for (let i = 0; i < 5; i++) {
+      const y = 110 + i * 34, off = ((t * 900 + i * 137) % 260);
+      sv('line', { x1: 110 - off, y1: y, x2: 40 - off + 60, y2: y, stroke: '#3d6bff', 'stroke-width': 8, 'stroke-linecap': 'round', opacity: 1 - off / 260 }, figSpeed);
+    }
+    sv('line', { x1: 20, y1: 360, x2: 380, y2: 360, stroke: 'rgba(255,255,255,.25)', 'stroke-width': 4 }, figEquip);
+  }
+  if (id === 'row') {
+    sv('line', { ...st, x1: 60, y1: 320, x2: 340, y2: 320 }, figEquip);
+    sv('rect', { x: lerp(125, 182, x), y: 290, width: 80, height: 18, rx: 6, fill: '#f4f3ee' }, figEquip);
+    sv('circle', { cx: 352, cy: 262, r: 44, fill: 'none', stroke: '#f4f3ee', 'stroke-width': 10 }, figEquip);
+    const a = t * 14; sv('line', { x1: 352, y1: 262, x2: 352 + Math.cos(a) * 30, y2: 262 + Math.sin(a) * 30, stroke: '#3d6bff', 'stroke-width': 8, 'stroke-linecap': 'round' }, figEquip);
+    const P = posed('row', x);
+    sv('line', { x1: P.lh[0], y1: P.lh[1], x2: 322, y2: 256, stroke: '#3d6bff', 'stroke-width': 4 }, figEquip);
+    sv('line', { ...st, x1: 312, y1: 300, x2: 330, y2: 320 }, figEquip);
+  }
+  if (id === 'ski') {
+    sv('line', { ...st, x1: 318, y1: 20, x2: 318, y2: 362 }, figEquip);
+    sv('line', { ...st, x1: 150, y1: 368, x2: 350, y2: 368 }, figEquip);
+    sv('line', { ...st, x1: 318, y1: 22, x2: 290, y2: 22 }, figEquip);
+    const P = posed('ski', x);
+    sv('line', { x1: 290, y1: 26, x2: P.lh[0], y2: P.lh[1], stroke: '#3d6bff', 'stroke-width': 5 }, figEquip);
+  }
+  if (id === 'lunge' || id === 'squat') {
+    sv('line', { x1: 40, y1: 362, x2: 360, y2: 362, stroke: 'rgba(255,255,255,.25)', 'stroke-width': 4 }, figEquip);
+  }
+}
+
+// ================================================================ S6 rules
+const RULES = [
+  { n: '04', kr: '순서는<br><span class="hl">자유롭게.</span>', en: 'ANY ORDER · YOUR STRATEGY' },
+  { n: '06', kr: '둘이서<br><span class="hl">나눠서.</span>', en: '500M = 250M + 250M' },
+  { n: '10', kr: '외부 도움 없이,<br><span class="hl">오직 둘이서.</span>', en: 'NO OUTSIDE HELP' },
+];
+const RS = 15.5, RD = 1.0;
+const s6vis = $('s6vis');
+// rule 1 vis: 10 chips shuffling
+const chipWrap = div('', 'position:absolute;inset:0', s6vis);
+const chips = [];
+for (let i = 0; i < 10; i++) chips.push(div(String(i + 1).padStart(2, '0'), 'position:absolute;width:160px;height:160px;border:4px solid #f4f3ee;display:flex;align-items:center;justify-content:center;font-family:ANT;font-size:80px', chipWrap));
+const perm = [3, 7, 0, 9, 5, 1, 8, 2, 6, 4];
+// rule 2 vis: split bar
+const splitWrap = div('', 'position:absolute;inset:0', s6vis);
+const splitTop = div('500M', 'position:absolute;left:0;right:0;top:40px;height:150px;background:#f4f3ee;color:#05060a;font-family:ANT;font-size:96px;display:flex;align-items:center;justify-content:center', splitWrap);
+const splitA = div('250M', 'position:absolute;left:0;top:230px;height:150px;background:#1f4bff;font-family:ANT;font-size:90px;display:flex;align-items:center;justify-content:center;overflow:hidden', splitWrap);
+const splitB = div('250M', 'position:absolute;top:230px;height:150px;background:#f4f3ee;color:#05060a;font-family:ANT;font-size:90px;display:flex;align-items:center;justify-content:center;overflow:hidden', splitWrap);
+// rule 3 vis: two dots + line
+const duoWrap = div('', 'position:absolute;inset:0', s6vis);
+const duoSvg = sv('svg', { width: 900, height: 420, viewBox: '0 0 900 420' }, duoWrap);
+const duoLine = sv('line', { x1: 250, y1: 210, x2: 650, y2: 210, stroke: '#1f4bff', 'stroke-width': 14, 'stroke-linecap': 'round' }, duoSvg);
+const duoA = sv('circle', { cx: 250, cy: 210, r: 110, fill: '#f4f3ee' }, duoSvg);
+const duoB = sv('circle', { cx: 650, cy: 210, r: 110, fill: '#1f4bff' }, duoSvg);
+const duoTA = sv('text', { x: 250, y: 245, 'text-anchor': 'middle', 'font-family': 'ANT', 'font-size': 110, fill: '#05060a' }, duoSvg); duoTA.textContent = 'A';
+const duoTB = sv('text', { x: 650, y: 245, 'text-anchor': 'middle', 'font-family': 'ANT', 'font-size': 110, fill: '#f4f3ee' }, duoSvg); duoTB.textContent = 'B';
+const duoX = [];
+for (let i = 0; i < 3; i++) {
+  const g = sv('g', {}, duoSvg);
+  sv('circle', { cx: 0, cy: 0, r: 40, fill: 'none', stroke: 'rgba(255,255,255,.35)', 'stroke-width': 5, 'stroke-dasharray': '10 8' }, g);
+  sv('line', { x1: -26, y1: -26, x2: 26, y2: 26, stroke: '#ff3b5c', 'stroke-width': 8, 'stroke-linecap': 'round' }, g);
+  sv('line', { x1: 26, y1: -26, x2: -26, y2: 26, stroke: '#ff3b5c', 'stroke-width': 8, 'stroke-linecap': 'round' }, g);
+  duoX.push(g);
+}
+const style = document.createElement('style');
+style.textContent = `.hl{position:relative;display:inline-block;z-index:0}.hl::before{content:"";position:absolute;left:-10px;right:-10px;bottom:6px;height:44%;background:#1f4bff;z-index:-1;transform-origin:0 50%;transform:scaleX(var(--hl,0))}`;
+document.head.appendChild(style);
+
+// ================================================================ S7
+const s7cells = [];
+for (let i = 0; i < 10; i++) {
+  const c = div('', 'height:150px;border:5px solid rgba(255,255,255,.6);position:relative', $('s7grid'));
+  const svg = sv('svg', { width: '100%', height: '100%', viewBox: '0 0 100 100', style: 'position:absolute;inset:0' }, c);
+  const pth = sv('path', { d: 'M24 52 L43 70 L78 30', fill: 'none', stroke: '#fff', 'stroke-width': 11, 'stroke-linecap': 'square', 'stroke-dasharray': 90, 'stroke-dashoffset': 90 }, svg);
+  s7cells.push({ c, pth });
+}
+$('s7kr').innerHTML = '총 10개의 미션을<br>가장 빠르게 <span style="background:#fff;color:#1f4bff;padding:0 14px">COMPLETE</span> 하라.';
+
+// ================================================================ S8 hook
+const HOOK_A = ['연휴에', '먹을', '거라면,'];
+const HOOK_B = ['일단', '태울', '자리부터', '예약하세요'];
+const hookA = HOOK_A.map(w => { const s = document.createElement('span'); s.textContent = w + ' '; s.style.display = 'inline-block'; s.style.marginRight = '28px'; $('s8a').appendChild(s); return s; });
+const hookB = HOOK_B.map((w, i) => { const s = document.createElement('span'); s.innerHTML = w === '태울' ? '<span style="color:#1f4bff">태울</span>' : w; s.style.display = 'inline-block'; s.style.marginRight = '28px'; $('s8b').appendChild(s); return s; });
+const flame = document.createElement('span'); flame.textContent = '🔥'; flame.style.cssText = 'display:inline-block;font-family:"Noto Color Emoji";font-size:130px'; $('s8b').appendChild(flame);
+
+// ================================================================ S9 info
+const dateChars = '9/27'.split('').map(ch => { const s = document.createElement('span'); s.textContent = ch; s.style.display = 'inline-block'; $('s9date').appendChild(s); return s; });
+const s9sun = div('SUN', 'font-family:ANT;font-size:110px;line-height:1;background:#1f4bff;padding:8px 26px 4px', $('s9day'));
+const s9sunkr = div('일요일', 'font-size:80px;font-weight:900', $('s9day'));
+const s9time = div('<div class="mono" style="font-size:30px;color:#9aa4c7">TIME</div><div style="font-family:ANT;font-size:190px;line-height:1">AM 8:00</div>', 'border-top:3px solid rgba(255,255,255,.25);padding-top:18px', $('s9time'));
+const s9place = div('<div class="mono" style="font-size:30px;color:#9aa4c7">PLACE</div><div style="font-size:120px;font-weight:900;line-height:1.15;white-space:nowrap">빌드업 피트니스</div>', 'border-top:3px solid rgba(255,255,255,.25);padding-top:18px', $('s9place'));
+const PARTNERS = ["l'amant", 'RingTap', 'FREEDOM', 'All Helxy', '알디콤', 'TIME TO RUN', 'LAYERED', 'Jdang Club', 'GKD', "GOM'S CLUB", 'MOO 100', '엘브이 성형외과'];
+$('s9mqi').textContent = ('WITH  ✦  ' + PARTNERS.join('  ✦  ') + '  ✦  ').repeat(3);
+
+// ================================================================ S10
+$('s10tag').innerHTML = '<span>끝까지, <span style="color:#3d6bff">우아하게.</span></span>';
+$('s10dm').innerHTML = '<div style="display:flex;align-items:center;gap:22px;border:3px solid #f4f3ee;padding:18px 36px;border-radius:999px"><span style="font-size:52px;font-weight:900">참가 문의</span><span style="font-family:ANT;font-size:60px;background:#1f4bff;padding:2px 22px;border-radius:999px">DM</span></div>';
+
+// ================================================================ HUD
+const hudsvg = $('hudsvg');
+const corners = [[60, 60, 1, 1], [1020, 60, -1, 1], [60, 1860, 1, -1], [1020, 1860, -1, -1]].map(([x, y, sx, sy]) =>
+  sv('path', { d: `M${x} ${y + sy * 50} L${x} ${y} L${x + sx * 50} ${y}`, fill: 'none', stroke: '#f4f3ee', 'stroke-width': 4 }, hudsvg));
+const hudTL = $('hudtl');
+hudTL.innerHTML = '<svg width="54" height="20" viewBox="-80 -30 380 60"><use href="#spark" fill="#f4f3ee"/><use href="#spark" x="110" fill="#f4f3ee"/><use href="#spark" x="220" fill="#f4f3ee"/></svg><span>GTTEND RUN CLUB</span>';
+$('hudbl').textContent = 'GRACE TEN — HYBRID SESSION';
+$('hudbr').textContent = '09.27 SUN 08:00';
+const recDot = div('', 'width:16px;height:16px;border-radius:50%;background:#ff3b5c;display:inline-block;margin-right:14px;vertical-align:middle', null);
+
+// ================================================================ grain
+const gcv = $('grain'), gctx = gcv.getContext('2d');
+const grainFrames = [];
+for (let f = 0; f < 6; f++) {
+  const id = gctx.createImageData(540, 960);
+  for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  grainFrames.push(id);
+}
+
+// ================================================================ transition slabs
+const slabs = [];
+for (let i = 0; i < 4; i++) slabs.push(div('', 'position:absolute;left:-400px;width:1900px;height:700px;transform-origin:50% 50%', $('slabs')));
+const WIPES = [ // time (center), color set
+  { t: 7.5, dir: 1, cols: ['#1f4bff', '#f4f3ee', '#05060a'] },
+  { t: 9.5, dir: -1, cols: ['#f4f3ee', '#1f4bff', '#05060a'] },
+  { t: 15.5, dir: 1, cols: ['#1f4bff', '#05060a', '#f4f3ee'] },
+  { t: 21.5, dir: -1, cols: ['#1f4bff', '#f4f3ee', '#05060a'] },
+];
+
+// ================================================================ render
+function render(t) {
+  // scene visibility
+  for (const s in T) $(s).style.display = (t >= T[s][0] && t < T[s][1]) ? 'block' : 'none';
+
+  // ---------- camera: shake + punch on hits
+  let shake = 0, punch = 0, fl = 0, ab = 0;
+  for (const h of HITS) { const d = t - h; if (d >= 0 && d < .6) { shake += 26 * Math.exp(-d * 9); punch += .07 * Math.exp(-d * 10); fl = Math.max(fl, .85 * Math.exp(-d * 14)); ab = Math.max(ab, 22 * Math.exp(-d * 8)); } }
+  for (const h of SMALL) { const d = t - h; if (d >= 0 && d < .4) { shake += 10 * Math.exp(-d * 14); punch += .025 * Math.exp(-d * 14); ab = Math.max(ab, 9 * Math.exp(-d * 12)); } }
+  const cx = noise1(t * 22) * shake, cy = noise1(t * 22 + 50) * shake, cr = noise1(t * 17 + 9) * shake * .03;
+  css($('cam'), { transform: `translate(${cx}px,${cy}px) scale(${1 + punch}) rotate(${cr}deg)` });
+  $('flash').style.opacity = fl;
+  gctx.putImageData(grainFrames[Math.floor(t * 30) % 6], 0, 0);
+
+  // ---------- HUD
+  const hudOn = t >= 2 && t < 23.5;
+  const hudA = hudOn ? p(t, 2, 2.3) * (1 - p(t, 23.2, 23.5)) : 0;
+  $('hud').style.opacity = hudA;
+  const rt = Math.max(0, t - 2) * 3.1; // race clock runs faster than real time = energy
+  const mm = Math.floor(rt / 60), ss = Math.floor(rt % 60), cs = Math.floor((rt * 100) % 100);
+  $('hudtr').innerHTML = `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#ff3b5c;margin-right:14px;vertical-align:middle;opacity:${Math.floor(t * 2) % 2 ? .25 : 1}"></span>${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+  // invert HUD on white scenes
+  const onWhite = (t >= 20 && t < 21.5) || (t >= 3 && t < 3.5);
+  $('hud').style.filter = onWhite ? 'invert(1)' : 'none';
+
+  // ---------- slabs
+  slabs.forEach(s => s.style.visibility = 'hidden');
+  for (const w of WIPES) {
+    const d = t - w.t;
+    if (d > -.28 && d < .22) {
+      w.cols.forEach((c, i) => {
+        const s = slabs[i];
+        const x = p(t, w.t - .28 + i * .035, w.t + .2 + i * .035, E.inOutExpo);
+        s.style.visibility = 'visible'; s.style.background = c;
+        s.style.top = (i * 640 - 200) + 'px';
+        s.style.transform = `translateX(${w.dir * lerp(1700, -1900, x)}px) skewX(-18deg)`;
+      });
+    }
+  }
+
+  // ================= S1
+  if (t < T.s1[1]) {
+    s1sparks.forEach((s, i) => {
+      const t0 = .1 + i * .2;
+      const a = p(t, t0, t0 + .45, E.outBack);
+      const out = p(t, 1.65, 2.0, E.inExpo);
+      const sc = s.size * a * (1 + out * (6 + i * 1.5));
+      const rot = lerp(-120, 0, p(t, t0, t0 + .6, E.outCubic)) + t * 20;
+      const x = lerp(s.x, 540 + (s.x - 540) * 3, out), y = lerp(s.y, 900, out);
+      s.g.setAttribute('transform', `translate(${x},${y}) rotate(${rot}) scale(${sc},${sc})`);
+      const rp = p(t, t0, t0 + .7, E.outCubic);
+      s.ring.setAttribute('r', 10 + rp * 60); s.ring.setAttribute('opacity', (1 - rp) * (t >= t0 ? 1 : 0)); s.ring.setAttribute('stroke-width', 6 / Math.max(s.size, .1));
+      s.u.setAttribute('opacity', t >= t0 ? 1 - out * .6 : 0);
+    });
+    $('s1glow').style.opacity = p(t, 0, .8) * (0.6 + .4 * Math.sin(t * 6)) ;
+    const w = p(t, .75, 1.25, E.outExpo), wo = p(t, 1.6, 1.9, E.inCubic);
+    css($('s1word'), { letterSpacing: lerp(.8, .06, w) + 'em', opacity: w * (1 - wo), clipPath: `inset(0 ${lerp(50, 0, w)}% 0 ${lerp(50, 0, w)}%)`, transform: `translateY(${wo * -60}px)`, textShadow: chroma(ab) });
+    const sb = p(t, 1.05, 1.4, E.outCubic);
+    css($('s1sub'), { opacity: sb * (1 - wo), transform: `translateY(${lerp(30, 0, sb)}px)`, letterSpacing: lerp(.5, .3, sb) + 'em' });
+    // flash to white at the very end
+    if (t > 1.85) $('flash').style.opacity = Math.max(fl, p(t, 1.85, 2.0, E.inCubic));
+  }
+
+  // ================= S2 words
+  if (t >= T.s2[0] && t < T.s2[1]) {
+    const i = Math.min(3, Math.floor((t - 2) / BEAT));
+    const lt = (t - 2) - i * BEAT;
+    const stackPhase = t >= 4.0;
+    const w = WORDS[i];
+    $('s2bg').style.background = stackPhase ? '#1f4bff' : w.bg;
+    show($('s2word'), !stackPhase); show($('s2echo'), !stackPhase); show($('s2en'), !stackPhase); show($('s2num'), !stackPhase);
+    show($('s2stack'), stackPhase);
+    if (!stackPhase) {
+      const a = p(lt, 0, .16, E.outExpo);
+      const sc = lerp(2.6, 1, a) * (1 + lt * .12);
+      const blur = (1 - a) * 18;
+      css($('s2word'), { color: w.fg, transform: `scale(${sc}) skewX(${-8 * (1 - a)}deg)`, filter: `blur(${blur}px)`, textShadow: chroma(ab * 1.4, .9) });
+      $('s2word').textContent = w.kr;
+      s2echo.forEach((e, j) => {
+        e.textContent = w.kr;
+        const off = (j - 3) * 300;
+        const drift = (lt * 900 * (j % 2 ? 1 : -1));
+        css(e, { top: (960 - 200 + off) + 'px', transform: `translateX(${drift}px)`, opacity: j === 3 ? 0 : .22 * a, webkitTextStroke: `3px ${w.fg}` });
+      });
+      $('s2en').textContent = `0${i + 1} — ${w.en}`;
+      css($('s2en'), { color: w.fg, opacity: p(lt, .05, .2) });
+      $('s2num').textContent = `0${i + 1}/04`;
+      css($('s2num'), { color: w.fg === '#3d6bff' ? '#f4f3ee' : w.fg, opacity: .9 * p(lt, .05, .2) });
+    } else {
+      const lt2 = t - 4.0;
+      s2stackRows.forEach((r, j) => {
+        const a = p(lt2, j * .045, j * .045 + .22, E.outExpo);
+        const o = p(t, 4.3, 4.5, E.inExpo);
+        css(r, { transform: `translateX(${lerp(-900, 0, a) + o * (j % 2 ? 1400 : -1400)}px)`, color: j === 3 ? '#05060a' : '#f4f3ee' });
+      });
+      const a = p(lt2, .2, .35, E.outBack);
+      css(s2tail, { opacity: a, transform: `translateY(${lerp(40, 0, a)}px) translateX(${p(t, 4.3, 4.5, E.inExpo) * 1400}px)` });
+    }
+  }
+
+  // ================= S3 title
+  if (t >= T.s3[0] && t < T.s3[1]) {
+    const lt = t - 4.5;
+    $('s3rays').style.transform = `rotate(${lt * 9}deg) scale(${1 + p(lt, 0, .5, E.outExpo) * .1})`;
+    $('s3rays').style.opacity = p(lt, 0, .15);
+    $('s3photo').style.opacity = .35 * p(lt, 0, .6);
+    $('s3photo').style.transform = `scale(${1.05 + lt * .03})`;
+    const out = p(t, 7.2, 7.5, E.inExpo);
+    const push = 1 + p(lt, 0, 3, E.lin) * .07;
+    css($('s3title'), { transform: `translateX(${-out * 1300}px) scale(${push})`, filter: `blur(${out * 20}px)` });
+    titleLetters.forEach((L, j) => {
+      const d = L.r ? .12 + L.i * .05 : L.i * .04;
+      const a = p(lt, d, d + .32, E.outExpo);
+      const sc = lerp(3.2, 1, a);
+      css(L.el, {
+        transform: `translateY(${lerp(-260, 0, a) * (L.i % 2 ? -1 : 1)}px) scale(${sc})`, opacity: a > 0 ? Math.min(1, a * 3) : 0,
+        filter: `blur(${(1 - a) * 14}px)`, textShadow: chroma(ab * 1.3, .9),
+        color: L.r && lt > .55 ? '#f4f3ee' : '#f4f3ee',
+      });
+    });
+    // GTTEND RUN CLUB
+    const c = p(lt, .35, .7, E.outExpo);
+    css($('s3club'), { opacity: c * (1 - out), clipPath: `inset(0 ${(1 - c) * 100}% 0 0)`, transform: `translateX(${-out * 900}px)` });
+    // line
+    const l = p(lt, .75, 1.2, E.outExpo);
+    s3lineL.style.width = s3lineR.style.width = (140 * l) + 'px';
+    css(s3lineT, { opacity: l, letterSpacing: lerp(.5, .14, l) + 'em' });
+    css($('s3line'), { transform: `translateX(${out * 1300}px)` });
+    // stars
+    s3stars.forEach((g, i) => {
+      const d = 1.05 + i * .12, a = p(lt, d, d + .4, E.outBack);
+      const sc = .7 * a;
+      g.setAttribute('transform', `translate(${420 + i * 120 + out * 1300},80) rotate(${(1 - a) * -180 + Math.sin(t * 3 + i) * 6}) scale(${sc})`);
+    });
+    const kr = p(lt, 1.5, 1.9, E.outExpo);
+    css($('s3kr'), { opacity: kr * (1 - out), transform: `translateY(${lerp(50, 0, kr)}px)`, clipPath: `inset(0 0 ${(1 - kr) * 100}% 0)` });
+  }
+
+  // ================= S4 stats
+  if (t >= T.s4[0] && t < T.s4[1]) {
+    const lt = t - 7.5;
+    const h = p(lt, .05, .35, E.outExpo);
+    css($('s4head'), { opacity: h, transform: `translateX(${lerp(-60, 0, h)}px)` });
+    css($('s4headkr'), { clipPath: `inset(0 ${(1 - h) * 100}% 0 0)` });
+    const out = p(t, 9.2, 9.5, E.inExpo);
+    s4rows.forEach((r, i) => {
+      const d = .15 + i * .25;
+      const a = p(lt, d, d + .35, E.outExpo);
+      r.bar.style.width = (p(lt, d, d + .5, E.outExpo) * 100) + '%';
+      css(r.inner, { transform: `translateY(${lerp(250, 0, a)}px) translateX(${out * (i % 2 ? 1200 : -1200)}px)` });
+      // reel roll
+      const rp = p(lt, d, d + .55, E.outCubic);
+      r.reel.style.transform = `translateY(${-rp * r.n * 240}px)`;
+      r.reel.style.filter = `blur(${(rp > 0 && rp < 1 ? (1 - rp) * 6 : 0)}px)`;
+      css(r.lbl, { opacity: p(lt, d + .1, d + .3) });
+    });
+  }
+
+  // ================= S5 workout
+  if (t >= T.s5[0] && t < T.s5[1]) {
+    const lt = t - ST0;
+    const si = Math.min(4, Math.floor(lt / STD));
+    const summary = t >= ST0 + 5 * STD;
+    const S = STATIONS[si];
+    const st = lt - si * STD;
+    $('s5bg').style.background = summary ? '#1f4bff' : S.bg;
+    // optional photo layer (img/<id>.jpg if present)
+    const ph = $('s5photo');
+    const want = `url("img/${S.id}.jpg")`;
+    if (ph.dataset.id !== S.id) { ph.style.backgroundImage = want; ph.dataset.id = S.id; }
+    ph.style.opacity = summary ? 0 : .42 * p(st, 0, .15);
+    ph.style.transform = `scale(${1.08 + st * .06}) translateX(${(1 - p(st, 0, .3, E.outExpo)) * 120}px)`;
+    $('s5tint').style.opacity = summary ? 0 : 1;
+
+    const inA = p(st, 0, .22, E.outExpo);
+    const outA = si < 4 ? p(st, .86, 1, E.inExpo) : p(st, .86, 1, E.inExpo);
+    const vis = !summary;
+    ['s5ghost', 's5top', 's5fig', 's5name', 's5spec', 's5bar'].forEach(id => show($(id), vis));
+    show($('s5bar'), true);
+    show(sumWrap, summary);
+    if (vis) {
+      // ghost word parallax
+      $('s5ghost').textContent = S.en + ' ' + S.en;
+      css($('s5ghost'), { transform: `translateX(${lerp(200, -700, st / STD)}px)`, opacity: .16 * inA });
+      $('s5st').textContent = `STATION 0${si + 1}`;
+      css($('s5st'), { clipPath: `inset(0 ${(1 - inA) * 100}% 0 0)` });
+      css($('s5badge'), { opacity: si === 0 ? p(st, .15, .3) : 0, transform: `scale(${si === 0 ? lerp(.6, 1, p(st, .15, .35, E.outBack)) : 1})` });
+      // figure: beat-synced motion (full cycle per beat for run, half for others)
+      const period = S.id === 'run' ? .5 : 1.0;
+      let ph2 = (lt % period) / period;
+      let x = S.id === 'run' ? (Math.sin(ph2 * Math.PI * 2) * .5 + .5) : E.inOutCubic(Math.sin(ph2 * Math.PI) ** 1);
+      if (S.id === 'row' || S.id === 'ski') x = E.inOutCubic(.5 - .5 * Math.cos(ph2 * Math.PI * 2));
+      if (S.id === 'lunge' || S.id === 'squat') x = E.inOutCubic(.5 - .5 * Math.cos(ph2 * Math.PI * 2));
+      drawFig(posed(S.id, x));
+      drawEquip(S.id, x, t);
+      const bob = S.id === 'run' ? Math.abs(Math.sin(lt * Math.PI * 4)) * -14 : 0;
+      css(figSvg, { transform: `translate(${lerp(500, 0, inA) - outA * 900}px,${bob}px) scale(${lerp(.7, 1, inA)})`, filter: `blur(${(1 - inA) * 10 + outA * 16}px)` });
+      // korean name
+      $('s5kr').innerHTML = `${S.kr}<span class="ant" style="font-size:80px;color:#3d6bff;margin-left:26px;letter-spacing:.02em">${S.en}</span>`;
+      css($('s5kr'), { transform: `translateY(${lerp(120, 0, inA)}px) translateX(${-outA * 1100}px)`, clipPath: `inset(${(1 - inA) * 100}% 0 0 0)`, textShadow: chroma(ab) });
+      specNum.textContent = S.dist; specUnit.textContent = S.unit; specX.textContent = '×' + S.x;
+      const sa = p(st, .08, .3, E.outExpo);
+      css($('s5spec'), { opacity: sa, transform: `translateX(${lerp(-200, 0, sa) - outA * 1100}px)` });
+      css(specX, { transform: `scale(${lerp(1.8, 1, p(st, .14, .36, E.outBack))}) rotate(${lerp(-12, 0, p(st, .14, .36, E.outBack))}deg)` });
+    }
+    // check bar
+    let filled = 0;
+    cells.forEach((c, i) => {
+      const f = p(t, cellT[i], cellT[i] + .12, E.outExpo);
+      if (t >= cellT[i]) filled++;
+      c.f.style.transform = `scaleX(${f})`;
+      c.c.style.borderColor = f > 0 ? '#3d6bff' : 'rgba(255,255,255,.35)';
+      c.c.style.transform = `scale(${1 + .18 * Math.exp(-Math.max(0, t - cellT[i]) * 14) * (t >= cellT[i] ? 1 : 0)})`;
+      if (summary) { c.f.style.background = '#f4f3ee'; c.n.style.color = '#1f4bff'; } else { c.f.style.background = '#1f4bff'; c.n.style.color = '#f4f3ee'; }
+    });
+    barR.textContent = `${String(filled).padStart(2, '0')} / 10`;
+    const barOut = p(t, 15.25, 15.5, E.inExpo);
+    css($('s5bar'), { transform: `translateY(${summary ? lerp(0, -60, p(t, 14.5, 14.8, E.outExpo)) : 0}px) translateX(${barOut * -1200}px)` });
+    if (summary) {
+      const sl = t - 14.5;
+      const a = p(sl, 0, .25, E.outExpo);
+      css(sumTitle, { transform: `scale(${lerp(2.2, 1, a)})`, opacity: a, textShadow: chroma(ab * 1.2) });
+      css(sumSub, { opacity: p(sl, .15, .3), transform: `translateY(${lerp(30, 0, p(sl, .15, .35, E.outExpo))}px)` });
+      sumItems.forEach((it, i) => {
+        const b = p(sl, .1 + i * .05, .35 + i * .05, E.outExpo);
+        css(it, { opacity: b, transform: `translateY(${lerp(80, 0, b) + barOut * 0}px) translateX(${barOut * (i % 2 ? 1200 : -1200)}px)` });
+      });
+      css(sumTitle, { transform: `scale(${lerp(2.2, 1, a)}) translateX(${barOut * 1200}px)` });
+    }
+  }
+
+  // ================= S6 rules
+  if (t >= T.s6[0] && t < T.s6[1]) {
+    const ri = Math.min(2, Math.floor((t - RS) / RD));
+    const R = RULES[ri];
+    const rt = t - RS - ri * RD;
+    const inA = p(rt, 0, .22, E.outExpo);
+    const outA = p(rt, .82, 1, E.inExpo);
+    $('s6num').textContent = R.n;
+    css($('s6num'), { clipPath: `inset(${(1 - inA) * 100}% 0 0 0)`, transform: `translateY(${-outA * 80}px)`, opacity: 1 - outA });
+    if ($('s6kr').dataset.i !== String(ri)) { $('s6kr').innerHTML = R.kr; $('s6kr').dataset.i = ri; }
+    css($('s6kr'), { transform: `translateY(${lerp(140, 0, inA)}px) translateX(${-outA * 1100}px)`, opacity: inA, textShadow: chroma(ab) });
+    const hl = $('s6kr').querySelector('.hl'); if (hl) hl.style.setProperty('--hl', p(rt, .2, .45, E.outExpo));
+    $('s6en').textContent = R.en;
+    css($('s6en'), { opacity: p(rt, .15, .3) * (1 - outA), letterSpacing: lerp(.4, .18, p(rt, .15, .4, E.outCubic)) + 'em' });
+    show(chipWrap, ri === 0); show(splitWrap, ri === 1); show(duoWrap, ri === 2);
+    $('s6grid').style.transform = `translateY(${(t * 60) % 90}px)`;
+    if (ri === 0) {
+      const sh = p(rt, .25, .6, E.inOutExpo);
+      chips.forEach((c, i) => {
+        const a = p(rt, i * .02, i * .02 + .2, E.outBack);
+        const pos0 = i, pos1 = perm[i];
+        const col = (q) => q % 5, row = (q) => Math.floor(q / 5);
+        const x = lerp(col(pos0), col(pos1), sh) * 180, y = lerp(row(pos0), row(pos1), sh) * 190;
+        const lift = Math.sin(sh * Math.PI) * -40 * (i % 2 ? 1 : -1);
+        css(c, { transform: `translate(${x - outA * 1100}px,${y + 20 + lift}px) scale(${a})`, background: i === 0 || i === 9 ? '#1f4bff' : 'transparent', borderColor: i === 0 || i === 9 ? '#1f4bff' : '#f4f3ee' });
+      });
+    }
+    if (ri === 1) {
+      const a = p(rt, 0, .2, E.outExpo);
+      const sp = p(rt, .25, .5, E.outExpo);
+      css(splitTop, { transform: `scaleX(${a}) translateX(${-outA * 1100}px)`, transformOrigin: '0 50%' });
+      const W = 900;
+      const gap = 24 * sp;
+      css(splitA, { left: '0px', width: (W / 2 - gap / 2) * sp + 'px', transform: `translateX(${-outA * 1100}px)` });
+      css(splitB, { left: (W / 2 + gap / 2) + 'px', width: (W / 2 - gap / 2) * sp + 'px', transform: `translateX(${(1 - sp) * -W / 2 - outA * 1100}px)` });
+    }
+    if (ri === 2) {
+      const a = p(rt, 0, .25, E.outBack);
+      const j = p(rt, .25, .45, E.outExpo);
+      duoA.setAttribute('r', 110 * a); duoB.setAttribute('r', 110 * p(rt, .06, .31, E.outBack));
+      duoLine.setAttribute('x2', 250 + 400 * j);
+      duoSvg.style.transform = `translateX(${-outA * 1100}px)`;
+      duoTA.setAttribute('opacity', a); duoTB.setAttribute('opacity', p(rt, .06, .31));
+      duoX.forEach((g, i) => {
+        const b = p(rt, .35 + i * .06, .55 + i * .06, E.outBack);
+        const pos = [[110, 60], [450, 370], [800, 60]][i];
+        g.setAttribute('transform', `translate(${pos[0]},${pos[1]}) scale(${b})`);
+      });
+    }
+  }
+
+  // ================= S7 complete 10
+  if (t >= T.s7[0] && t < T.s7[1]) {
+    const lt = t - 18.5;
+    $('s7bg').style.background = lt < .06 ? '#f4f3ee' : '#1f4bff';
+    s7cells.forEach((c, i) => {
+      const d = i * .05;
+      const a = p(lt, d, d + .15, E.outExpo);
+      c.pth.setAttribute('stroke-dashoffset', 90 * (1 - a));
+      c.c.style.background = a >= 1 ? 'rgba(5,6,10,.35)' : 'transparent';
+      c.c.style.transform = `scale(${1 + .2 * Math.exp(-Math.max(0, lt - d) * 12) * (lt >= d ? 1 : 0)})`;
+    });
+    const a = p(lt, 0, .18, E.outExpo);
+    css($('s7a'), { transform: `translateX(${lerp(-1200, 0, a)}px) skewX(${(1 - a) * -20}deg)`, textShadow: chroma(ab * 1.4, .9) });
+    const b = p(lt, .5, .68, E.outExpo);
+    css($('s7b'), { transform: `translateX(${lerp(1300, 0, b)}px) skewX(${(1 - b) * -20}deg)`, textShadow: chroma(ab * 1.4, .9) });
+    const c = p(lt, .75, 1.0, E.outExpo);
+    css($('s7kr'), { clipPath: `inset(0 ${(1 - c) * 100}% 0 0)` });
+    const s = p(lt, 1.0, 1.18, E.outBack);
+    css($('s7stamp'), { transform: `rotate(${lerp(-40, -10, s)}deg) scale(${lerp(3, 1, s)})`, opacity: s > 0 ? 1 : 0 });
+    // push out
+    const o = p(t, 19.85, 20.0, E.inExpo);
+    $('s7').style.transform = `scale(${1 + o * .4})`; $('s7').style.opacity = 1 - o;
+  }
+
+  // ================= S8 hook (white)
+  if (t >= T.s8[0] && t < T.s8[1]) {
+    const lt = t - 20;
+    hookA.forEach((w, i) => { const a = p(lt, i * .09, i * .09 + .2, E.outBack); css(w, { transform: `translateY(${lerp(80, 0, a)}px) scale(${lerp(.4, 1, a)})`, opacity: a > 0 ? 1 : 0 }); });
+    hookB.forEach((w, i) => { const a = p(lt, .5 + i * .09, .5 + i * .09 + .2, E.outBack); css(w, { transform: `translateY(${lerp(80, 0, a)}px) scale(${lerp(.4, 1, a)})`, opacity: a > 0 ? 1 : 0 }); });
+    const f = p(lt, .9, 1.15, E.outElastic);
+    css(flame, { transform: `scale(${f}) rotate(${Math.sin(t * 20) * 6}deg)`, opacity: f > 0 ? 1 : 0 });
+    const push = p(lt, 1.25, 1.5, E.inExpo);
+    $('s8a').style.transform = `translateX(${-push * 1200}px)`;
+    $('s8b').style.transform = `translateX(${push * 1200}px)`;
+  }
+
+  // ================= S9 info
+  if (t >= T.s9[0] && t < T.s9[1]) {
+    const lt = t - 21.5;
+    $('s9rays').style.transform = `rotate(${-lt * 12}deg)`;
+    css($('s9lbl'), { opacity: p(lt, .05, .2) });
+    dateChars.forEach((c, i) => {
+      const a = p(lt, i * .06, i * .06 + .3, E.outExpo);
+      css(c, { transform: `translateY(${lerp(i % 2 ? -300 : 300, 0, a)}px) rotateX(${(1 - a) * 90}deg)`, opacity: a > 0 ? 1 : 0, filter: `blur(${(1 - a) * 10}px)`, textShadow: chroma(ab) });
+    });
+    const d = p(lt, .35, .6, E.outExpo);
+    css(s9sun, { transform: `scaleX(${d})`, transformOrigin: '0 50%' });
+    css(s9sunkr, { opacity: p(lt, .45, .6), transform: `translateX(${lerp(-40, 0, p(lt, .45, .7, E.outExpo))}px)` });
+    const tm = p(lt, .5, .8, E.outExpo);
+    css(s9time, { clipPath: `inset(0 ${(1 - tm) * 100}% 0 0)` });
+    const pl = p(lt, 1.0, 1.3, E.outExpo);
+    css(s9place, { clipPath: `inset(0 ${(1 - pl) * 100}% 0 0)`, transform: `translateY(${lerp(40, 0, pl)}px)` });
+    css($('s9mqi'), { transform: `translateX(${-lt * 420}px)` });
+    css($('s9mq'), { opacity: p(lt, .3, .6) });
+    const o = p(t, 23.3, 23.5, E.inExpo);
+    $('s9').style.transform = `scale(${1 - o * .15})`; $('s9').style.opacity = 1 - o;
+  }
+
+  // ================= S10 end
+  if (t >= T.s10[0]) {
+    const lt = t - 23.5;
+    $('s10photo').style.opacity = .3 * p(lt, 0, .5);
+    $('s10photo').style.transform = `scale(${1.12 - lt * .04})`;
+    s10sparks.forEach((s, i) => {
+      const t0 = .08 + i * .15;
+      const a = p(lt, t0, t0 + .45, E.outBack);
+      const sc = s.size * a;
+      s.g.setAttribute('transform', `translate(${s.x},${s.y}) rotate(${lerp(-180, 0, p(lt, t0, t0 + .6, E.outCubic))}) scale(${sc},${sc})`);
+      const rp = p(lt, t0, t0 + .7, E.outCubic);
+      s.ring.setAttribute('r', 10 + rp * 70); s.ring.setAttribute('opacity', (1 - rp) * (lt >= t0 ? 1 : 0)); s.ring.setAttribute('stroke-width', 5 / Math.max(s.size, .1));
+      s.u.setAttribute('opacity', lt >= t0 ? 1 : 0);
+    });
+    const w = p(lt, .3, .7, E.outExpo);
+    css($('s10word'), { letterSpacing: lerp(.6, .06, w) + 'em', opacity: w, clipPath: `inset(0 ${lerp(50, 0, w)}% 0 ${lerp(50, 0, w)}%)`, textShadow: chroma(ab) });
+    css($('s10sub'), { opacity: p(lt, .5, .7), letterSpacing: lerp(.6, .3, p(lt, .5, .9, E.outCubic)) + 'em' });
+    const tg = p(lt, .6, .95, E.outExpo);
+    $('s10tag').style.clipPath = `inset(0 ${(1 - tg) * 100}% 0 0)`;
+    const dm = p(lt, .85, 1.1, E.outBack);
+    css($('s10dm'), { opacity: dm > 0 ? 1 : 0, transform: `scale(${dm})` });
+    $('s10sweep').style.left = lerp(-400, 1400, p(lt, .9, 1.4, E.inOutCubic)) + 'px';
+  }
+}
+
+window.render = render;
+window.ready = (async () => { await document.fonts.ready; await Promise.all([...document.fonts].map(f => f.load().catch(() => {}))); render(0); return true; })();
+// live preview when opened directly in a browser
+if (!/[?&]render/.test(location.search)) {
+  const t0 = performance.now();
+  const loop = () => { render(((performance.now() - t0) / 1000) % 25); requestAnimationFrame(loop); };
+  window.ready.then(() => requestAnimationFrame(loop));
+}
+</script>
+</body>
+</html>

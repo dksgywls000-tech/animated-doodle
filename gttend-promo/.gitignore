@@ -1,0 +1,4 @@
+build/frames/
+build/still_*.jpg
+build/audio.wav
+img/*.jpg
