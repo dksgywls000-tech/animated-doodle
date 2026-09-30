@@ -101,10 +101,27 @@ def logos():
     trace(word, "gttend_word")
 
 
+def clips():
+    """Higgsfield clips -> 30fps frame sequences the renderer reads (assets/gen/clips/<name>/)."""
+    import subprocess, glob, json, imageio_ffmpeg
+    for name, src in (("hero", "hero_kling.mp4"), ("legs", "legs_kling.mp4")):
+        d = os.path.join(OUT, "clips", name)
+        os.makedirs(d, exist_ok=True)
+        for f in glob.glob(os.path.join(d, "*.jpg")):
+            os.remove(f)
+        subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-v", "error", "-i", os.path.join(A, "ai", src),
+                        "-vf", "fps=30", "-q:v", "3", os.path.join(d, "%04d.jpg")], check=True)
+        n = len(glob.glob(os.path.join(d, "*.jpg")))
+        json.dump({"fps": 30, "frames": n}, open(os.path.join(d, "manifest.json"), "w"))
+        print(name, n, "frames")
+
+
 if __name__ == "__main__":
     import sys
-    what = sys.argv[1:] or ["logos", "people"]
+    what = sys.argv[1:] or ["logos", "people", "clips"]
     if "logos" in what:
         logos()
     if "people" in what:
         people_layers()
+    if "clips" in what:
+        clips()

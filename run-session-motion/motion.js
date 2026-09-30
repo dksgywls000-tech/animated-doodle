@@ -34,14 +34,14 @@ const F = {
 // ---------- timeline (seconds) ----------
 const T = {
   hook: 0, dom: 1.25, lock: 1.67, title: 2.08,
-  km1: 5, date: 5, place: 6.67, run: 8.33,
-  km2: 10, rcpt: 10,
-  km3: 15, steps: [15, 16.25, 17.5, 18.75],
-  km4: 20, only: 20, dead: 21.25, tape: 22.5, finish: 22.92, end: 25,
+  km1: 5, brandF: 5, brandG: 7.5,
+  km2: 10, date: 10, place: 11.67, run: 13.33,
+  km3: 15, kit: 15, join: 17.5,
+  km4: 20, dead: 20, tape: 22.5, finish: 22.92, end: 25,
 };
 const IMPACTS = [
-  [0, 1], [T.dom, .7], [T.lock, .6], [T.title, 1], [T.title + 2 * B, .7], [T.km1, .8], [T.place, .7], [T.run, .7],
-  [T.km2, .9], [13.75, 1.2], [T.km3, .8], [T.km4, 1], [T.dead, 1], [T.finish, 1.4],
+  [0, 1], [T.dom, .7], [T.lock, .6], [T.title, 1], [T.title + 2 * B, .7], [T.km1, .8], [T.brandG, .8],
+  [T.km2, .9], [T.place, .7], [T.run, .7], [T.km3, .8], [T.join, .7], [T.dead, 1], [T.finish, 1.4],
 ];
 
 // ---------- assets ----------
@@ -93,7 +93,7 @@ async function load() {
     loadImg('people', 'assets/gen/people.png'),
     loadImg('runL', 'assets/gen/runner_left.png'),
     loadImg('runR', 'assets/gen/runner_right.png'),
-    ...['freedom', 'gttend', 'gttend_stars', 'gttend_word'].flatMap(n => [
+    ...['freedom', 'freedom_whatever', 'gttend', 'gttend_stars', 'gttend_word'].flatMap(n => [
       loadImg(n + '_w', `assets/gen/${n}_w.svg`), loadImg(n + '_k', `assets/gen/${n}_k.svg`)]),
     loadClip('hero'), loadClip('face'), loadClip('legs'),
   ]);
@@ -257,12 +257,12 @@ async function sceneHook(t) {
   // background: live AI clip if present, else three hard crops of the photo on the beat
   const k = Math.min(2, Math.floor(t / B));
   const lt = t - k * B;
-  const clip = await clipFrame('hero', t + .3);
-  const crops = [[1.35, .26, .40], [1.55, .68, .17], [2.1, .92, .6]];
+  const clip = await clipFrame('hero', t);
+  const crops = clip ? [[1.0, .5, .5], [1.55, .72, .22], [1.45, .28, .45]] : [[1.35, .26, .40], [1.55, .68, .17], [2.1, .92, .6]];
   const bgFade = 1 - seg(t, T.dom + .05, T.dom + .3);
   if (bgFade > 0) {
-    if (clip && k === 0) drawT(clip, cover(clip, 1.1 + lt * .08, .45, .45), bgFade);
-    else { const [z, fx, fy] = crops[k]; drawT(IMG.photo, cover(IMG.photo, z * (1 + lt * .09), fx + lt * .02, fy), bgFade); }
+    const [z, fx, fy] = crops[k], src = clip || IMG.photo;
+    drawT(src, cover(src, z * (1 + lt * .09), fx + lt * .02, fy), bgFade);
     dim(.42 * bgFade);
     vgrad(1050, 1650, 0, .85 * bgFade);
   }
@@ -270,26 +270,24 @@ async function sceneHook(t) {
 
   // FREE → FREEDOM
   const pm = outExpo(seg(t, T.dom, T.dom + .32));
-  const lwBig = 900 * LOGO_W / CUT_TOP, lwEnd = 940;
-  const lw = lerp(lwBig, lwEnd, pm);
-  const freeCx = (CUT_TOP + CUT_BOT) / 4 * (lw / LOGO_W);
-  const lx = lerp(540 - freeCx, 540 - lw / 2, pm);
+  const lwEnd = 940;
+  const lw = lwEnd;
+  const lx = 540 - lw / 2;
   const cy = lerp(880, 760, pm);
   const ly = cy - LOGO_H * lw / LOGO_W / 2;
   let pulse = 0;
   for (const bt of [B, 2 * B]) if (t >= bt && t < bt + .22) pulse = 1 - outCubic((t - bt) / .22);
   ctx.save(); ctx.translate(540, cy); ctx.scale(1 + pulse * .08, 1 + pulse * .08); ctx.translate(-540, -cy);
   if (pulse > .3) { ctx.save(); ctx.globalAlpha = .35 * pulse; drawFreedomSplit(lx - 40, ly, lw, 0, 0); ctx.restore(); }
-  const domP = seg(t, T.dom, T.dom + .28);
-  drawFreedomSplit(lx, ly, lw, (1 - outExpo(domP)) * 760, domP > 0 ? clamp(domP * 3) : 0);
+  drawFreedomSplit(lx, ly, lw, 0, 1);
   ctx.restore();
 
   // Korean hook lines (visible from frame 0 so the first frame reads as a poster)
   const subA = 1 - seg(t, T.dom - .05, T.dom + .15);
   if (subA > 0) {
     ctx.save(); ctx.globalAlpha = subA;
-    text('참가비 0원.', 540, 1275, { font: F.kr(900, 96), ls: -2 });
-    text('참가자 전원 러닝 상·하의 증정', 540, 1372, { font: F.kr(800, 54), ls: -1 });
+    text('자유롭게, 함께 달리다.', 540, 1275, { font: F.kr(900, 88), ls: -2 });
+    text('FREEDOM × GTTEND RUN SESSION', 540, 1360, { font: F.mono(800, 34), ls: 3 });
     ctx.restore();
   }
   // × GTTEND lockup
@@ -444,249 +442,149 @@ async function sceneRun(t) {
   rise(seg(t, T.run + .5, T.run + .75), 1350, 1450, () => text('5km · 6분 30초 전후 페이스', 90, 1420, { font: F.kr(800, 52), align: 'left', ls: -1 }));
 }
 
-// receipt rows: [label, value]
-const RC = [
-  ['러닝 상·하의 세트', 'FREE'],
-  ['프리덤 삭스', 'FREE'],
-  ['러닝 후 커피', 'FREE'],
-  ['FW 신상 · 현장 추첨', 'BONUS'],
-  ['참가비', '₩0'],
-];
-const RC_T = [10.6, 11.1, 11.6, 12.1, 12.6];
-function sceneReceipt(t) {
-  const lt = t - T.rcpt;
-  ctx.fillStyle = '#0b0b0b'; ctx.fillRect(0, 0, W, H);
-  drawT(IMG.plate, cover(IMG.plate, 1.1, .5, .4), .25);
-  speedLines(t, .25, 30, 1800, 5);
-  rise(seg(t, T.rcpt + .02, T.rcpt + .3), 330, 470, () => {
-    text('WHAT YOU GET', 540, 440, { font: F.anton(118), ls: 4 });
+// ---------- WHO: FREEDOM ----------
+const FW_WORDS = ['GYM', 'RUN', 'LIFE'];
+async function sceneFreedom(t) {
+  const lt = t - T.brandF;
+  const clip = await clipFrame('legs', 2.0 + lt * .9);
+  if (clip) drawT(clip, cover(clip, 1.02 + lt * .02, .5, .5));
+  else drawT(IMG.photo, cover(IMG.photo, 1.3, .3, .6));
+  dim(.55);
+  vgrad(0, 620, .75, 0); vgrad(1000, H, 0, .92);
+  speedLines(t, .3, 30, 3000, 10);
+  chapterLabel(t, T.brandF, 'ABOUT FREEDOM', '01 / 02');
+  rise(seg(t, T.brandF + .1, T.brandF + .4), 580, 900, () => svg('freedom_whatever_w', 540, 745, 700));
+  // GYM · RUN · LIFE on the beat
+  const sep = '  ·  ', font = F.anton(Math.min(150, 150 * 880 / measure(FW_WORDS.join('  ·  '), F.anton(150), 4)));
+  const full = FW_WORDS.join(sep), fw = measure(full, font, 4);
+  let x = 540 - fw / 2;
+  FW_WORDS.forEach((w, i) => {
+    const p = seg(t, T.brandF + .55 + i * B, T.brandF + .8 + i * B);
+    const ww = measure(w, font, 4);
+    if (p > 0) text(w, x + ww / 2, 1090, { font, ls: 4, scale: 1 + (1 - outExpo(p)) * .35, alpha: clamp(p * 3) });
+    x += ww;
+    if (i < 2) { if (p > 0) text(sep, x + measure(sep, font, 4) / 2, 1090, { font, alpha: .45 * clamp(p * 3) }); x += measure(sep, font, 4); }
   });
-  // printer slot
-  const px = 110, pw = 860, slot = 520;
-  ctx.fillStyle = '#1e1e1e'; rrect(px - 30, slot - 26, pw + 60, 40, 20); ctx.fill();
-  ctx.fillStyle = '#000'; ctx.fillRect(px - 10, slot - 8, pw + 20, 10);
-  // rows layout (relative to paper top)
-  const rows = [];
-  let y = 0;
-  const HEAD = 150, ROW = 84;
-  rows.push({ t: 10.25, y0: 0, y1: HEAD });
-  RC.forEach((r, i) => rows.push({ t: RC_T[i], y0: HEAD + i * ROW, y1: HEAD + (i + 1) * ROW }));
-  const totalY = HEAD + RC.length * ROW;
-  rows.push({ t: 13.1, y0: totalY, y1: totalY + 190 });
-  rows.push({ t: 13.35, y0: totalY + 190, y1: totalY + 300 });
-  let shown = 0;
-  for (const r of rows) {
-    const p = outCubic(seg(t, r.t, r.t + .16));
-    if (p > 0) shown = lerp(r.y0, r.y1, p);
-  }
-  if (shown <= 0) return;
-  const jit = rows.some(r => t >= r.t && t < r.t + .16) ? (rnd(Math.floor(t * 60)) - .5) * 3 : 0;
-  ctx.save();
-  ctx.translate(540, slot); ctx.rotate(-.012); ctx.translate(-540, -slot);
-  ctx.beginPath(); ctx.rect(px - 40, slot, pw + 80, shown + 40); ctx.clip();
-  ctx.translate(jit, 0);
-  // paper with zigzag bottom
-  ctx.fillStyle = '#f1efe9'; ctx.beginPath(); ctx.moveTo(px, slot);
-  ctx.lineTo(px + pw, slot); ctx.lineTo(px + pw, slot + shown);
-  for (let zx = px + pw; zx > px; zx -= 20) ctx.lineTo(zx - 10, slot + shown + (zx / 20 % 2 ? 12 : 0));
-  ctx.lineTo(px, slot + shown); ctx.closePath(); ctx.fill();
-  const K = '#111', top = slot;
-  svg('freedom_k', 540 - 150, top + 62, 210);
-  text('×', 540, top + 76, { font: F.anton(40), color: K });
-  svg('gttend_word_k', 540 + 130, top + 62, 130);
-  text('RUN SESSION 01 · 2026.10.10 SAT', 540, top + 124, { font: F.mono(500, 26), color: K, ls: 1 });
-  dashed(px + 40, px + pw - 40, top + HEAD - 6, K);
-  RC.forEach(([l, v], i) => {
-    const yy = top + HEAD + i * ROW + 56;
-    text(l, px + 44, yy, { font: F.kr(800, 42), color: K, align: 'left', ls: -1 });
-    const vx = px + pw - 44;
-    text(v, vx, yy, { font: F.mono(800, 40), color: K, align: 'right' });
-    const lw = measure(l, F.kr(800, 42), -1), vw = measure(v, F.mono(800, 40));
-    ctx.fillStyle = K;
-    for (let dx = px + 64 + lw; dx < vx - vw - 20; dx += 16) ctx.fillRect(dx, yy - 10, 5, 5);
-  });
-  dashed(px + 40, px + pw - 40, top + totalY + 6, K);
-  text('TOTAL', px + 44, top + totalY + 150, { font: F.anton(96), color: K, align: 'left', ls: 3 });
-  const tp = seg(t, 13.1, 13.3);
-  text('₩0', px + pw - 44, top + totalY + 158, { font: F.anton(170), color: K, align: 'right', scale: 1 + (1 - outExpo(tp)) * .4 });
-  text('* 러닝 상·하의 · 삭스 · 커피는 참가자 전원 제공', 540, top + totalY + 232, { font: F.kr(600, 28), color: K });
-  for (let i = 0; i < 70; i++) { const bw = 2 + Math.floor(rnd(i + 40) * 3) * 2; ctx.fillStyle = K; ctx.fillRect(px + 150 + i * 8.4, top + totalY + 252, bw * .8, 34); }
-  ctx.restore();
-  // FREE stamp
-  const sp = seg(t, 13.75, 13.9);
-  if (sp > 0) {
-    ctx.save(); ctx.translate(690, slot + HEAD + 190); ctx.rotate(-.24);
-    const s = lerp(2.6, 1, outExpo(sp)); ctx.scale(s, s); ctx.globalAlpha = clamp(sp * 2) * .9;
-    ctx.drawImage(STAMP, -310, -150); ctx.restore();
+  rise(seg(t, T.brandF + 1.2, T.brandF + 1.45), 1130, 1250, () => text('운동하는 일상을 입는 브랜드', 540, 1225, { font: F.kr(900, 70), ls: -2 }));
+  rise(seg(t, T.brandF + 1.3, T.brandF + 1.55), 1255, 1330, () => text('짐웨어에서 러닝까지, 프리덤', 540, 1310, { font: F.kr(700, 44), alpha: .85 }));
+  const pb = seg(t, T.brandF + 1.55, T.brandF + 1.8);
+  if (pb > 0) {
+    ctx.save(); ctx.translate(540, 1400); const k = outBack(pb); ctx.scale(k, k);
+    const label = '러닝 웨어 & 새로운 FW 컬렉션 첫 공개', lw = measure(label, F.kr(800, 36)) + 150;
+    ctx.fillStyle = '#fff'; rrect(-lw / 2, -40, lw, 80, 40); ctx.fill();
+    ctx.fillStyle = '#000'; rrect(-lw / 2 + 10, -30, 100, 60, 30); ctx.fill();
+    text('NEW', -lw / 2 + 60, 12, { font: F.mono(800, 28), ls: 2 });
+    text(label, 55, 13, { font: F.kr(800, 36), color: '#000' });
+    ctx.restore();
   }
 }
-function dashed(x0, x1, y, col) { ctx.fillStyle = col; for (let x = x0; x < x1; x += 22) ctx.fillRect(x, y, 12, 3); }
+
+// ---------- WHO: GTTEND ----------
+const GT_WORDS = ['RUN', 'COFFEE', 'PEOPLE'];
+async function sceneGttend(t) {
+  const lt = t - T.brandG;
+  const clip = await clipFrame('hero', .4 + lt * .75);
+  ctx.save(); ctx.filter = 'blur(5px)';
+  if (clip) drawT(clip, cover(clip, 1.1, .45, .45)); else drawT(IMG.photo, cover(IMG.photo, 1.1, .5, .4));
+  ctx.restore();
+  dim(.72);
+  speedLines(t, .3, 36, 2400, 11);
+  chapterLabel(t, T.brandG, 'ABOUT GTTEND', '02 / 02');
+  const sp = seg(t, T.brandG + .08, T.brandG + .4);
+  if (sp > 0) {
+    ctx.save(); ctx.translate(540, 690); const k = outBack(sp); ctx.scale(k, k); ctx.rotate((1 - k) * .6);
+    svg('gttend_stars_w', 0, 0, 380); ctx.restore();
+    for (let i = 0; i < 5; i++) {
+      const st = T.brandG + .25 + i * .1, a = Math.sin(seg(t, st, st + .4) * Math.PI);
+      if (a > 0) sparkle(540 + (rnd(i + 21) - .5) * 640, 690 + (rnd(i + 29) - .5) * 260, 12 + rnd(i + 5) * 22, a, t * 2);
+    }
+  }
+  rise(seg(t, T.brandG + .2, T.brandG + .45), 760, 880, () => svg('gttend_word_w', 540, 820, 330));
+  const f = F.anton(Math.min(170, 170 * 900 / measure('FUN & RUN IS ALL', F.anton(170), 2)));
+  const hp = outExpo(seg(t, T.brandG + .35, T.brandG + .65));
+  if (hp > 0) echo(hp < .9 ? 3 : 0, -50 * (1 - hp), 0, .4, () => text('FUN & RUN IS ALL', 540 - (1 - hp) * 300, 1060, { font: f, ls: 2, skew: .1, alpha: hp }));
+  // RUN ✦ COFFEE ✦ PEOPLE
+  const wf = F.mono(800, 50), gap = 90;
+  const widths = GT_WORDS.map(w => measure(w, wf, 6));
+  let x = 540 - (widths.reduce((a, b) => a + b, 0) + gap * 2) / 2;
+  GT_WORDS.forEach((w, i) => {
+    const p = seg(t, T.brandG + .75 + i * B, T.brandG + .95 + i * B);
+    if (p > 0) text(w, x + widths[i] / 2, 1175 + (1 - outExpo(p)) * 40, { font: wf, ls: 6, alpha: clamp(p * 2) });
+    x += widths[i];
+    if (i < 2 && p > 0) sparkle(x + gap / 2, 1158, 16, clamp(p * 2), t);
+    x += gap;
+  });
+  rise(seg(t, T.brandG + 1.3, T.brandG + 1.55), 1215, 1320, () => text('달리고, 커피 마시고, 사람을 만나는', 540, 1295, { font: F.kr(800, 56), ls: -1 }));
+  rise(seg(t, T.brandG + 1.4, T.brandG + 1.65), 1320, 1400, () => text('모닝 러닝 웰니스 커뮤니티, 지텐드', 540, 1375, { font: F.kr(700, 44), alpha: .85 }));
+}
+
+// ---------- SESSION KIT ----------
+const KIT = [
+  ['FREEDOM 러닝 상·하의', 'RUNNING SET'],
+  ['FREEDOM 삭스', 'SOCKS'],
+  ['애프터런 커피', 'AFTER-RUN COFFEE'],
+  ['FW 신상 럭키 드로우', 'FW DROP · LUCKY DRAW'],
+];
+async function sceneKit(t) {
+  const lt = t - T.kit;
+  const clip = await clipFrame('legs', 3.3 + lt * .6);
+  if (clip) drawT(clip, cover(clip, 1.08, .55, .55)); else drawT(IMG.photo, cover(IMG.photo, 1.6, .35, .7));
+  dim(.66);
+  vgrad(0, 600, .7, 0); vgrad(1100, H, 0, .85);
+  chapterLabel(t, T.kit, 'SESSION KIT', 'FOR ALL RUNNERS');
+  rise(seg(t, T.kit + .1, T.kit + .35), 560, 720, () => text('함께 달리는 모두에게', 90, 690, { font: F.kr(900, 84), align: 'left', ls: -3 }));
+  KIT.forEach(([kr, en], i) => {
+    const st = T.kit + .45 + i * .38, p = outExpo(seg(t, st, st + .3));
+    if (p <= 0) return;
+    const y = 830 + i * 150;
+    ctx.save(); ctx.globalAlpha = p; ctx.translate((1 - p) * -140, 0);
+    sparkle(118, y - 18, 24, 1, 0);
+    text(kr, 170, y, { font: F.kr(800, 56), align: 'left', ls: -1 });
+    text(en, 170, y + 50, { font: F.mono(800, 26), align: 'left', ls: 4, alpha: .6 });
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(90, y + 80, 900 * p, 2);
+    ctx.restore();
+  });
+}
 
 // ---------- HOW TO JOIN ----------
-const STEPS = [
-  ['FOLLOW', '두 계정 모두 팔로우'],
+const JOIN = [
+  ['FOLLOW', '@freedom_whatever · @gttendclub'],
   ['LIKE', '본 게시물 좋아요'],
   ['COMMENT', '성별 / 상하의 사이즈 / 촬영 동의'],
   ['TAG', '함께 뛰고 싶은 친구 태그'],
 ];
-function tap(x, y, t, t0) {
-  const p = seg(t, t0 - .12, t0 + .3);
-  if (p <= 0 || p >= 1) return;
-  ctx.save();
-  if (t < t0) { ctx.globalAlpha = .8; ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(x, y, 46, 0, 7); ctx.fill(); }
-  else { const q = seg(t, t0, t0 + .3); ctx.globalAlpha = 1 - q; ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(x, y, 30 + q * 70, 0, 7); ctx.stroke(); }
-  ctx.restore();
-}
-function heart(cx, cy, s) {
-  ctx.beginPath();
-  ctx.moveTo(cx, cy + s * .35);
-  ctx.bezierCurveTo(cx - s * 1.05, cy - s * .35, cx - s * .45, cy - s * 1.05, cx, cy - s * .45);
-  ctx.bezierCurveTo(cx + s * .45, cy - s * 1.05, cx + s * 1.05, cy - s * .35, cx, cy + s * .35);
-  ctx.closePath();
-}
-function avatar(x, y, r, kind) {
-  ctx.save(); ctx.fillStyle = '#000'; ctx.strokeStyle = '#444'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
-  if (kind === 'f') svg('freedom_w', x, y, r * 1.5);
-  else if (kind === 'g') svg('gttend_stars_w', x, y, r * 1.45);
-  else { ctx.fillStyle = '#555'; ctx.beginPath(); ctx.arc(x, y - r * .2, r * .38, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(x, y + r * .75, r * .62, Math.PI, 0); ctx.fill(); }
-  ctx.restore();
-}
-const CMT = '남 / 상하의 XL / 촬영동의 Y';
-const TAG = ' / @친구계정';
-function sceneSteps(t) {
+function sceneJoin(t) {
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   drawT(IMG.photo, cover(IMG.photo, 1.5, .7, .3), .16);
   speedLines(t, .2, 26, 1600, 6);
-  rise(seg(t, T.km3 + .02, T.km3 + .3), 330, 470, () => {
-    text('HOW TO JOIN', 90, 440, { font: F.anton(118), align: 'left', ls: 4 });
-  });
-  const si = clamp(Math.floor((t - T.km3) / 1.25), 0, 3);
-  const st = T.steps[si], lt = t - st;
-  // step dots
-  for (let i = 0; i < 4; i++) {
-    ctx.fillStyle = i <= si ? '#fff' : 'rgba(255,255,255,.25)';
-    rrect(90 + i * 228, 478, 216, 8, 4); ctx.fill();
-  }
-  // number + title
-  const pin = seg(t, st, st + .25);
-  rise(pin, 520, 700, () => {
-    text(String(si + 1).padStart(2, '0'), 90, 680, { font: F.anton(170), align: 'left' });
-    text(STEPS[si][0], 300, 680, { font: F.anton(170), align: 'left', ls: 3 });
-  });
-  rise(seg(t, st + .08, st + .33), 700, 790, () => text(STEPS[si][1], 90, 770, { font: F.kr(800, 52), align: 'left', ls: -1 }));
-  // UI card
-  const cx = 90, cy = 830, cw = 900, ch = 600;
-  ctx.fillStyle = '#131313'; rrect(cx, cy, cw, ch, 36); ctx.fill();
-  ctx.strokeStyle = '#2b2b2b'; ctx.lineWidth = 3; rrect(cx, cy, cw, ch, 36); ctx.stroke();
-  ctx.save(); rrect(cx, cy, cw, ch, 36); ctx.clip();
-  const cin = outExpo(seg(t, st, st + .3));
-  ctx.translate((1 - cin) * 120, 0); ctx.globalAlpha = cin;
-  if (si === 0) {
-    [['freedom_whatever', 'FREEDOM', 'f', st + .45], ['gttendclub', 'GTTEND RUNNING CLUB', 'g', st + .8]].forEach(([h, sub, k, tt], i) => {
-      const y = cy + 170 + i * 250;
-      avatar(cx + 110, y, 66, k);
-      text(h, cx + 200, y - 6, { font: F.kr(700, 44), align: 'left' });
-      text(sub, cx + 200, y + 40, { font: F.mono(500, 26), align: 'left', alpha: .6 });
-      const on = t >= tt, bx = cx + cw - 250, by = y - 40;
-      const pop = t >= tt ? 1 + (1 - outCubic(seg(t, tt, tt + .2))) * .12 : 1;
-      ctx.save(); ctx.translate(bx + 110, by + 40); ctx.scale(pop, pop); ctx.translate(-bx - 110, -by - 40);
-      ctx.fillStyle = on ? '#2a2a2a' : '#fff'; rrect(bx, by, 220, 80, 16); ctx.fill();
-      text(on ? '팔로잉 ✓' : '팔로우', bx + 110, by + 54, { font: F.kr(800, 38), color: on ? '#fff' : '#000' });
-      ctx.restore();
-      tap(bx + 110, by + 40, t, tt);
-    });
-  } else if (si === 1) {
-    const ix = cx + 60, iy = cy + 40, iw = 360, ih = 450;
-    ctx.drawImage(IMG.poster, ix, iy, iw, ih);
-    const lk = st + .5, liked = t >= lk;
-    const bp = seg(t, lk, lk + .5);
-    if (bp > 0 && bp < 1) { ctx.save(); ctx.globalAlpha = 1 - inExpo(bp); ctx.fillStyle = '#fff'; heart(ix + iw / 2, iy + ih / 2 + 20, 120 * outBack(clamp(bp * 2.5))); ctx.fill(); ctx.restore(); }
-    const hs = liked ? 1 + (1 - outCubic(seg(t, lk, lk + .25))) * .35 : 1;
-    ctx.save(); ctx.translate(ix + 40, iy + ih + 60); ctx.scale(hs, hs);
-    ctx.lineWidth = 6; ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff'; heart(0, 0, 36); liked ? ctx.fill() : ctx.stroke(); ctx.restore();
-    text(liked ? '158' : '157', ix + 96, iy + ih + 74, { font: F.kr(700, 40), align: 'left' });
-    text('gttendclub', cx + 470, cy + 110, { font: F.kr(800, 42), align: 'left' });
-    text('FREEDOM × GTTEND', cx + 470, cy + 170, { font: F.anton(46), align: 'left', ls: 1 });
-    text('RUN SESSION', cx + 470, cy + 222, { font: F.anton(46), align: 'left', ls: 1 });
-    text('10.10 SAT · 성수', cx + 470, cy + 280, { font: F.kr(600, 34), align: 'left', alpha: .6 });
-    for (let i = 0; i < 8; i++) {
-      const pa = seg(t, lk, lk + .45); if (pa <= 0 || pa >= 1) continue;
-      const a = i / 8 * Math.PI * 2, r = 40 + pa * 90;
-      sparkle(ix + 40 + Math.cos(a) * r, iy + ih + 60 + Math.sin(a) * r, 12 * (1 - pa), 1 - pa);
+  rise(seg(t, T.join + .02, T.join + .3), 330, 470, () => text('HOW TO JOIN', 90, 440, { font: F.anton(118), align: 'left', ls: 4 }));
+  JOIN.forEach(([en, kr], i) => {
+    const st = T.join + .2 + i * .3, p = outExpo(seg(t, st, st + .25));
+    if (p <= 0) return;
+    const y = 560 + i * 165;
+    ctx.save(); ctx.globalAlpha = p; ctx.translate(0, (1 - p) * 50);
+    const ck = seg(t, st + .18, st + .3);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; rrect(90, y + 20, 64, 64, 12); ctx.stroke();
+    if (ck > 0) {
+      ctx.fillStyle = '#fff'; rrect(90, y + 20, 64, 64, 12); ctx.fill();
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath();
+      ctx.moveTo(106, y + 52); ctx.lineTo(118, y + 66); ctx.lineTo(118 + 22 * ck, y + 66 - 30 * ck); ctx.stroke();
     }
-    tap(ix + iw / 2, iy + ih / 2, t, lk);
-  } else {
-    // comment composer (steps 3 and 4 share it)
-    const n3 = Math.floor(clamp((t - (T.steps[2] + .25)) / .75) * CMT.length);
-    const n4 = Math.floor(clamp((t - (T.steps[3] + .2)) / .4) * TAG.length);
-    const typed = CMT.slice(0, si === 2 ? n3 : CMT.length);
-    const tag = si === 3 ? TAG.slice(0, n4) : '';
-    const posted = si === 3 && t >= T.steps[3] + .85;
-    // posted comment bubble
-    if (posted) {
-      const pp = outExpo(seg(t, T.steps[3] + .85, T.steps[3] + 1.1));
-      ctx.save(); ctx.globalAlpha *= pp; ctx.translate(0, (1 - pp) * 60);
-      avatar(cx + 90, cy + 110, 44, 'u');
-      text('my_run_account', cx + 160, cy + 96, { font: F.kr(800, 34), align: 'left' });
-      text(CMT + ' /', cx + 160, cy + 146, { font: F.kr(700, 36), align: 'left' });
-      text('@친구계정', cx + 160 + measure(CMT + ' / ', F.kr(700, 36)), cy + 146, { font: F.kr(800, 36), align: 'left' });
-      text('방금 전 · 좋아요 · 답글 달기', cx + 160, cy + 196, { font: F.kr(600, 26), align: 'left', alpha: .5 });
-      ctx.restore();
-    } else {
-      // size guide
-      const gp = outExpo(seg(t, T.steps[2] + .45, T.steps[2] + .7));
-      ctx.save(); ctx.globalAlpha *= gp;
-      [['여성', 'S – M'], ['남성', 'L – 4XL']].forEach(([g, s], i) => {
-        const x = cx + 50 + i * 410;
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; rrect(x, cy + 60, 390, 150, 20); ctx.stroke();
-        text(g, x + 30, cy + 118, { font: F.kr(800, 36), align: 'left', alpha: .7 });
-        text(s, x + 30, cy + 186, { font: F.anton(64), align: 'left', ls: 2 });
-      });
-      text('* 상하의 사이즈 통일', cx + 50, cy + 262, { font: F.kr(600, 30), align: 'left', alpha: .6 });
-      ctx.restore();
-    }
-    const fy = cy + 400;
-    avatar(cx + 90, fy + 50, 44, 'u');
-    ctx.strokeStyle = '#444'; ctx.lineWidth = 3; rrect(cx + 160, fy, 690, 100, 50); ctx.stroke();
-    ctx.save(); ctx.beginPath(); ctx.rect(cx + 180, fy, 540, 100); ctx.clip();
-    const tf = F.kr(700, 36);
-    const full = typed + tag, fw = measure(full, tf);
-    const sx = Math.min(0, 520 - fw);
-    if (!full && !posted) text('댓글 달기...', cx + 196, fy + 63, { font: tf, align: 'left', alpha: .4 });
-    text(typed, cx + 196 + sx, fy + 63, { font: tf, align: 'left' });
-    if (tag) {
-      const tx = cx + 196 + sx + measure(typed, tf);
-      text(tag, tx, fy + 63, { font: F.kr(800, 36), align: 'left' });
-    }
-    if (!posted && Math.floor(t * 3) % 2 === 0) { ctx.fillStyle = '#fff'; ctx.fillRect(cx + 200 + sx + fw, fy + 28, 4, 46); }
+    text(String(i + 1).padStart(2, '0'), 190, y + 60, { font: F.mono(800, 32), align: 'left', alpha: .6 });
+    text(en, 260, y + 82, { font: F.anton(92), align: 'left', ls: 3 });
+    text(kr, 262, y + 138, { font: F.kr(700, 38), align: 'left', alpha: .85 });
     ctx.restore();
-    const ready = si === 3 && n4 >= TAG.length;
-    text('게시', cx + 790, fy + 64, { font: F.kr(800, 36), alpha: ready ? 1 : .35 });
-    if (si === 3) tap(cx + 790, fy + 50, t, T.steps[3] + .8);
+  });
+  const cp = outExpo(seg(t, T.join + 1.45, T.join + 1.75));
+  if (cp > 0) {
+    ctx.save(); ctx.globalAlpha = cp; ctx.translate(0, (1 - cp) * 40);
+    ctx.fillStyle = '#1a1a1a'; rrect(90, 1250, 900, 110, 55); ctx.fill();
+    ctx.strokeStyle = '#3a3a3a'; ctx.lineWidth = 3; rrect(90, 1250, 900, 110, 55); ctx.stroke();
+    text('ex)', 140, 1318, { font: F.mono(800, 30), align: 'left', alpha: .55 });
+    text('남 / 상하의 XL / 촬영동의 Y / @친구계정', 215, 1318, { font: F.kr(800, 38), align: 'left' });
+    text('여성 S – M  ·  남성 L – 4XL  (상하의 동일 사이즈)', 540, 1420, { font: F.kr(600, 34), alpha: .7 });
+    ctx.restore();
   }
-  ctx.restore();
-}
-
-// ---------- ONLY 40 ----------
-function sceneOnly(t) {
-  const lt = t - T.only;
-  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-  speedLines(t, .3, 30, 2400, 9);
-  const n = Math.floor(clamp(lt / .85) * 40);
-  rise(seg(t, T.only, T.only + .25), 400, 560, () => text('ONLY', 540, 540, { font: F.anton(150), ls: 24 }));
-  const s = 1 + (1 - outExpo(seg(t, T.only, T.only + .3))) * .5;
-  text(String(Math.min(40, n)).padStart(2, '0'), 540, 1010, { font: F.anton(500), scale: s, ls: 6 });
-  // 40 bib slots filling up
-  const cols = 10, cw = 80, chh = 44, g = 10;
-  const gx = 540 - (cols * cw + (cols - 1) * g) / 2, gy = 1050;
-  for (let i = 0; i < 40; i++) {
-    const x = gx + (i % cols) * (cw + g), y = gy + Math.floor(i / cols) * (chh + g);
-    const on = i < n;
-    ctx.fillStyle = on ? '#fff' : 'rgba(255,255,255,.1)'; rrect(x, y, cw, chh, 6); ctx.fill();
-    text(String(i + 1).padStart(2, '0'), x + cw / 2, y + 31, { font: F.mono(800, 22), color: on ? '#000' : 'rgba(255,255,255,.3)' });
-  }
-  rise(seg(t, T.only + .3, T.only + .55), 1270, 1420, () => text('단 40명 추첨', 540, 1395, { font: F.kr(900, 116), ls: -3 }));
 }
 
 // ---------- DEADLINE (inverted) ----------
@@ -694,7 +592,10 @@ function sceneDeadline(t) {
   const lt = t - T.dead;
   ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
   const K = '#000';
-  rise(seg(t, T.dead, T.dead + .25), 440, 540, () => text('DEADLINE', 90, 520, { font: F.mono(800, 40), color: K, align: 'left', ls: 12 }));
+  rise(seg(t, T.dead, T.dead + .25), 440, 540, () => {
+    text('DEADLINE', 90, 520, { font: F.mono(800, 40), color: K, align: 'left', ls: 12 });
+    text('40 RUNNERS', 990, 520, { font: F.mono(800, 40), color: K, align: 'right', ls: 6 });
+  });
   ctx.fillStyle = K; ctx.fillRect(90, 545, 900 * outExpo(seg(t, T.dead + .05, T.dead + .4)), 4);
   const s = 1 + (1 - outExpo(seg(t, T.dead, T.dead + .3))) * .35;
   text('10.03', 540, 930, { font: F.anton(400), color: K, scale: s, ls: 4 });
@@ -703,7 +604,7 @@ function sceneDeadline(t) {
     ctx.fillStyle = K; rrect(270, 1140, 540, 136, 14); ctx.fill();
     text('신청 마감', 540, 1250, { font: F.kr(900, 104), color: '#fff', ls: -3 });
   });
-  rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text('당첨자는 10/3 18시 이후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
+  rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text('40명 추첨 · 당첨자는 18시 이후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
   if (DDAY) {
     const p = seg(t, T.dead + .45, T.dead + .7);
     if (p > 0) {
@@ -739,7 +640,7 @@ async function sceneEnd(t) {
   const lt = t - T.finish;
   // tape halves flying away
   const Tp = cover(IMG.photo, 1.08 + lt * .03, .5, .45);
-  const clip = await clipFrame('hero', 1.5 + lt);
+  const clip = await clipFrame('hero', .3 + lt * .9);
   if (clip) drawT(clip, cover(clip, 1.05 + lt * .02, .5, .45)); else drawT(IMG.photo, Tp);
   dim(.5);
   vgrad(0, 700, .85, 0); vgrad(900, H, 0, .95);
@@ -804,12 +705,13 @@ async function render(t) {
   ctx.translate(sx, sy);
   if (t < T.title) await sceneHook(t);
   else if (t < T.km1) await sceneTitle(t);
+  else if (t < T.brandG) await sceneFreedom(t);
+  else if (t < T.km2) await sceneGttend(t);
   else if (t < T.place) await sceneDate(t);
   else if (t < T.run) await scenePlace(t);
-  else if (t < T.km2) await sceneRun(t);
-  else if (t < T.km3) sceneReceipt(t);
-  else if (t < T.km4) sceneSteps(t);
-  else if (t < T.dead) sceneOnly(t);
+  else if (t < T.km3) await sceneRun(t);
+  else if (t < T.join) await sceneKit(t);
+  else if (t < T.km4) sceneJoin(t);
   else if (t < T.tape) sceneDeadline(t);
   else if (t < T.finish) sceneTape(t);
   else await sceneEnd(t);
@@ -844,13 +746,13 @@ function cues() {
   for (let i = 0; i < 5; i++) add(T.date + .08 + i * .07, 'slot');
   add(T.place + .5, 'thud');
   add(T.run + .1, 'riser_short');
-  add(10.25, 'print'); RC_T.forEach(t => add(t, 'print')); add(13.1, 'print'); add(13.35, 'print');
-  add(13.75, 'stamp');
-  add(15.45, 'tap'); add(15.8, 'tap'); add(16.75, 'pop');
-  for (let i = 0; i < CMT.length; i++) add(T.steps[2] + .25 + i * (.75 / CMT.length), 'key');
-  for (let i = 0; i < TAG.length; i++) add(T.steps[3] + .2 + i * (.4 / TAG.length), 'key');
-  add(T.steps[3] + .8, 'tap'); add(T.steps[3] + .85, 'send');
-  for (let i = 0; i < 40; i += 2) add(T.only + i / 40 * .85, 'count');
+  FW_WORDS.forEach((_, i) => add(T.brandF + .55 + i * B, 'thud'));
+  add(T.brandF + 1.55, 'pop');
+  add(T.brandG + .1, 'sparkle');
+  GT_WORDS.forEach((_, i) => add(T.brandG + .75 + i * B, 'tap'));
+  KIT.forEach((_, i) => add(T.kit + .45 + i * .38, 'swipe'));
+  JOIN.forEach((_, i) => add(T.join + .38 + i * .3, 'tap'));
+  add(T.join + 1.45, 'pop');
   add(T.tape - .9, 'riser');
   add(T.finish, 'snap');
   return c;
