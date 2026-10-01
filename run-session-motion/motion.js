@@ -9,7 +9,8 @@
 const W = 1080, H = 1920, FPS = 30, DUR = 25;
 const BPM = 144, B = 60 / BPM;              // one beat = 0.4167 s, 12 beats per km
 const Q = new URLSearchParams(location.search);
-const DDAY = Q.get('dday') || '';           // e.g. "D-3" adds a badge on the deadline card
+const DDAY = Q.get('dday') || '';           // e.g. "D-1" adds countdown stamps / LAST CALL copy
+const DUE = DDAY === 'D-1' ? '내일(10.03)' : DDAY === 'D-DAY' ? '오늘' : '10.03 SAT';
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
 
@@ -253,6 +254,17 @@ function drawFreedomSplit(lx, ly, lw, domDx, domA, key = 'freedom_w') {
   ctx.restore();
 }
 
+// big rotated D-day stamp that thumps on every beat
+function ddayStamp(t, x, y, a = 1, s0 = 1) {
+  if (a <= 0) return;
+  const beat = (t % B) / B, k = s0 * (1 + (1 - outCubic(clamp(beat * 4))) * .1);
+  ctx.save(); ctx.globalAlpha *= a; ctx.translate(x, y); ctx.rotate(-.1); ctx.scale(k, k);
+  ctx.fillStyle = '#fff'; rrect(-150, -92, 300, 184, 20); ctx.fill();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 6; rrect(-136, -78, 272, 156, 12); ctx.stroke();
+  text(DDAY, 0, 50, { font: F.anton(150), color: '#000', ls: 2 });
+  ctx.restore();
+}
+
 async function sceneHook(t) {
   // background: live AI clip if present, else three hard crops of the photo on the beat
   const k = Math.min(2, Math.floor(t / B));
@@ -288,11 +300,12 @@ async function sceneHook(t) {
     ctx.save(); ctx.globalAlpha = subA;
     text('자유롭게, 함께 달리다.', 540, 1275, { font: F.kr(900, 88), ls: -2 });
     text('FREEDOM × GTTEND RUN SESSION', 540, 1360, { font: F.mono(800, 34), ls: 3 });
-    const dl = (DDAY ? `마감 ${DDAY}  ·  ` : '') + '10.03 SAT 18:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
+    const dl = DDAY ? `LAST CALL  ·  ${DUE} 18:00 신청 마감` : '10.03 SAT 18:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
     ctx.fillStyle = '#fff'; rrect(540 - dw / 2, 1405, dw, 74, 37); ctx.fill();
     text(dl, 540, 1455, { font: F.kr(800, 38), color: '#000' });
     ctx.restore();
   }
+  if (DDAY) ddayStamp(t, 820, 525, 1 - seg(t, T.dom - .05, T.dom + .1));
   // × GTTEND lockup
   const pl = seg(t, T.lock, T.lock + .3);
   if (pl > 0) {
@@ -615,21 +628,19 @@ function sceneDeadline(t) {
   });
   ctx.fillStyle = K; ctx.fillRect(90, 545, 900 * outExpo(seg(t, T.dead + .05, T.dead + .4)), 4);
   const s = 1 + (1 - outExpo(seg(t, T.dead, T.dead + .3))) * .35;
-  text('10.03', 540, 930, { font: F.anton(400), color: K, scale: s, ls: 4 });
-  rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('SAT 18:00', 540, 1095, { font: F.anton(160), color: K, ls: 8 }));
+  if (DDAY) {
+    const beat = 1 + (1 - outCubic(clamp(((t % B) / B) * 4))) * .04;
+    text(DDAY, 540, 930, { font: F.anton(440), color: K, scale: s * beat, ls: 6 });
+    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 18:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
+  } else {
+    text('10.03', 540, 930, { font: F.anton(400), color: K, scale: s, ls: 4 });
+    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('SAT 18:00', 540, 1095, { font: F.anton(160), color: K, ls: 8 }));
+  }
   rise(seg(t, T.dead + .35, T.dead + .6), 1130, 1280, () => {
     ctx.fillStyle = K; rrect(270, 1140, 540, 136, 14); ctx.fill();
-    text('신청 마감', 540, 1250, { font: F.kr(900, 104), color: '#fff', ls: -3 });
+    text(DDAY === 'D-1' ? '내일 마감' : '신청 마감', 540, 1250, { font: F.kr(900, 104), color: '#fff', ls: -3 });
   });
   rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text('40명 추첨 · 당첨자는 18시 이후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
-  if (DDAY) {
-    const p = seg(t, T.dead + .45, T.dead + .7);
-    if (p > 0) {
-      ctx.save(); ctx.translate(850, 640); ctx.rotate(.18); const k = outBack(p); ctx.scale(k, k);
-      ctx.fillStyle = K; rrect(-130, -70, 260, 130, 65); ctx.fill();
-      text(DDAY, 0, 38, { font: F.anton(100), color: '#fff', ls: 2 }); ctx.restore();
-    }
-  }
   // ticking second hand
   const a = Math.floor(lt * 8) / 8 * Math.PI * 2 * .25 - Math.PI / 2;
   ctx.save(); ctx.strokeStyle = K; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(900, 1520 - 40, 34, 0, 7); ctx.stroke();
@@ -688,7 +699,11 @@ async function sceneEnd(t) {
     const pulse = 1 + Math.sin(Math.max(0, lt - .8) * Math.PI * 2 / (2 * B)) * .025;
     ctx.save(); ctx.translate(540, 1275); ctx.scale(cp * pulse, cp * pulse);
     ctx.fillStyle = '#fff'; rrect(-400, -70, 800, 140, 70); ctx.fill();
-    text('지금 댓글로 신청하기  →', 0, 18, { font: F.kr(900, 54), color: '#000', ls: -1 });
+    if (DDAY) {
+      ctx.fillStyle = '#000'; rrect(-384, -54, 170, 108, 54); ctx.fill();
+      text(DDAY, -299, 26, { font: F.anton(72), ls: 2 });
+      text('지금 댓글로 신청하기 →', 85, 18, { font: F.kr(900, 52), color: '#000', ls: -1 });
+    } else text('지금 댓글로 신청하기  →', 0, 18, { font: F.kr(900, 54), color: '#000', ls: -1 });
     // shine sweep
     const sh = ((lt - .9) % 1.2) / 1.2;
     if (lt > .9) {
