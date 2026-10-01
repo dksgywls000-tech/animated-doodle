@@ -36,7 +36,7 @@ const T = {
   hook: 0, dom: 1.25, lock: 1.67, title: 2.08,
   km1: 5, brandF: 5, brandG: 7.5,
   km2: 10, date: 10, place: 11.67, run: 13.33,
-  km3: 15, kit: 15, join: 17.5,
+  km3: 15, kit: 15, join: 17.8,
   km4: 20, dead: 20, tape: 22.5, finish: 22.92, end: 25,
 };
 const IMPACTS = [
@@ -288,6 +288,9 @@ async function sceneHook(t) {
     ctx.save(); ctx.globalAlpha = subA;
     text('자유롭게, 함께 달리다.', 540, 1275, { font: F.kr(900, 88), ls: -2 });
     text('FREEDOM × GTTEND RUN SESSION', 540, 1360, { font: F.mono(800, 34), ls: 3 });
+    const dl = (DDAY ? `마감 ${DDAY}  ·  ` : '') + '10.03 SAT 18:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
+    ctx.fillStyle = '#fff'; rrect(540 - dw / 2, 1405, dw, 74, 37); ctx.fill();
+    text(dl, 540, 1455, { font: F.kr(800, 38), color: '#000' });
     ctx.restore();
   }
   // × GTTEND lockup
@@ -442,106 +445,120 @@ async function sceneRun(t) {
   rise(seg(t, T.run + .5, T.run + .75), 1350, 1450, () => text('5km · 6분 30초 전후 페이스', 90, 1420, { font: F.kr(800, 52), align: 'left', ls: -1 }));
 }
 
-// ---------- WHO: FREEDOM ----------
-const FW_WORDS = ['GYM', 'RUN', 'LIFE'];
+// ---------- WHO: FREEDOM (what the clothing is) ----------
+// product crops from the campaign photo: [label, sub, cx, cy, w, h] in photo pixels
+const FW_ITEMS = [
+  ['RUNNING TEE', '러닝 티셔츠', 365, 640, 380, 470],
+  ['RUNNING SHORTS', '러닝 쇼츠', 390, 960, 340, 420],
+  ['ATHLETIC TOP', '애슬레틱 탑', 930, 770, 300, 375],
+];
 async function sceneFreedom(t) {
   const lt = t - T.brandF;
   const clip = await clipFrame('legs', 2.0 + lt * .9);
   if (clip) drawT(clip, cover(clip, 1.02 + lt * .02, .5, .5));
   else drawT(IMG.photo, cover(IMG.photo, 1.3, .3, .6));
-  dim(.55);
-  vgrad(0, 620, .75, 0); vgrad(1000, H, 0, .92);
+  dim(.72);
   speedLines(t, .3, 30, 3000, 10);
   chapterLabel(t, T.brandF, 'ABOUT FREEDOM', '01 / 02');
-  rise(seg(t, T.brandF + .1, T.brandF + .4), 580, 900, () => svg('freedom_whatever_w', 540, 745, 700));
-  // GYM · RUN · LIFE on the beat
-  const sep = '  ·  ', font = F.anton(Math.min(150, 150 * 880 / measure(FW_WORDS.join('  ·  '), F.anton(150), 4)));
-  const full = FW_WORDS.join(sep), fw = measure(full, font, 4);
-  let x = 540 - fw / 2;
-  FW_WORDS.forEach((w, i) => {
-    const p = seg(t, T.brandF + .55 + i * B, T.brandF + .8 + i * B);
-    const ww = measure(w, font, 4);
-    if (p > 0) text(w, x + ww / 2, 1090, { font, ls: 4, scale: 1 + (1 - outExpo(p)) * .35, alpha: clamp(p * 3) });
-    x += ww;
-    if (i < 2) { if (p > 0) text(sep, x + measure(sep, font, 4) / 2, 1090, { font, alpha: .45 * clamp(p * 3) }); x += measure(sep, font, 4); }
+  rise(seg(t, T.brandF + .05, T.brandF + .3), 560, 800, () => svg('freedom_whatever_w', 540, 680, 520));
+  rise(seg(t, T.brandF + .25, T.brandF + .5), 800, 900, () => text('운동과 일상을 잇는 애슬레틱 웨어', 540, 875, { font: F.kr(900, 60), ls: -2 }));
+  const cw = 280, ch = 350, gap = 20, x0 = 540 - (3 * cw + 2 * gap) / 2, y0 = 925;
+  FW_ITEMS.forEach(([en, kr, cx, cy, w, h], i) => {
+    const st = T.brandF + .5 + i * B, p = outExpo(seg(t, st, st + .3));
+    if (p <= 0) return;
+    const x = x0 + i * (cw + gap);
+    ctx.save(); ctx.globalAlpha = p; ctx.translate(0, (1 - p) * 80);
+    rrect(x, y0, cw, ch, 22); ctx.save(); ctx.clip();
+    const z = 1 + (t - st) * .04, sw = w / z, sh = h / z;
+    ctx.drawImage(IMG.photo, cx - sw / 2, cy - sh / 2, sw, sh, x, y0, cw, ch);
+    const g = ctx.createLinearGradient(0, y0 + ch * .45, 0, y0 + ch); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.9)');
+    ctx.fillStyle = g; ctx.fillRect(x, y0, cw, ch);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2; rrect(x, y0, cw, ch, 22); ctx.stroke();
+    text(en, x + 20, y0 + ch - 58, { font: F.anton(38), align: 'left', ls: 1 });
+    text(kr, x + 20, y0 + ch - 20, { font: F.kr(700, 28), align: 'left', alpha: .8 });
+    ctx.restore();
   });
-  rise(seg(t, T.brandF + 1.2, T.brandF + 1.45), 1130, 1250, () => text('운동하는 일상을 입는 브랜드', 540, 1225, { font: F.kr(900, 70), ls: -2 }));
-  rise(seg(t, T.brandF + 1.3, T.brandF + 1.55), 1255, 1330, () => text('짐웨어에서 러닝까지, 프리덤', 540, 1310, { font: F.kr(700, 44), alpha: .85 }));
-  const pb = seg(t, T.brandF + 1.55, T.brandF + 1.8);
+  rise(seg(t, T.brandF + 1.45, T.brandF + 1.7), 1290, 1360, () => text('짐웨어 · 러닝웨어 · 라이프스타일', 540, 1345, { font: F.kr(800, 42) }));
+  const pb = seg(t, T.brandF + 1.6, T.brandF + 1.85);
   if (pb > 0) {
-    ctx.save(); ctx.translate(540, 1400); const k = outBack(pb); ctx.scale(k, k);
-    const label = '러닝 웨어 & 새로운 FW 컬렉션 첫 공개', lw = measure(label, F.kr(800, 36)) + 150;
-    ctx.fillStyle = '#fff'; rrect(-lw / 2, -40, lw, 80, 40); ctx.fill();
-    ctx.fillStyle = '#000'; rrect(-lw / 2 + 10, -30, 100, 60, 30); ctx.fill();
-    text('NEW', -lw / 2 + 60, 12, { font: F.mono(800, 28), ls: 2 });
-    text(label, 55, 13, { font: F.kr(800, 36), color: '#000' });
+    ctx.save(); ctx.translate(540, 1420); const k = outBack(pb); ctx.scale(k, k);
+    const label = '이번 세션에서 새 FW 컬렉션 첫 공개', lw = measure(label, F.kr(800, 34)) + 150;
+    ctx.fillStyle = '#fff'; rrect(-lw / 2, -38, lw, 76, 38); ctx.fill();
+    ctx.fillStyle = '#000'; rrect(-lw / 2 + 10, -28, 100, 56, 28); ctx.fill();
+    text('NEW', -lw / 2 + 60, 11, { font: F.mono(800, 26), ls: 2 });
+    text(label, 55, 12, { font: F.kr(800, 34), color: '#000' });
     ctx.restore();
   }
 }
 
-// ---------- WHO: GTTEND ----------
-const GT_WORDS = ['RUN', 'COFFEE', 'PEOPLE'];
+// ---------- WHO: GTTEND (what the club does) ----------
+const GT_ROWS = [
+  ['2~3주마다 열리는 모닝 런', 'MORNING RUN'],
+  ['러닝 후 카페에서 커피 한 잔', 'AFTER-RUN COFFEE'],
+  ['브랜드 협업 세션 & 럭키 드로우', 'COLLAB SESSION'],
+];
 async function sceneGttend(t) {
   const lt = t - T.brandG;
   const clip = await clipFrame('hero', .4 + lt * .75);
   ctx.save(); ctx.filter = 'blur(5px)';
   if (clip) drawT(clip, cover(clip, 1.1, .45, .45)); else drawT(IMG.photo, cover(IMG.photo, 1.1, .5, .4));
   ctx.restore();
-  dim(.72);
+  dim(.74);
   speedLines(t, .3, 36, 2400, 11);
   chapterLabel(t, T.brandG, 'ABOUT GTTEND', '02 / 02');
-  const sp = seg(t, T.brandG + .08, T.brandG + .4);
+  const sp = seg(t, T.brandG + .05, T.brandG + .35);
   if (sp > 0) {
-    ctx.save(); ctx.translate(540, 690); const k = outBack(sp); ctx.scale(k, k); ctx.rotate((1 - k) * .6);
-    svg('gttend_stars_w', 0, 0, 380); ctx.restore();
+    ctx.save(); ctx.translate(540, 640); const k = outBack(sp); ctx.scale(k, k); ctx.rotate((1 - k) * .6);
+    svg('gttend_stars_w', 0, 0, 300); ctx.restore();
     for (let i = 0; i < 5; i++) {
-      const st = T.brandG + .25 + i * .1, a = Math.sin(seg(t, st, st + .4) * Math.PI);
-      if (a > 0) sparkle(540 + (rnd(i + 21) - .5) * 640, 690 + (rnd(i + 29) - .5) * 260, 12 + rnd(i + 5) * 22, a, t * 2);
+      const st = T.brandG + .2 + i * .1, a = Math.sin(seg(t, st, st + .4) * Math.PI);
+      if (a > 0) sparkle(540 + (rnd(i + 21) - .5) * 600, 640 + (rnd(i + 29) - .5) * 200, 12 + rnd(i + 5) * 20, a, t * 2);
     }
   }
-  rise(seg(t, T.brandG + .2, T.brandG + .45), 760, 880, () => svg('gttend_word_w', 540, 820, 330));
-  const f = F.anton(Math.min(170, 170 * 900 / measure('FUN & RUN IS ALL', F.anton(170), 2)));
-  const hp = outExpo(seg(t, T.brandG + .35, T.brandG + .65));
-  if (hp > 0) echo(hp < .9 ? 3 : 0, -50 * (1 - hp), 0, .4, () => text('FUN & RUN IS ALL', 540 - (1 - hp) * 300, 1060, { font: f, ls: 2, skew: .1, alpha: hp }));
-  // RUN ✦ COFFEE ✦ PEOPLE
-  const wf = F.mono(800, 50), gap = 90;
-  const widths = GT_WORDS.map(w => measure(w, wf, 6));
-  let x = 540 - (widths.reduce((a, b) => a + b, 0) + gap * 2) / 2;
-  GT_WORDS.forEach((w, i) => {
-    const p = seg(t, T.brandG + .75 + i * B, T.brandG + .95 + i * B);
-    if (p > 0) text(w, x + widths[i] / 2, 1175 + (1 - outExpo(p)) * 40, { font: wf, ls: 6, alpha: clamp(p * 2) });
-    x += widths[i];
-    if (i < 2 && p > 0) sparkle(x + gap / 2, 1158, 16, clamp(p * 2), t);
-    x += gap;
+  rise(seg(t, T.brandG + .15, T.brandG + .4), 700, 800, () => svg('gttend_word_w', 540, 745, 260));
+  const f = F.anton(Math.min(150, 150 * 880 / measure('FUN & RUN IS ALL', F.anton(150), 2)));
+  const hp = outExpo(seg(t, T.brandG + .3, T.brandG + .6));
+  if (hp > 0) echo(hp < .9 ? 3 : 0, -50 * (1 - hp), 0, .4, () => text('FUN & RUN IS ALL', 540 - (1 - hp) * 300, 945, { font: f, ls: 2, skew: .1, alpha: hp }));
+  rise(seg(t, T.brandG + .45, T.brandG + .7), 965, 1030, () => text('달리고, 마시고, 연결되는 러닝 웰니스 커뮤니티', 540, 1015, { font: F.kr(700, 38), alpha: .85 }));
+  GT_ROWS.forEach(([kr, en], i) => {
+    const st = T.brandG + .7 + i * B, p = outExpo(seg(t, st, st + .28));
+    if (p <= 0) return;
+    const y = 1070 + i * 120;
+    ctx.save(); ctx.globalAlpha = p; ctx.translate((1 - p) * -120, 0);
+    ctx.fillStyle = 'rgba(255,255,255,.08)'; rrect(90, y, 900, 104, 18); ctx.fill();
+    text(String(i + 1).padStart(2, '0'), 130, y + 66, { font: F.anton(54), align: 'left' });
+    text(kr, 220, y + 52, { font: F.kr(800, 42), align: 'left', ls: -1 });
+    text(en, 220, y + 88, { font: F.mono(800, 22), align: 'left', ls: 4, alpha: .55 });
+    ctx.restore();
   });
-  rise(seg(t, T.brandG + 1.3, T.brandG + 1.55), 1215, 1320, () => text('달리고, 커피 마시고, 사람을 만나는', 540, 1295, { font: F.kr(800, 56), ls: -1 }));
-  rise(seg(t, T.brandG + 1.4, T.brandG + 1.65), 1320, 1400, () => text('모닝 러닝 웰니스 커뮤니티, 지텐드', 540, 1375, { font: F.kr(700, 44), alpha: .85 }));
 }
 
-// ---------- SESSION KIT ----------
+// ---------- BENEFITS ----------
 const KIT = [
-  ['FREEDOM 러닝 상·하의', 'RUNNING SET'],
-  ['FREEDOM 삭스', 'SOCKS'],
-  ['애프터런 커피', 'AFTER-RUN COFFEE'],
-  ['FW 신상 럭키 드로우', 'FW DROP · LUCKY DRAW'],
+  ['FREEDOM 러닝 상·하의 세트', 'RUNNING TOP & BOTTOM'],
+  ['FREEDOM 러닝 삭스', 'RUNNING SOCKS'],
+  ['러닝 후 커피', 'AFTER-RUN COFFEE'],
+  ['FW 신상 현장 럭키 드로우', 'FW DROP · LUCKY DRAW'],
 ];
 async function sceneKit(t) {
   const lt = t - T.kit;
-  const clip = await clipFrame('legs', 3.3 + lt * .6);
+  const clip = await clipFrame('legs', 3.3 + lt * .55);
   if (clip) drawT(clip, cover(clip, 1.08, .55, .55)); else drawT(IMG.photo, cover(IMG.photo, 1.6, .35, .7));
-  dim(.66);
+  dim(.7);
   vgrad(0, 600, .7, 0); vgrad(1100, H, 0, .85);
-  chapterLabel(t, T.kit, 'SESSION KIT', 'FOR ALL RUNNERS');
-  rise(seg(t, T.kit + .1, T.kit + .35), 560, 720, () => text('함께 달리는 모두에게', 90, 690, { font: F.kr(900, 84), align: 'left', ls: -3 }));
+  chapterLabel(t, T.kit, 'BENEFITS', 'FOR ALL RUNNERS');
+  rise(seg(t, T.kit + .08, T.kit + .33), 560, 720, () => text('참가자 전원 혜택', 90, 690, { font: F.kr(900, 96), align: 'left', ls: -3 }));
   KIT.forEach(([kr, en], i) => {
-    const st = T.kit + .45 + i * .38, p = outExpo(seg(t, st, st + .3));
+    const st = T.kit + .4 + i * .42, p = outExpo(seg(t, st, st + .3));
     if (p <= 0) return;
-    const y = 830 + i * 150;
+    const y = 840 + i * 160;
     ctx.save(); ctx.globalAlpha = p; ctx.translate((1 - p) * -140, 0);
-    sparkle(118, y - 18, 24, 1, 0);
-    text(kr, 170, y, { font: F.kr(800, 56), align: 'left', ls: -1 });
-    text(en, 170, y + 50, { font: F.mono(800, 26), align: 'left', ls: 4, alpha: .6 });
-    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(90, y + 80, 900 * p, 2);
+    const pop = 1 + (1 - outCubic(seg(t, st, st + .25))) * .6;
+    sparkle(122, y - 20, 28 * pop, 1, 0);
+    text(kr, 180, y, { font: F.kr(800, 58), align: 'left', ls: -1 });
+    text(en, 180, y + 52, { font: F.mono(800, 26), align: 'left', ls: 4, alpha: .6 });
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(90, y + 84, 900 * p, 2);
     ctx.restore();
   });
 }
@@ -683,7 +700,7 @@ async function sceneEnd(t) {
     ctx.restore();
   }
   rise(seg(t, T.finish + .7, T.finish + .95), 1360, 1440, () => text('@freedom_whatever   @gttendclub', 540, 1420, { font: F.mono(800, 32), ls: 1, alpha: .85 }));
-  rise(seg(t, T.finish + .8, T.finish + 1.05), 1440, 1500, () => text('마감 10.03 SAT 18:00 · 40명 추첨 · 참가비 무료', 540, 1482, { font: F.kr(700, 32), alpha: .7 }));
+  rise(seg(t, T.finish + .8, T.finish + 1.05), 1440, 1500, () => text(`${DDAY ? '마감 ' + DDAY + ' · ' : ''}10.03 SAT 18:00 · 40명 추첨 · 참가비 무료`, 540, 1482, { font: F.kr(700, 32), alpha: .7 }));
 }
 
 // ---------- transitions ----------
@@ -746,11 +763,11 @@ function cues() {
   for (let i = 0; i < 5; i++) add(T.date + .08 + i * .07, 'slot');
   add(T.place + .5, 'thud');
   add(T.run + .1, 'riser_short');
-  FW_WORDS.forEach((_, i) => add(T.brandF + .55 + i * B, 'thud'));
-  add(T.brandF + 1.55, 'pop');
+  FW_ITEMS.forEach((_, i) => add(T.brandF + .5 + i * B, 'thud'));
+  add(T.brandF + 1.6, 'pop');
   add(T.brandG + .1, 'sparkle');
-  GT_WORDS.forEach((_, i) => add(T.brandG + .75 + i * B, 'tap'));
-  KIT.forEach((_, i) => add(T.kit + .45 + i * .38, 'swipe'));
+  GT_ROWS.forEach((_, i) => add(T.brandG + .7 + i * B, 'tap'));
+  KIT.forEach((_, i) => add(T.kit + .4 + i * .42, 'thud'));
   JOIN.forEach((_, i) => add(T.join + .38 + i * .3, 'tap'));
   add(T.join + 1.45, 'pop');
   add(T.tape - .9, 'riser');
