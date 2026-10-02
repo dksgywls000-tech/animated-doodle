@@ -10,6 +10,8 @@ const W = 1080, H = 1920, FPS = 30, DUR = 25;
 const BPM = 144, B = 60 / BPM;              // one beat = 0.4167 s, 12 beats per km
 const Q = new URLSearchParams(location.search);
 const DDAY = Q.get('dday') || '';           // e.g. "D-1" adds countdown stamps / LAST CALL copy
+const LAST = Q.has('last');                 // "last day" cut: TODAY ONLY / 오늘 놓치면 다시 없다
+const STAMP = LAST ? 'LAST DAY' : DDAY;
 const DUE = DDAY === 'D-1' ? '내일(10.03)' : DDAY === 'D-DAY' ? '오늘' : '10.03 SAT';
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
@@ -185,7 +187,7 @@ function makeGrain() {
     g.putImageData(d, 0, 0); GRAIN.push(c);
   }
 }
-let STAMP;
+let STAMP_TEX;
 function makeStamp() {
   const c = document.createElement('canvas'); c.width = 620; c.height = 300;
   const g = c.getContext('2d');
@@ -195,7 +197,7 @@ function makeStamp() {
   g.fillText('FREE', 318, 158);
   g.globalCompositeOperation = 'destination-out';
   for (let i = 0; i < 2600; i++) { g.globalAlpha = Math.random() * .9; g.beginPath(); g.arc(Math.random() * 620, Math.random() * 300, Math.random() * 3.2, 0, 7); g.fill(); }
-  STAMP = c;
+  STAMP_TEX = c;
 }
 
 // ---------- global FX ----------
@@ -218,7 +220,7 @@ function hud(t) {
   ctx.save();
   const blink = Math.floor(t * 2) % 2 === 0;
   ctx.fillStyle = '#fff'; ctx.globalAlpha = blink ? 1 : .35; ctx.beginPath(); ctx.arc(76, y - 11, 9, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
-  text('RUN SESSION 01', 98, y, { font: F.mono(800, 26), align: 'left', ls: 3 });
+  text(LAST ? 'LAST DAY · RUN SESSION 01' : 'RUN SESSION 01', 98, y, { font: F.mono(800, 26), align: 'left', ls: 3 });
   const label = t >= 24.9 ? '5.00 KM  FINISH' : `${km.toFixed(2)} KM`;
   if (lap || t >= T.finish) {
     const w = measure(label, F.mono(800, 32), 2) + 34;
@@ -259,9 +261,10 @@ function ddayStamp(t, x, y, a = 1, s0 = 1) {
   if (a <= 0) return;
   const beat = (t % B) / B, k = s0 * (1 + (1 - outCubic(clamp(beat * 4))) * .1);
   ctx.save(); ctx.globalAlpha *= a; ctx.translate(x, y); ctx.rotate(-.1); ctx.scale(k, k);
-  ctx.fillStyle = '#fff'; rrect(-150, -92, 300, 184, 20); ctx.fill();
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 6; rrect(-136, -78, 272, 156, 12); ctx.stroke();
-  text(DDAY, 0, 50, { font: F.anton(150), color: '#000', ls: 2 });
+  const f = F.anton(STAMP.length > 3 ? 110 : 150), w = measure(STAMP, f, 2) + 100;
+  ctx.fillStyle = '#fff'; rrect(-w / 2, -92, w, 184, 20); ctx.fill();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 6; rrect(-w / 2 + 14, -78, w - 28, 156, 12); ctx.stroke();
+  text(STAMP, 0, STAMP.length > 3 ? 38 : 50, { font: f, color: '#000', ls: 2 });
   ctx.restore();
 }
 
@@ -298,14 +301,14 @@ async function sceneHook(t) {
   const subA = 1 - seg(t, T.dom - .05, T.dom + .15);
   if (subA > 0) {
     ctx.save(); ctx.globalAlpha = subA;
-    text('자유롭게, 함께 달리다.', 540, 1275, { font: F.kr(900, 88), ls: -2 });
+    text(LAST ? '오늘 놓치면, 다시 없다.' : '자유롭게, 함께 달리다.', 540, 1275, { font: F.kr(900, 88), ls: -2 });
     text('FREEDOM × GTTEND RUN SESSION', 540, 1360, { font: F.mono(800, 34), ls: 3 });
-    const dl = DDAY ? `LAST CALL  ·  ${DUE} 18:00 신청 마감` : '10.03 SAT 18:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
+    const dl = LAST ? '오늘 18:00 신청 마감  ·  단 하루' : DDAY ? `LAST CALL  ·  ${DUE} 18:00 신청 마감` : '10.03 SAT 18:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
     ctx.fillStyle = '#fff'; rrect(540 - dw / 2, 1405, dw, 74, 37); ctx.fill();
     text(dl, 540, 1455, { font: F.kr(800, 38), color: '#000' });
     ctx.restore();
   }
-  if (DDAY) ddayStamp(t, 820, 525, 1 - seg(t, T.dom - .05, T.dom + .1));
+  if (STAMP) ddayStamp(t, LAST ? 780 : 820, 525, 1 - seg(t, T.dom - .05, T.dom + .1));
   // × GTTEND lockup
   const pl = seg(t, T.lock, T.lock + .3);
   if (pl > 0) {
@@ -560,12 +563,12 @@ async function sceneKit(t) {
   if (clip) drawT(clip, cover(clip, 1.08, .55, .55)); else drawT(IMG.photo, cover(IMG.photo, 1.6, .35, .7));
   dim(.7);
   vgrad(0, 600, .7, 0); vgrad(1100, H, 0, .85);
-  chapterLabel(t, T.kit, 'BENEFITS', 'FOR ALL RUNNERS');
-  rise(seg(t, T.kit + .08, T.kit + .33), 560, 720, () => text('참가자 전원 혜택', 90, 690, { font: F.kr(900, 96), align: 'left', ls: -3 }));
+  chapterLabel(t, T.kit, 'BENEFITS', LAST ? 'TODAY ONLY' : 'FOR ALL RUNNERS');
+  rise(seg(t, T.kit + .08, T.kit + .33), 540, 680, () => text('참가자 전원 혜택', 90, 655, { font: F.kr(900, 96), align: 'left', ls: -3 }));
   KIT.forEach(([kr, en], i) => {
     const st = T.kit + .4 + i * .42, p = outExpo(seg(t, st, st + .3));
     if (p <= 0) return;
-    const y = 840 + i * 160;
+    const y = 790 + i * 150;
     ctx.save(); ctx.globalAlpha = p; ctx.translate((1 - p) * -140, 0);
     const pop = 1 + (1 - outCubic(seg(t, st, st + .25))) * .6;
     sparkle(122, y - 20, 28 * pop, 1, 0);
@@ -574,6 +577,15 @@ async function sceneKit(t) {
     ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(90, y + 84, 900 * p, 2);
     ctx.restore();
   });
+  if (LAST) {
+    const sp = seg(t, T.kit + 2.15, T.kit + 2.35);
+    if (sp > 0) {
+      ctx.save(); ctx.translate(540, 1420); const k = 1 + (1 - outExpo(sp)) * .5; ctx.scale(k, k); ctx.rotate(-.02);
+      ctx.fillStyle = '#fff'; rrect(-430, -62, 860, 124, 14); ctx.fill();
+      text('오늘 신청 안 하면, 이 혜택도 끝.', 0, 18, { font: F.kr(900, 54), color: '#000', ls: -2 });
+      ctx.restore();
+    }
+  }
 }
 
 // ---------- HOW TO JOIN ----------
@@ -628,7 +640,12 @@ function sceneDeadline(t) {
   });
   ctx.fillStyle = K; ctx.fillRect(90, 545, 900 * outExpo(seg(t, T.dead + .05, T.dead + .4)), 4);
   const s = 1 + (1 - outExpo(seg(t, T.dead, T.dead + .3))) * .35;
-  if (DDAY) {
+  if (LAST) {
+    const beat = 1 + (1 - outCubic(clamp(((t % B) / B) * 4))) * .04;
+    const f = F.anton(Math.min(400, 400 * 900 / measure('TODAY', F.anton(400), 6)));
+    text('TODAY', 540, 930, { font: f, color: K, scale: s * beat, ls: 6 });
+    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 18:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
+  } else if (DDAY) {
     const beat = 1 + (1 - outCubic(clamp(((t % B) / B) * 4))) * .04;
     text(DDAY, 540, 930, { font: F.anton(440), color: K, scale: s * beat, ls: 6 });
     rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 18:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
@@ -638,9 +655,9 @@ function sceneDeadline(t) {
   }
   rise(seg(t, T.dead + .35, T.dead + .6), 1130, 1280, () => {
     ctx.fillStyle = K; rrect(270, 1140, 540, 136, 14); ctx.fill();
-    text(DDAY === 'D-1' ? '내일 마감' : '신청 마감', 540, 1250, { font: F.kr(900, 104), color: '#fff', ls: -3 });
+    text(LAST ? '오늘 마감' : DDAY === 'D-1' ? '내일 마감' : '신청 마감', 540, 1250, { font: F.kr(900, 104), color: '#fff', ls: -3 });
   });
-  rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text('40명 추첨 · 당첨자는 18시 이후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
+  rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text(LAST ? '첫 번째 드롭, 다시 열리지 않습니다 · 40명 추첨' : '40명 추첨 · 당첨자는 18시 이후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
   // ticking second hand
   const a = Math.floor(lt * 8) / 8 * Math.PI * 2 * .25 - Math.PI / 2;
   ctx.save(); ctx.strokeStyle = K; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(900, 1520 - 40, 34, 0, 7); ctx.stroke();
@@ -699,9 +716,10 @@ async function sceneEnd(t) {
     const pulse = 1 + Math.sin(Math.max(0, lt - .8) * Math.PI * 2 / (2 * B)) * .025;
     ctx.save(); ctx.translate(540, 1275); ctx.scale(cp * pulse, cp * pulse);
     ctx.fillStyle = '#fff'; rrect(-400, -70, 800, 140, 70); ctx.fill();
-    if (DDAY) {
+    if (STAMP) {
+      const chip = LAST ? 'TODAY' : DDAY;
       ctx.fillStyle = '#000'; rrect(-384, -54, 170, 108, 54); ctx.fill();
-      text(DDAY, -299, 26, { font: F.anton(72), ls: 2 });
+      text(chip, -299, LAST ? 20 : 26, { font: F.anton(LAST ? 54 : 72), ls: 2 });
       text('지금 댓글로 신청하기 →', 85, 18, { font: F.kr(900, 52), color: '#000', ls: -1 });
     } else text('지금 댓글로 신청하기  →', 0, 18, { font: F.kr(900, 54), color: '#000', ls: -1 });
     // shine sweep
@@ -715,7 +733,7 @@ async function sceneEnd(t) {
     ctx.restore();
   }
   rise(seg(t, T.finish + .7, T.finish + .95), 1360, 1440, () => text('@freedom_whatever   @gttendclub', 540, 1420, { font: F.mono(800, 32), ls: 1, alpha: .85 }));
-  rise(seg(t, T.finish + .8, T.finish + 1.05), 1440, 1500, () => text(`${DDAY ? '마감 ' + DDAY + ' · ' : ''}10.03 SAT 18:00 · 40명 추첨 · 참가비 무료`, 540, 1482, { font: F.kr(700, 32), alpha: .7 }));
+  rise(seg(t, T.finish + .8, T.finish + 1.05), 1440, 1500, () => text(LAST ? '오늘 10.03 18:00 마감 · 40명 추첨 · 참가비 무료' : `${DDAY ? '마감 ' + DDAY + ' · ' : ''}10.03 SAT 18:00 · 40명 추첨 · 참가비 무료`, 540, 1482, { font: F.kr(700, 32), alpha: .7 }));
 }
 
 // ---------- transitions ----------

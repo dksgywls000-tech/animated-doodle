@@ -26,7 +26,7 @@ const browser = await chromium.launch({ args: ['--disable-gpu-vsync', '--font-re
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
 page.on('pageerror', e => console.error('PAGE ERROR', e.message));
 page.on('console', m => m.type() === 'error' && console.error('console:', m.text()));
-const q = new URLSearchParams({ render: '1', ...(args.dday ? { dday: args.dday } : {}) });
+const q = new URLSearchParams({ render: '1', ...(args.dday ? { dday: args.dday } : {}), ...(args.last ? { last: '1' } : {}) });
 await page.goto(`http://127.0.0.1:${port}/index.html?${q}`);
 await page.evaluate(() => window.__ready);
 const meta = await page.evaluate(() => window.META);
