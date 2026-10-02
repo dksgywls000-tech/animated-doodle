@@ -303,7 +303,7 @@ async function sceneHook(t) {
     ctx.save(); ctx.globalAlpha = subA;
     text(LAST ? '오늘 놓치면, 다시 없다.' : '자유롭게, 함께 달리다.', 540, 1275, { font: F.kr(900, 88), ls: -2 });
     text('FREEDOM × GTTEND RUN SESSION', 540, 1360, { font: F.mono(800, 34), ls: 3 });
-    const dl = LAST ? '오늘 18:00 신청 마감  ·  단 하루' : DDAY ? `LAST CALL  ·  ${DUE} 18:00 신청 마감` : '10.03 SAT 18:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
+    const dl = LAST ? '오늘 15:00 신청 마감  ·  단 하루' : DDAY ? `LAST CALL  ·  ${DUE} 15:00 신청 마감` : '10.03 SAT 15:00 신청 마감', dw = measure(dl, F.kr(800, 38)) + 70;
     ctx.fillStyle = '#fff'; rrect(540 - dw / 2, 1405, dw, 74, 37); ctx.fill();
     text(dl, 540, 1455, { font: F.kr(800, 38), color: '#000' });
     ctx.restore();
@@ -644,20 +644,20 @@ function sceneDeadline(t) {
     const beat = 1 + (1 - outCubic(clamp(((t % B) / B) * 4))) * .04;
     const f = F.anton(Math.min(400, 400 * 900 / measure('TODAY', F.anton(400), 6)));
     text('TODAY', 540, 930, { font: f, color: K, scale: s * beat, ls: 6 });
-    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 18:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
+    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 15:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
   } else if (DDAY) {
     const beat = 1 + (1 - outCubic(clamp(((t % B) / B) * 4))) * .04;
     text(DDAY, 540, 930, { font: F.anton(440), color: K, scale: s * beat, ls: 6 });
-    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 18:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
+    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('10.03 SAT 15:00', 540, 1095, { font: F.anton(130), color: K, ls: 6 }));
   } else {
     text('10.03', 540, 930, { font: F.anton(400), color: K, scale: s, ls: 4 });
-    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('SAT 18:00', 540, 1095, { font: F.anton(160), color: K, ls: 8 }));
+    rise(seg(t, T.dead + .2, T.dead + .45), 960, 1110, () => text('SAT 15:00', 540, 1095, { font: F.anton(160), color: K, ls: 8 }));
   }
   rise(seg(t, T.dead + .35, T.dead + .6), 1130, 1280, () => {
     ctx.fillStyle = K; rrect(270, 1140, 540, 136, 14); ctx.fill();
     text(LAST ? '오늘 마감' : DDAY === 'D-1' ? '내일 마감' : '신청 마감', 540, 1250, { font: F.kr(900, 104), color: '#fff', ls: -3 });
   });
-  rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text(LAST ? '첫 번째 드롭, 다시 열리지 않습니다 · 40명 추첨' : '40명 추첨 · 당첨자는 18시 이후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
+  rise(seg(t, T.dead + .5, T.dead + .75), 1300, 1400, () => text(LAST ? '첫 번째 드롭, 다시 열리지 않습니다 · 40명 추첨' : '40명 추첨 · 당첨자는 마감 후 개별 안내', 540, 1370, { font: F.kr(700, 44), color: K, ls: -1 }));
   // ticking second hand
   const a = Math.floor(lt * 8) / 8 * Math.PI * 2 * .25 - Math.PI / 2;
   ctx.save(); ctx.strokeStyle = K; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(900, 1520 - 40, 34, 0, 7); ctx.stroke();
@@ -733,7 +733,7 @@ async function sceneEnd(t) {
     ctx.restore();
   }
   rise(seg(t, T.finish + .7, T.finish + .95), 1360, 1440, () => text('@freedom_whatever   @gttendclub', 540, 1420, { font: F.mono(800, 32), ls: 1, alpha: .85 }));
-  rise(seg(t, T.finish + .8, T.finish + 1.05), 1440, 1500, () => text(LAST ? '오늘 10.03 18:00 마감 · 40명 추첨 · 참가비 무료' : `${DDAY ? '마감 ' + DDAY + ' · ' : ''}10.03 SAT 18:00 · 40명 추첨 · 참가비 무료`, 540, 1482, { font: F.kr(700, 32), alpha: .7 }));
+  rise(seg(t, T.finish + .8, T.finish + 1.05), 1440, 1500, () => text(LAST ? '오늘 10.03 15:00 마감 · 40명 추첨 · 참가비 무료' : `${DDAY ? '마감 ' + DDAY + ' · ' : ''}10.03 SAT 15:00 · 40명 추첨 · 참가비 무료`, 540, 1482, { font: F.kr(700, 32), alpha: .7 }));
 }
 
 // ---------- transitions ----------
