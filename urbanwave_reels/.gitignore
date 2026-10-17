@@ -1,0 +1,5 @@
+node_modules/
+.tts_cache/
+.tmp/
+models/
+__pycache__/

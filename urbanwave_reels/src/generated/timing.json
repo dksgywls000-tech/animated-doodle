@@ -1,0 +1,161 @@
+{
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "totalFrames": 999,
+  "scenes": [
+    {
+      "id": "scene01",
+      "key": "hook",
+      "caption": "하이록스처럼 뛰면 **노렙**",
+      "tts": "하이록스처럼 뛰면, 어반웨이브에선 노렙입니다.",
+      "audio": "audio/scene01.wav",
+      "audioSec": 2.432,
+      "startFrame": 0,
+      "frames": 81,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene02",
+      "key": "compare",
+      "caption": "룰북 2개, **다른 것만**",
+      "tts": "룰북 두 개 펼쳐놓고, 다른 것만 골라봤어요.",
+      "audio": "audio/scene02.wav",
+      "audioSec": 2.769,
+      "startFrame": 81,
+      "frames": 91,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene03",
+      "key": "numbers",
+      "caption": "월볼 ~~100~~ → **120**",
+      "tts": "러닝은 팔백 미터씩 여덟 번. 월볼은 백 개가 아니라, 백이십 개.",
+      "audio": "audio/scene03.wav",
+      "audioSec": 4.217,
+      "startFrame": 172,
+      "frames": 134,
+      "beats": [
+        0.0,
+        1.95
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene04",
+      "key": "wavezone",
+      "caption": "첫 800m 후 **러닝 없이 5종목**",
+      "tts": "첫 바퀴 뛰고 나면, 다섯 종목을 쉬지 않고 이어서 해요.",
+      "audio": "audio/scene04.wav",
+      "audioSec": 3.18,
+      "startFrame": 306,
+      "frames": 103,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene05",
+      "key": "lunge",
+      "caption": "매 걸음 **발 모으기** · 라인은 **두 발 다**",
+      "tts": "런지는 매 걸음 발 모으고, 라인은 두 발 다 넘어야 하고요.",
+      "audio": "audio/scene05.wav",
+      "audioSec": 3.455,
+      "startFrame": 409,
+      "frames": 112,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene06",
+      "key": "sled",
+      "caption": "~~4랩~~ **6랩** · 75m",
+      "tts": "썰매는 네 랩이 아니라, 여섯 랩.",
+      "audio": "audio/scene06.wav",
+      "audioSec": 1.996,
+      "startFrame": 521,
+      "frames": 68,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene07",
+      "key": "rest",
+      "caption": "쉬는 사람 **앉으면 경고**",
+      "tts": "쉬는 사람이 바닥에 앉으면, 그것도 경고예요.",
+      "audio": "audio/scene07.wav",
+      "audioSec": 2.642,
+      "startFrame": 589,
+      "frames": 87,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene08",
+      "key": "penalty",
+      "caption": "혼자 나가면 **+2:00**",
+      "tts": "혼자 먼저 나가면, 경고 없이 바로 이 분.",
+      "audio": "audio/scene08.wav",
+      "audioSec": 2.324,
+      "startFrame": 676,
+      "frames": 78,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene09",
+      "key": "debate",
+      "caption": "월볼 공중 캐치 **되나요?**",
+      "tts": "월볼 공중 캐치는 해석이 갈려요. 브리핑 때 꼭 물어보세요.",
+      "audio": "audio/scene09.wav",
+      "audioSec": 3.602,
+      "startFrame": 754,
+      "frames": 116,
+      "beats": [
+        0.0,
+        2.107
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    },
+    {
+      "id": "scene10",
+      "key": "cta",
+      "caption": "댓글에 **\"어반\"**",
+      "tts": "파트너 태그하고, 댓글에 어반 남기면 가이드 보내드릴게요.",
+      "audio": "audio/scene10.wav",
+      "audioSec": 3.433,
+      "startFrame": 870,
+      "frames": 129,
+      "beats": [
+        0.0
+      ],
+      "engine": "sherpa-onnx VITS vits-mimic3-ko_KO-kss_low speed 1.204",
+      "override": false
+    }
+  ],
+  "speedScale": 1.075
+}
