@@ -77,12 +77,13 @@ def fallback_tts(text, model_dir, speed, out_wav):
         w.writeframes(s.tobytes())
 
 
-def normalize(src, dst):
-    """48k mono, 앞뒤 무음 트림, 라우드니스 정규화."""
+def normalize(src, dst, tempo=1.0):
+    """48k mono, 앞뒤 무음 트림, (필요하면 음정 유지 배속), 라우드니스 정규화."""
     trim = ("silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.03,"
             "areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.06,areverse")
+    speed = f",atempo={tempo:.4f}" if abs(tempo - 1) > 1e-3 else ""
     run(["ffmpeg", "-y", "-v", "error", "-i", src, "-af",
-         f"{trim},loudnorm=I=-16:TP=-1.5:LRA=11", "-ar", str(SR), "-ac", "1", dst])
+         f"{trim}{speed},loudnorm=I=-16:TP=-1.5:LRA=11", "-ar", str(SR), "-ac", "1", dst])
 
 
 def sentence_beats(path, text, dur):
@@ -156,12 +157,15 @@ def build(cfg, speed_scale):
     pad = cfg["padSec"]
     for i, sc in enumerate(cfg["scenes"]):
         override = find_override(sc["id"])
+        tempo = 1.0
         if override:
-            src, engine = override, f"override {os.path.relpath(override, ROOT)}"
+            # 직접 넣은 파일은 길이가 넘칠 때만 음정 유지 배속 (overrideMaxTempo 까지)
+            tempo = min(max(speed_scale, 1.0), cfg.get("overrideMaxTempo", 1.0))
+            src, engine = override, f"override {os.path.relpath(override, ROOT)}" + (f" x{tempo:.2f}" if tempo > 1 else "")
         else:
             src, engine = synth(sc, cfg["voice"], speed_scale, cfg["voice"].get("engine", "auto"))
         dst = os.path.join(OUT_AUDIO, f"{sc['id']}.wav")
-        normalize(src, dst)
+        normalize(src, dst, tempo)
         dur = probe_duration(dst)
         extra = cfg.get("outroHoldSec", 0) if i == len(cfg["scenes"]) - 1 else 0
         frames = math.ceil((dur + pad + extra) * FPS)
@@ -182,18 +186,19 @@ def main():
     for attempt in range(4):
         t = build(cfg, scale)
         total = t["totalFrames"] / FPS
-        generated = [s for s in t["scenes"] if not s["override"]]
-        if lo <= total <= hi or not generated:
+        max_tempo = cfg.get("overrideMaxTempo", 1.0)
+        adjustable = [s for s in t["scenes"] if not s["override"] or (total > hi and scale < max_tempo)]
+        if lo <= total <= hi or not adjustable:
             break
         target = hi - 0.5 if total > hi else lo + 0.5
-        fixed = sum(s["frames"] for s in t["scenes"] if s["override"]) / FPS
-        gen_audio = sum(s["audioSec"] for s in generated)
-        gen_other = total - fixed - gen_audio
-        need = target - fixed - gen_other
+        fixed = sum(s["frames"] for s in t["scenes"] if s not in adjustable) / FPS
+        adj_audio = sum(s["audioSec"] for s in adjustable)
+        adj_other = total - fixed - adj_audio
+        need = target - fixed - adj_other
         if need <= 0:
             break
-        scale *= gen_audio / need
-        print(f"  총 {total:.2f}s → 범위 {lo}-{hi}s 밖. 생성 음성 속도 x{scale:.3f}로 재생성")
+        scale *= adj_audio / need
+        print(f"  총 {total:.2f}s → 범위 {lo}-{hi}s 밖. 음성 속도 x{scale:.3f}로 다시 맞춤")
     t["speedScale"] = round(scale, 3)
     os.makedirs(os.path.dirname(TIMING), exist_ok=True)
     json.dump(t, open(TIMING, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

@@ -11,6 +11,8 @@
   "padSec": 0.25,
   "outroHoldSec": 0.6,
   "targetSec": [28, 34],
+  "_overrideMaxTempo": "voice_override 파일이 길어 34초를 넘으면 음정 유지 배속을 이 배율까지 허용 (1.0 = 끔)",
+  "overrideMaxTempo": 1.35,
   "scenes": [
     { "id": "scene01", "key": "hook",
       "tts": "하이록스처럼 뛰면, 어반웨이브에선 노렙입니다.",
