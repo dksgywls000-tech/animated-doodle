@@ -59,21 +59,26 @@ await anon.call('bootstrap', { setupKey: 'test-setup-key-123', name: '총괄', e
 ok((await A.doc('private/allocation').get()).get('pool').length === 300, '행운권 풀 300개 생성');
 const sched = await A.collection('schedule').orderBy('sortOrder').get();
 ok(sched.docs.some((d) => d.get('title') === '퇴근버스 탑승' && d.get('startTime') === '17:40'), '일정에 17:40 퇴근버스 탑승');
+ok(sched.docs.some((d) => d.get('title') === '1회차 버스 출발' && d.get('startTime') === '12:10') && sched.docs.some((d) => d.get('title') === '2회차 버스 출발' && d.get('startTime') === '12:35'), '버스 1차 12:10 · 2차 12:35');
 ok(!sched.docs.some((d) => /줄넘기|튜브|공 튕기기|풍선/.test(d.get('title'))), '경기별 세부 일정 없음');
 await rejects(anon.call('bootstrap', { setupKey: 'test-setup-key-123', name: 'x', employeeId: 'O-2', teamNumber: 1 }), '두 번째 설정 거절', 'failed-precondition');
 
 console.log('\n[2] 로그인·명단');
 const owner = await loginAs('총괄', 'O-1');
-const lines = ['employee_id,name,team_number,role,active', 'M-1,관리일,2,admin,true', 'M-2,관리이,4,admin,true', 'P-1,참가일,3,,', 'P-2,참가이,5,,', '000123,영시작,6,,', 'D-1,동명,7,,', 'D-2,동명,8,,', 'X-1,비활성,1,,false'];
+const lines = ['employee_id,name,team_number,role,active', 'O-1,총괄,1,admin,true', 'S-1,운영원,운영진,,', 'M-1,관리일,2,admin,true', 'M-2,관리이,4,admin,true', 'P-1,참가일,3,,', 'P-2,참가이,5,,', '000123,영시작,6,,', 'D-1,동명,7,,', 'D-2,동명,8,,', 'X-1,비활성,1,,false'];
 for (let i = 1; i <= 350; i++) lines.push(`C-${String(i).padStart(4, '0')},참가자${i},${((i - 1) % 8) + 1},,`);
 const csv = lines.join('\r\n');
 const pre = await owner.call('importRoster', { csv, commit: false });
-ok(pre.inserts === 358 && pre.errors.length === 0, `미리보기: 추가 ${pre.inserts}, 오류 ${pre.errors.length}`);
+ok(pre.inserts === 359 && pre.errors.length === 0, `미리보기: 추가 ${pre.inserts}, 오류 ${pre.errors.length} (owner가 '관리자'로 적혀 있어도 오류 없음)`);
+ok(!pre.roleChanges.length, 'owner는 명단 업로드로 강등되지 않음');
+const alias = await owner.call('importRoster', { csv: '직원명,사번,조,직급\n홍길,700001,3조,팀장\n운영,700002,운영진,관리자', commit: false });
+ok(alias.errors.length === 0 && alias.inserts === 2, '엑셀 머리글(직원명·사번·조·직급)과 운영진 인식');
 const bad = await owner.call('importRoster', { csv: 'employee_id,name,team_number\nZ-1,오류,9', commit: false });
 ok(bad.errors.length === 1 && bad.errors[0].line === 2, '조 범위 오류 행 번호 표시');
 await rejects(owner.call('importRoster', { csv: 'employee_id,name,team_number\nZ-1,오류,9', commit: true }), '오류 있으면 반영 중단', 'failed-precondition');
 await owner.call('importRoster', { csv, commit: true });
-ok((await A.collection('participants').count().get()).data().count === 359, '명단 359명 반영');
+ok((await A.collection('participants').count().get()).data().count === 360, '명단 360명 반영');
+ok((await A.doc(`participants/${owner.uid}`).get()).get('role') === 'owner', '업로드 후에도 owner 유지');
 
 await rejects(anon.call('login', { name: '참가일', employeeId: 'P-2' }), '다른 행 이름+사번 혼합 거절', 'unauthenticated');
 await rejects(anon.call('login', { name: '비활성', employeeId: 'X-1' }), '비활성 거절', 'unauthenticated');
@@ -201,6 +206,46 @@ const t = await getDoc(doc(adm.db, 'tickets', String(myTicket)));
 ok(t.exists() && t.data().uid === p.uid, `관리자: ${myTicket}번 → 참가일 확인`);
 await rejects(getDoc(doc(adm.db, 'employeeIds', p.uid)), '일반 관리자는 사번 읽기 불가', 'permission-denied');
 ok((await getDoc(doc(owner.db, 'employeeIds', p.uid))).data().employeeId === 'P-1', 'owner는 사번 확인 가능');
+
+console.log('\n[9] 운영진(0) · 인원 추가');
+const staff0 = await loginAs('운영원', 'S-1');
+ok((await getDoc(doc(staff0.db, 'participants', staff0.uid))).data().teamNumber === 0, '운영진은 조 번호 0');
+await new Promise((r) => setTimeout(r, 1100));
+const b0 = writeBatch(staff0.db);
+b0.set(doc(staff0.db, 'messages', `${staff0.uid}_${key()}`), { channel: 'team:0', senderId: staff0.uid, senderName: '운영원', senderTeam: 0, staff: false, body: '운영진 방', createdAt: serverTimestamp(), deletedAt: null, hiddenAt: null });
+b0.set(doc(staff0.db, 'rate', staff0.uid), { lastAt: serverTimestamp() });
+await b0.commit();
+ok((await getDocs(query(collection(staff0.db, 'messages'), where('channel', '==', 'team:0')))).size === 1, '운영진 전용 채팅방 사용');
+await rejects(getDocs(query(collection(staff0.db, 'messages'), where('channel', '==', 'team:3'))), '운영진도 다른 조 방은 차단', 'permission-denied');
+await adm.call('addParticipant', { name: '현장추가', employeeId: '900001', teamNumber: 4 });
+const added = await loginAs('현장추가', '900001');
+ok((await getDoc(doc(added.db, 'participants', added.uid))).data().teamNumber === 4, '관리자가 추가한 사람이 바로 입장 (4조)');
+await rejects(adm.call('addParticipant', { name: '중복', employeeId: '900001', teamNumber: 1 }), '같은 사번 중복 추가 거절', 'already-exists');
+await rejects(adm.call('addParticipant', { name: '관리후보', employeeId: '900002', teamNumber: 1, role: 'admin' }), '일반 관리자는 관리자 추가 불가', 'permission-denied');
+await owner.call('addParticipant', { name: '관리후보', employeeId: '900002', teamNumber: 0, role: 'admin' });
+ok((await A.collection('participants').where('name', '==', '관리후보').get()).docs[0].get('role') === 'admin', 'owner는 관리자 추가 가능');
+await rejects(p.call('addParticipant', { name: '해킹', employeeId: '900003', teamNumber: 1 }), '참가자는 인원 추가 불가', 'permission-denied');
+
+console.log('\n[10] 행운권 초기화');
+const beforeReset = (await A.collection('checkins').count().get()).data().count;
+const oldPool = (await A.doc('private/allocation').get()).get('pool');
+await rejects(adm.call('resetTickets', { confirm: '초기화', password: '1234' }), '관리자(owner 아님)는 초기화 불가', 'permission-denied');
+await rejects(owner.call('resetTickets', { confirm: '초기', password: '1234' }), '확인 문구 틀리면 거절', 'invalid-argument');
+await rejects(owner.call('resetTickets', { confirm: '초기화', password: '0000' }), '비밀번호 틀리면 거절', 'permission-denied');
+ok((await A.collection('checkins').count().get()).data().count === beforeReset, '거절되면 아무것도 지워지지 않음');
+const rr = await owner.call('resetTickets', { confirm: '초기화', password: '1234' });
+ok(rr.removed === beforeReset, `초기화: ${rr.removed}장 삭제`);
+ok((await A.collection('checkins').count().get()).data().count === 0 && (await A.collection('tickets').count().get()).data().count === 0 && (await A.collection('slots').count().get()).data().count === 0, '체크인·행운권·순번 모두 비움');
+ok(JSON.stringify((await A.doc('private/allocation').get()).get('pool')) !== JSON.stringify(oldPool), '1~300을 새로 섞음');
+ok((await A.collection('awards').count().get()).data().count > 0, '점수 기록은 그대로');
+// 로그인 함수 인스턴스는 이전 순번 힌트를 갖고 있음 → 새 세대를 감지해 1번부터 다시 배정해야 함
+const again1 = await anon.call('login', { name: '참가자1', employeeId: 'C-0001' });
+const again2 = await Promise.all([2, 3, 4, 5].map((i) => anon.call('login', { name: `참가자${i}`, employeeId: `C-000${i}` })));
+ok(again1.isNewCheckin && again2.every((r) => r.isNewCheckin), '초기화 후 다시 입장 → 새 번호');
+const ens = await p.call('ensureTicket', {});
+ok(ens.isNew === true && typeof ens.ticket === 'number', '이미 로그인해 있던 사람은 앱을 다시 열면 새 번호');
+const after = (await A.collection('checkins').get()).docs.map((d) => d.get('seq')).sort((x, y) => x - y);
+ok(after.length === 6 && after.every((v, i) => v === i + 1), `초기화 후 순번 1~${after.length} 빈틈 없음`);
 
 console.log(`\n결과: ${passed} 통과, ${failed} 실패`);
 for (const c of [owner, p, adm, adm2, zero, d1, d2, anon]) await deleteApp(c.app).catch(() => {});

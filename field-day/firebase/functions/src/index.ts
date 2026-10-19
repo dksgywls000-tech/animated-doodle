@@ -16,7 +16,7 @@ import { setGlobalOptions } from 'firebase-functions/v2';
 import { defineString } from 'firebase-functions/params';
 import { createHash, randomUUID } from 'node:crypto';
 import {
-  LOGIN_FAILED_MESSAGE, hashPassword, hmac, normalizeEmployeeId, normalizeName, parseRoster, secureShuffle, verifyPassword, type Role,
+  LOGIN_FAILED_MESSAGE, hashPassword, hmac, isTeam, normalizeEmployeeId, normalizeName, parseRoster, secureShuffle, verifyPassword, type Role,
 } from './shared';
 import { CATEGORIES, EVENT_SUBTYPES, SCHEDULE, RETURN_BUS_NOTE } from './seedData';
 import { Allocator } from './alloc';
@@ -232,6 +232,8 @@ export const importRoster = onCall({ timeoutSeconds: 120 }, async (req) => {
       if (checked.has(cur.uid)) { errors.push({ line: row.line, reason: `체크인한 참가자의 조 변경(${cur.teamNumber}→${row.teamNumber}조)은 업로드로 할 수 없습니다. '조 변경'을 사용하세요` }); continue; }
       changes.push(`조 ${cur.teamNumber}→${row.teamNumber}`);
     }
+    // owner는 명단 업로드로 낮추지 않는다(명단에는 '관리자'로 적혀 있어도 owner 유지). owner 변경은 권한 화면에서만
+    if (cur.role === 'owner' && row.role !== 'owner') row.role = 'owner';
     if (cur.role !== row.role) {
       if (cur.uid === actor.uid) { errors.push({ line: row.line, reason: '본인의 역할은 업로드로 바꿀 수 없습니다' }); continue; }
       roleChanges.push({ line: row.line, name: row.name, from: cur.role, to: row.role });
@@ -296,7 +298,7 @@ export const changeTeam = onCall(async (req) => {
   const actor = await requireStaff(req, true);
   const { uid, teamNumber } = req.data ?? {};
   const reason = typeof req.data?.reason === 'string' ? req.data.reason.trim() : '';
-  if (!Number.isInteger(teamNumber) || teamNumber < 1 || teamNumber > 8) fail('invalid-argument', '1~8조 중에서 선택해 주세요.');
+  if (!isTeam(teamNumber)) fail('invalid-argument', '1~8조 또는 운영진 중에서 선택해 주세요.');
   if (reason.length < 2 || reason.length > 200) fail('invalid-argument', '조 변경 사유를 입력해 주세요.');
   const cur = await ref.participant(String(uid)).get();
   if (!cur.exists) fail('not-found', '참가자를 찾을 수 없습니다.');
@@ -342,6 +344,71 @@ export const ticketOwnerEmployeeId = onCall(async (req) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// 인원 추가 · 행운권 초기화 · 로그인 상태에서 행운권 재발급
+// ─────────────────────────────────────────────────────────────
+
+/** 관리자 화면에서 한 명 추가. 관리자는 참가자만, owner는 관리자도 추가 가능 */
+export const addParticipant = onCall(async (req) => {
+  const actor = await requireStaff(req);
+  const name = normalizeName(req.data?.name);
+  const employeeId = normalizeEmployeeId(req.data?.employeeId);
+  const teamNumber = req.data?.teamNumber;
+  const role: Role = req.data?.role === 'admin' ? 'admin' : 'participant';
+  if (!name || name.length > 64) fail('invalid-argument', '이름을 확인해 주세요.');
+  if (!employeeId || employeeId.length > 64 || employeeId.includes('/')) fail('invalid-argument', '사번을 확인해 주세요.');
+  if (!isTeam(teamNumber)) fail('invalid-argument', '1~8조 또는 운영진 중에서 선택해 주세요.');
+  if (role === 'admin' && actor.role !== 'owner') fail('permission-denied', '관리자 추가는 owner만 할 수 있습니다. 참가자로 추가해 주세요.');
+  const all = await db.collection('employeeIds').get();
+  if (all.docs.some((d) => String(d.get('employeeId')).toLowerCase() === employeeId.toLowerCase())) fail('already-exists', '이미 명단에 있는 사번입니다.');
+  const uid = randomUUID();
+  await db.runTransaction(async (tx) => {
+    const idx = await tx.get(ref.loginIndex(employeeId));
+    if (idx.exists) fail('already-exists', '이미 명단에 있는 사번입니다.');
+    tx.create(ref.loginIndex(employeeId), { uid });
+    tx.create(ref.participant(uid), { name, teamNumber, role, active: true, updatedAt: FieldValue.serverTimestamp() });
+    tx.create(ref.employeeId(uid), { employeeId });
+  });
+  await audit(actor, 'participant_add', uid, { name, teamNumber, role });
+  return { uid };
+});
+
+/**
+ * 행운권 정보 초기화 (owner, 테스트용).
+ * 체크인·행운권·순번 기록을 모두 지우고 1~300을 새로 섞는다. 점수·채팅·명단은 그대로.
+ * 이미 로그인해 있던 사람은 앱을 다시 열 때 새 번호를 받는다.
+ */
+export const resetTickets = onCall({ timeoutSeconds: 300 }, async (req) => {
+  const actor = await requireStaff(req, true);
+  if (req.data?.confirm !== '초기화') fail('invalid-argument', "확인 문구 '초기화'를 정확히 입력해 주세요.");
+  const pw = typeof req.data?.password === 'string' ? req.data.password : '';
+  if (!pw || !verifyPassword(pw, cancelHash())) fail('permission-denied', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.');
+  const before = (await db.collection('checkins').count().get()).data().count;
+  // 새 세대 먼저 기록 → 그 사이에 들어오는 배정은 새 풀을 쓰고, 이전 순번 문서는 아래에서 지운다
+  const gen = Date.now();
+  await ref.alloc().set({ pool: secureShuffle(POOL_SIZE), gen });
+  for (const col of ['checkins', 'tickets', 'slots']) {
+    for (;;) {
+      const snap = await db.collection(col).limit(400).get();
+      if (snap.empty) break;
+      const b = db.batch();
+      snap.docs.forEach((d) => b.delete(d.ref));
+      await b.commit();
+    }
+  }
+  await audit(actor, 'tickets_reset', null, { removed: before });
+  return { removed: before };
+});
+
+/** 로그인한 상태인데 행운권이 없을 때(초기화 직후 등) 내 번호를 받는다 */
+export const ensureTicket = onCall({ maxInstances: 1, concurrency: 80 }, async (req) => {
+  if (!req.auth) fail('unauthenticated', '로그인이 필요합니다.');
+  const p = (await ref.participant(req.auth!.uid).get()).data() as Participant | undefined;
+  if (!p || !p.active) fail('unauthenticated', '로그인이 필요합니다. 이름과 사번으로 다시 입장해 주세요.');
+  const t = await allocateTicket(req.auth!.uid);
+  return { ticket: t.ticket, isNew: t.isNew };
+});
+
+// ─────────────────────────────────────────────────────────────
 // 최초 1회 설정
 // ─────────────────────────────────────────────────────────────
 
@@ -356,7 +423,7 @@ export const bootstrap = onCall(async (req) => {
   const name = normalizeName(req.data?.name);
   const employeeId = normalizeEmployeeId(req.data?.employeeId);
   const teamNumber = req.data?.teamNumber;
-  if (!name || !employeeId || employeeId.includes('/') || !Number.isInteger(teamNumber) || teamNumber < 1 || teamNumber > 8) fail('invalid-argument', '이름·사번·조(1~8)를 확인해 주세요.');
+  if (!name || !employeeId || employeeId.includes('/') || !isTeam(teamNumber)) fail('invalid-argument', '이름·사번·조(1~8 또는 운영진)를 확인해 주세요.');
   const uid = randomUUID();
   await db.runTransaction(async (tx) => {
     const ev = await tx.get(ref.event());

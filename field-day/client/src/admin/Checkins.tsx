@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApi } from '../hooks';
-import { fmtFull, formatTicket } from '../util';
+import { fmtFull, formatTicket, teamLabel } from '../util';
+import { AddPerson } from './AddPerson';
 
 interface Person { id: string; name: string; employeeId: string; teamNumber: number; role: string; active: boolean; ticketNumber: number | null; checkedInAt: string | null }
 
@@ -15,10 +16,11 @@ export function Checkins() {
     <div>
       <div className="between"><h1 className="h-title">체크인 현황</h1><button className="btn btn-ghost btn-s" onClick={() => void reload()}>새로고침</button></div>
       <p className="small muted">입장 <b className="num">{data.checkedIn}</b> / 활성 명단 {data.total}명. 체크인은 최초 로그인 성공 시 기록됩니다.</p>
+      <div style={{ margin: '12px 0' }}><AddPerson onAdded={() => void reload()} /></div>
       <div className="checkin-strip" style={{ marginTop: 12 }}>
         {data.teams.map((c) => (
           <button key={c.teamNumber} className="c" style={{ textAlign: 'left', borderStyle: team === c.teamNumber ? 'solid' : 'dashed', borderColor: team === c.teamNumber ? 'var(--green)' : undefined }} onClick={() => setTeam(team === c.teamNumber ? 0 : c.teamNumber)} aria-pressed={team === c.teamNumber}>
-            <div className="xs muted">{c.teamNumber}조</div><b className="num">{c.checkedIn}</b><span className="xs muted num">/{c.total}</span>
+            <div className="xs muted">{teamLabel(c.teamNumber)}</div><b className="num">{c.checkedIn}</b><span className="xs muted num">/{c.total}</span>
             <div className="meter"><i style={{ width: `${c.total ? (c.checkedIn / c.total) * 100 : 0}%` }} /></div>
           </button>
         ))}
@@ -31,7 +33,7 @@ export function Checkins() {
         {list.map((p) => (
           <div className="list-row" key={p.id}>
             <div>
-              <div style={{ fontWeight: 700 }}>{p.name} <span className="xs muted">· {p.teamNumber}조 · {p.employeeId}</span> {p.role !== 'participant' && <span className="badge staff">{p.role === 'owner' ? 'OWNER' : '운영진'}</span>} {!p.active && <span className="badge gray">비활성</span>}</div>
+              <div style={{ fontWeight: 700 }}>{p.name} <span className="xs muted">· {teamLabel(p.teamNumber)} · {p.employeeId}</span> {p.role !== 'participant' && <span className="badge staff">{p.role === 'owner' ? 'OWNER' : '관리자'}</span>} {!p.active && <span className="badge gray">비활성</span>}</div>
               <div className="xs muted num">{p.checkedInAt ? `${fmtFull(p.checkedInAt)} 입장` : '미입장'}</div>
             </div>
             <span className="num" style={{ fontWeight: 800 }}>{p.ticketNumber ? `No.${formatTicket(p.ticketNumber)}` : '—'}</span>

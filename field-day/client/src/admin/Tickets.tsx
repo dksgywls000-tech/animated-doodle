@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { api, errMsg } from '../api';
-import { fmtFull, formatTicket } from '../util';
+import { fmtFull, formatTicket, teamLabel } from '../util';
 
 interface Found { ticketNumber: number; name: string; teamNumber: number; role: string; active: boolean; checkedInAt: string; employeeId: string }
 
@@ -42,7 +42,7 @@ export function Tickets() {
             <div className="ticket" style={{ padding: 20 }}>
               <div className="ticket-label">LUCKY TICKET · No.{formatTicket(result.ticket.ticketNumber)}</div>
               <div style={{ fontSize: 34, fontWeight: 900, marginTop: 6 }}>{result.ticket.name}</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--lime)' }}>{result.ticket.teamNumber}조</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--lime)' }}>{teamLabel(result.ticket.teamNumber)}</div>
               <div className="small" style={{ marginTop: 8, color: 'rgba(255,255,255,.8)' }}>사번 {result.ticket.employeeId} · {fmtFull(result.ticket.checkedInAt)} 입장{!result.ticket.active ? ' · 현재 비활성' : ''}</div>
             </div>
           ) : (
@@ -54,7 +54,7 @@ export function Tickets() {
         <section className="panel" style={{ marginTop: 16 }}>
           <h2 className="h-sec">최근 조회</h2>
           {history.map((h) => (
-            <div className="list-row" key={h.ticketNumber}><span className="num" style={{ fontWeight: 800 }}>No.{formatTicket(h.ticketNumber)}</span><span>{h.name} · {h.teamNumber}조</span></div>
+            <div className="list-row" key={h.ticketNumber}><span className="num" style={{ fontWeight: 800 }}>No.{formatTicket(h.ticketNumber)}</span><span>{h.name} · {teamLabel(h.teamNumber)}</span></div>
           ))}
         </section>
       )}

@@ -491,3 +491,5 @@ h1, h2, h3, h4, p { margin: 0; }
 body.kb-open .chat-wrap { padding-bottom: 0; }
 body.kb-open .tabbar { display: none; }
 .chip { white-space: nowrap; flex: none; }
+/* 1~8조 + 운영진 9칸이 한 줄에 맞도록 */
+.checkin-strip { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)) !important; }

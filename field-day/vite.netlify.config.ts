@@ -8,17 +8,17 @@ const swap = (): Plugin => ({
   enforce: 'pre',
   resolveId(source, importer) {
     if (!importer || !importer.includes('/client/src/')) return null;
-    if (/(^|\/)api$/.test(source)) return resolve(__dirname, 'client/firebase/api.ts');
-    if (/(^|\/)realtime$/.test(source)) return resolve(__dirname, 'client/firebase/realtime.ts');
+    if (/(^|\/)api$/.test(source)) return resolve(import.meta.dirname, 'client/firebase/api.ts');
+    if (/(^|\/)realtime$/.test(source)) return resolve(import.meta.dirname, 'client/firebase/realtime.ts');
     return null;
   },
 });
 
 export default defineConfig({
   root: 'client/firebase',
-  envDir: resolve(__dirname),
-  publicDir: resolve(__dirname, 'public'),
+  envDir: resolve(import.meta.dirname),
+  publicDir: resolve(import.meta.dirname, 'public'),
   plugins: [swap(), react()],
-  build: { outDir: resolve(__dirname, 'dist/netlify'), emptyOutDir: true, assetsDir: 'bundle', sourcemap: false, chunkSizeWarningLimit: 1500 },
+  build: { outDir: resolve(import.meta.dirname, 'dist/netlify'), emptyOutDir: true, assetsDir: 'bundle', sourcemap: false, chunkSizeWarningLimit: 1500 },
   server: { port: 5174 },
 });

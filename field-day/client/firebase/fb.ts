@@ -4,11 +4,14 @@ import { initializeFirestore, connectFirestoreEmulator, memoryLocalCache } from 
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 const env = import.meta.env;
+// 1순위: 사이트 폴더의 firebase-config.js (메모장으로 수정 가능), 2순위: 빌드할 때의 환경변수
+const runtime = ((window as unknown as { FIREBASE_CONFIG?: Record<string, string> }).FIREBASE_CONFIG ?? {}) as Record<string, string>;
+const pick = (k: string, e: unknown) => (runtime[k] && !runtime[k].startsWith('여기에') ? runtime[k] : (e as string) || '');
 export const firebaseConfig = {
-  apiKey: env.VITE_FIREBASE_API_KEY as string,
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN as string,
-  projectId: env.VITE_FIREBASE_PROJECT_ID as string,
-  appId: env.VITE_FIREBASE_APP_ID as string,
+  apiKey: pick('apiKey', env.VITE_FIREBASE_API_KEY),
+  authDomain: pick('authDomain', env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: pick('projectId', env.VITE_FIREBASE_PROJECT_ID),
+  appId: pick('appId', env.VITE_FIREBASE_APP_ID),
 };
 export const configMissing = !firebaseConfig.apiKey || !firebaseConfig.projectId;
 

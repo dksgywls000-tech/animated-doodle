@@ -22,7 +22,7 @@ export type Seed = [start: string | null, end: string | null, title: string, not
 export const SCHEDULE: Seed[] = [
   ['12:10', null, '1회차 버스 출발', '공사팀 · 기존 귀향/퇴근버스 탑승지', 'general', null, 'scheduled'],
   ['12:20', '13:10', '도착 · 조끼 수령 · 인원 확인', '분수광장 하차 후 야외공연장까지 도보 이동', 'general', null, 'scheduled'],
-  ['12:30', null, '2회차 버스 출발', '지원팀 + 잔여 인원 · 배차는 별도 안내', 'general', null, 'scheduled'],
+  ['12:35', null, '2회차 버스 출발', '지원팀 + 잔여 인원 · 배차는 별도 안내', 'general', null, 'scheduled'],
   ['13:10', '13:40', '개회식 · 준비운동', '식순 안내 · 개회사 · 조별 자리 이동', 'general', null, 'scheduled'],
   ['13:40', '16:00', '조별 체육대회', '메인 경기와 이벤트가 이어서 진행됩니다', 'main', null, 'scheduled'],
   ['16:05', '16:45', '소통 TALK', '조별 음식 지급', 'break', null, 'scheduled'],
@@ -77,6 +77,7 @@ export const GAMES = [
 ];
 
 export const SEAT_NOTES: Record<number, string> = {
+  0: '운영지원 부스 · 응급보건실 옆',
   1: '배치도 왼쪽 아래 · 운영지원 바로 옆',
   2: '배치도 왼쪽 · 1조 위쪽',
   3: '배치도 가운데 왼쪽',
@@ -90,3 +91,7 @@ export const SEAT_NOTES: Record<number, string> = {
 
 /** 귀가(퇴근) 버스 기본 안내 — 운영자가 관리자 화면에서 수정 가능 */
 export const RETURN_BUS_NOTE = '17:40 퇴근버스 탑승. 탑승 위치는 현장에서 안내합니다.';
+
+/** 조 번호 0 = 운영진(조에 속하지 않는 행사 운영 인원) */
+export const STAFF_TEAM = 0;
+export const teamLabel = (n: number) => (n === 0 ? '운영진' : `${n}조`);

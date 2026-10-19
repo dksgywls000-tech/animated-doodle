@@ -1,6 +1,6 @@
 import { api, errMsg } from '../api';
 import { useApi } from '../hooks';
-import { fmtFull } from '../util';
+import { fmtFull, teamLabel } from '../util';
 import { useToast } from '../components/Toast';
 
 const KIND: Record<string, string> = { route: '길 안내', supplies: '물품', other: '기타' };
@@ -24,7 +24,7 @@ export function Requests() {
         {help.data?.requests.map((r) => (
           <div className="list-row" key={r.id} style={{ alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontWeight: 700 }}><span className="badge" style={{ marginRight: 6 }}>{KIND[r.kind]}</span>{r.name} · {r.teamNumber}조</div>
+              <div style={{ fontWeight: 700 }}><span className="badge" style={{ marginRight: 6 }}>{KIND[r.kind]}</span>{r.name} · {teamLabel(r.teamNumber)}</div>
               {r.body && <div className="small" style={{ marginTop: 4 }}>{r.body}</div>}
               <div className="xs muted num">{fmtFull(r.createdAt)}</div>
             </div>
@@ -40,7 +40,7 @@ export function Requests() {
         {reports.data?.reports.map((r) => (
           <div className="list-row" key={r.id} style={{ alignItems: 'flex-start', flexDirection: 'column' }}>
             <div className="between" style={{ width: '100%' }}>
-              <span className="small"><b>{r.senderName}</b> · {r.senderTeam}조 · {r.channel === 'all' ? '전체' : r.channel.replace('team:', '') + '조 방'}</span>
+              <span className="small"><b>{r.senderName}</b> · {teamLabel(r.senderTeam)} · {r.channel === 'all' ? '전체' : teamLabel(Number(r.channel.replace('team:', ''))) + ' 방'}</span>
               <span className={`badge ${r.status === 'open' ? 'orange' : 'gray'}`}>{r.status === 'open' ? '미처리' : r.status === 'resolved' ? '처리됨' : '기각'}</span>
             </div>
             <div className="card" style={{ width: '100%', padding: 10 }}>{r.deleted ? <i className="muted">작성자가 삭제함</i> : r.body}</div>

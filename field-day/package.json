@@ -17,10 +17,11 @@
     "test:e2e": "playwright test",
     "assets": "python3 scripts/prepare_assets.py",
     "build:demo": "node scripts/build-demo.mjs && cp dist/field-day-demo.html preview/field-day-demo.html",
-    "build:netlify": "vite build --config vite.netlify.config.ts",
+    "build:netlify": "vite build --config vite.netlify.config.ts && node scripts/netlify-finish.mjs dist/netlify",
     "dev:firebase": "vite --config vite.netlify.config.ts",
     "firebase:build": "npm --prefix firebase/functions ci && npm --prefix firebase/functions run build",
-    "test:firebase": "node scripts/firebase-test.mjs"
+    "test:firebase": "node scripts/firebase-test.mjs",
+    "package:netlify": "npm run build:netlify && cd dist && rm -f netlify-upload.zip && zip -qr netlify-upload.zip netlify"
   },
   "license": "UNLICENSED",
   "dependencies": {

@@ -8,8 +8,8 @@ const swap = (): Plugin => ({
   enforce: 'pre',
   async resolveId(source, importer) {
     if (!importer || !importer.includes('/client/src/')) return null;
-    if (/(^|\/)api$/.test(source)) return resolve(__dirname, 'client/demo/api.ts');
-    if (/(^|\/)realtime$/.test(source)) return resolve(__dirname, 'client/demo/realtime.ts');
+    if (/(^|\/)api$/.test(source)) return resolve(import.meta.dirname, 'client/demo/api.ts');
+    if (/(^|\/)realtime$/.test(source)) return resolve(import.meta.dirname, 'client/demo/realtime.ts');
     return null;
   },
 });

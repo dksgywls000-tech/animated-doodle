@@ -32,7 +32,7 @@ try {
   await login(o, '총괄', 'O-1');
   ok(true, 'owner 로그인, 행운권 ' + await o.locator('.ticket-no').innerText());
   await o.goto(BASE + '/#/admin/owner');
-  const csv = ['employee_id,name,team_number,role,active', 'M-1,관리일,2,admin,true', 'P-1,참가일,3,,', 'P-2,참가오,5,,'].join('\n');
+  const csv = ['사번,이름,조,역할', 'M-1,관리일,2조,admin', 'P-1,참가일,3조,participant', 'P-2,참가오,5조,participant'].join('\n');
   await o.locator('input[type=file]').setInputFiles({ name: 'roster.csv', mimeType: 'text/csv', buffer: Buffer.from('﻿' + csv) });
   await o.getByText('추가 3').first().waitFor({ timeout: 20000 });
   await o.getByText('역할 변경').count();
@@ -117,6 +117,30 @@ try {
   await p5.waitForTimeout(1500);
   ok(!(await p5.getByText('3조끼리만').count()), '다른 조(5조)에는 3조 메시지 안 보임');
   await p.screenshot({ path: `${out}/fb-chat.png` });
+  // 7. 인원 추가 → 바로 입장
+  await o.goto(BASE + '/#/admin/checkins');
+  await o.getByLabel('이름', { exact: true }).fill('현장추가');
+  await o.getByLabel('사번', { exact: true }).fill('900001');
+  await o.getByLabel('추가할 사람의 조').selectOption({ label: '운영진' });
+  await o.getByRole('button', { name: '명단에 추가' }).click();
+  await o.getByText(/현장추가\(운영진\)님을 추가했습니다/).first().waitFor({ timeout: 15000 });
+  const n = await page();
+  await login(n, '현장추가', '900001');
+  ok(await n.locator('.ticket-team .big').innerText() === '운영진', '관리자 화면에서 추가한 사람이 바로 입장 (운영진)');
+  await o.screenshot({ path: `${out}/fb-addperson.png`, fullPage: true });
+
+  // 8. 행운권 초기화 → 다시 열면 새 번호
+  await o.goto(BASE + '/#/admin/owner');
+  await o.getByRole('button', { name: '행운권 초기화…' }).click();
+  const r = o.getByRole('dialog');
+  await r.getByLabel(/확인 문구/).fill('초기화');
+  await r.getByLabel('점수 취소 비밀번호').fill('1234');
+  await r.getByRole('button', { name: '모든 행운권 초기화' }).click();
+  await o.getByText(/행운권 \d+장을 초기화했습니다/).first().waitFor({ timeout: 30000 });
+  ok(true, 'owner 화면에서 행운권 초기화');
+  await p.goto(BASE + '/#/pass'); await p.reload();
+  await p.locator('.ticket-no').waitFor({ timeout: 20000 });
+  ok(/No\.\d{3}/.test(await p.locator('.ticket-no').innerText()), '초기화 후 참가자가 앱을 다시 열면 새 번호 표시');
 } catch (e) {
   failed++; console.log('  ✗ 예외:', e.message.split('\n')[0]);
 }

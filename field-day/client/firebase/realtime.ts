@@ -73,7 +73,7 @@ class FirebaseRealtime {
       ];
       return () => subs.forEach((u) => u());
     }
-    const m = /^chat:(all|team:[1-8])$/.exec(ch);
+    const m = /^chat:(all|team:[0-8])$/.exec(ch);
     if (m) {
       return this.watch(query(collection(db, 'messages'), where('channel', '==', m[1]), orderBy('createdAt', 'desc'), limit(30)), (snap) => {
         for (const c of snap.docChanges()) {

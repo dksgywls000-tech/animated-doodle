@@ -3,7 +3,7 @@ import { api, ApiError, errMsg } from '../api';
 import { realtime } from '../realtime';
 import { useConn } from '../hooks';
 import { useMe } from '../session';
-import { cx, dayKey, fmtDate, fmtTime, TEAM_COLORS, uid } from '../util';
+import { cx, dayKey, fmtDate, fmtTime, TEAM_COLORS, teamLabel, uid } from '../util';
 import { IconSend } from '../components/Icons';
 import { Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
@@ -154,8 +154,8 @@ export function Chat({ unread, onRead }: { unread: { all: number; team: number }
               {!mine && (
                 <div className="who">
                   <span>{m.senderName}</span>
-                  {m.staff ? <span className="badge staff">운영진</span> : null}
-                  <span className="team-badge" style={{ ['--team' as string]: TEAM_COLORS[m.senderTeam] }}>{m.senderTeam}조</span>
+                  {m.staff ? <span className="badge staff">관리자</span> : null}
+                  <span className="team-badge" style={{ ['--team' as string]: TEAM_COLORS[m.senderTeam] }}>{teamLabel(m.senderTeam)}</span>
                 </div>
               )}
               <div className="line">
@@ -222,7 +222,7 @@ function ReportSheet({ m, onClose }: { m: ChatMessage; onClose: () => void }) {
   };
   return (
     <Sheet title="메시지 신고" onClose={onClose} footer={<button className="btn btn-danger btn-block" disabled={busy} onClick={() => void send()}>신고하기</button>}>
-      <div className="card" style={{ marginBottom: 12 }}><div className="xs muted">{m.senderName} · {m.senderTeam}조</div><div style={{ whiteSpace: 'pre-wrap' }}>{m.body}</div></div>
+      <div className="card" style={{ marginBottom: 12 }}><div className="xs muted">{m.senderName} · {teamLabel(m.senderTeam)}</div><div style={{ whiteSpace: 'pre-wrap' }}>{m.body}</div></div>
       <div className="chips" style={{ marginBottom: 10 }}>{['욕설·비방', '도배', '개인정보', '기타'].map((r) => <button key={r} className="chip" aria-pressed={reason === r} onClick={() => setReason(r)}>{r}</button>)}</div>
       <p className="hint">신고 내용은 운영진만 확인합니다.</p>
     </Sheet>

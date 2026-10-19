@@ -22,7 +22,7 @@ if (configMissing) {
   root.render(
     <div className="state-box" style={{ paddingTop: 120 }}>
       <h3>앱 설정이 비어 있습니다</h3>
-      <p>Netlify 환경변수에 VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID 등을 넣고 다시 배포해 주세요.</p>
+      <p>사이트 폴더의 <b>firebase-config.js</b> 파일에 Firebase 연결 정보 4개를 넣고 다시 올려 주세요.</p>
     </div>,
   );
 } else if (location.pathname.replace(/\/+$/, '') === '/setup') {

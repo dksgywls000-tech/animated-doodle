@@ -155,8 +155,8 @@ function route(s: State, method: string, url: string, b: any): unknown {
   }
   if (M('POST', /^\/logout$/)) { session.set(null); return { ok: true }; }
   if (M('GET', /^\/me$/)) {
-    const p = me(s); const c = s.checkins.find((x) => x.participantId === p.id);
-    return { id: p.id, name: p.name, employeeIdMasked: mask(p.employeeId), teamNumber: p.teamNumber, teamName: `${p.teamNumber}조`, seatNote: SEAT_NOTES[p.teamNumber],
+    const p = me(s); const c = s.checkins.find((x) => x.participantId === p.id) ?? (checkin(s, p), s.checkins.find((x) => x.participantId === p.id));
+    return { id: p.id, name: p.name, employeeIdMasked: mask(p.employeeId), teamNumber: p.teamNumber, teamName: p.teamNumber === 0 ? '운영진' : `${p.teamNumber}조`, seatNote: SEAT_NOTES[p.teamNumber],
       ticketNumber: c?.ticket ?? null, checkedInAt: c?.at ?? null, isStaff: isStaff(p), role: p.role, csrfToken: 'demo', demo: true };
   }
   if (M('GET', /^\/home$/)) {
@@ -270,6 +270,28 @@ function route(s: State, method: string, url: string, b: any): unknown {
     if (!Number.isInteger(n) || n < 1) fail(400, 'invalid_ticket', '행운권 번호를 숫자로 입력해 주세요.');
     const c = s.checkins.find((x) => x.ticket === n); const p = c && s.participants.find((x) => x.id === c.participantId);
     return { issued: s.checkins.length, ticket: p ? { ticketNumber: n, name: p.name, teamNumber: p.teamNumber, role: p.role, active: p.active, checkedInAt: c!.at, employeeId: a.role === 'owner' ? p.employeeId : mask(p.employeeId) } : null };
+  }
+  if (M('POST', /^\/admin\/participants$/)) {
+    const a = admin(s);
+    const name = String(b.name ?? '').trim(); const emp = String(b.employeeId ?? '').trim();
+    if (!name || !emp) fail(400, 'invalid', '이름과 사번을 확인해 주세요.');
+    if (!Number.isInteger(b.teamNumber) || b.teamNumber < 0 || b.teamNumber > 8) fail(400, 'invalid_team', '조를 선택해 주세요.');
+    if (s.participants.some((x) => x.employeeId.toLowerCase() === emp.toLowerCase())) fail(409, 'exists', '이미 명단에 있는 사번입니다.');
+    if (b.role === 'admin' && a.role !== 'owner') fail(403, 'forbidden', '관리자 추가는 owner만 할 수 있습니다.');
+    const p = { id: rid(), employeeId: emp, name, teamNumber: b.teamNumber, role: b.role === 'admin' ? 'admin' as const : 'participant' as const, active: true };
+    s.participants.push(p); audit(s, a, 'participant_add', p.id, { name, teamNumber: b.teamNumber });
+    return { uid: p.id };
+  }
+  if (M('POST', /^\/owner\/tickets\/reset$/)) {
+    const o = owner(s);
+    if (b.confirm !== '초기화') fail(400, 'confirm', "확인 문구 '초기화'를 정확히 입력해 주세요.");
+    if (b.password !== CANCEL_PASSWORD) fail(403, 'bad_password', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.');
+    const removed = s.checkins.length;
+    s.checkins = []; s.nextSeq = 1;
+    const a2 = Array.from({ length: 300 }, (_, i) => i + 1);
+    for (let i = 299; i > 0; i--) { const r = new Uint32Array(1); crypto.getRandomValues(r); const j = r[0] % (i + 1); [a2[i], a2[j]] = [a2[j], a2[i]]; }
+    s.pool = a2; audit(s, o, 'tickets_reset', null, { removed });
+    return { removed };
   }
   if (M('GET', /^\/admin\/announcements$/)) { const p = admin(s); return { announcements: anns(s, p.id, true) }; }
   if (M('POST', /^\/admin\/announcements$/)) {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useApi, useConn } from '../hooks';
 import { useMe } from '../session';
-import { cx, fmtTime, TEAM_COLORS } from '../util';
+import { cx, fmtTime, TEAM_COLORS, teamLabel } from '../util';
 import { IconPlus } from '../components/Icons';
 import { AwardSheet } from './AwardSheet';
 import { LogView } from './Log';
@@ -124,7 +124,7 @@ function Board({ categories, go }: { categories: Category[]; go: (r: string) => 
               <div className="checkin-strip">
                 {checkins.data.teams.map((c) => (
                   <div className="c" key={c.teamNumber}>
-                    <div className="xs muted">{c.teamNumber}조</div>
+                    <div className="xs muted">{teamLabel(c.teamNumber)}</div>
                     <b className="num">{c.checkedIn}</b><span className="xs muted num">/{c.total}</span>
                     <div className="meter"><i style={{ width: `${c.total ? (c.checkedIn / c.total) * 100 : 0}%` }} /></div>
                   </div>

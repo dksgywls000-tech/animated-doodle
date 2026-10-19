@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api, ApiError, errMsg } from '../api';
 import { useApi } from '../hooks';
 import { useMe } from '../session';
-import { fmtFull } from '../util';
+import { fmtFull, teamLabel } from '../util';
 import { Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
 
@@ -27,7 +27,7 @@ export function Owner() {
       <h1 className="h-title">명단·권한 (owner)</h1>
       <p className="xs muted" style={{ marginBottom: 16 }}>명단과 관리자 권한 변경은 모두 감사 기록에 남습니다. 행운권·점수 기록은 명단 재업로드로 초기화되지 않습니다.</p>
       <div className="grid-2">
-        <div className="stack"><RosterUpload /><Exports /></div>
+        <div className="stack"><RosterUpload /><ResetTickets /><Exports /></div>
         <div className="stack"><People /><Audit /></div>
       </div>
     </div>
@@ -126,7 +126,7 @@ function People() {
   };
   const row = (p: Person) => (
     <div className="list-row" key={p.id}>
-      <div><div style={{ fontWeight: 700 }}>{p.name} <span className="xs muted">· {p.teamNumber}조 · {p.employeeId}</span></div><div className="xs muted">{ROLE[p.role]}{p.checkedInAt ? ' · 체크인함' : ''}{!p.active ? ' · 비활성' : ''}</div></div>
+      <div><div style={{ fontWeight: 700 }}>{p.name} <span className="xs muted">· {teamLabel(p.teamNumber)} · {p.employeeId}</span></div><div className="xs muted">{ROLE[p.role]}{p.checkedInAt ? ' · 체크인함' : ''}{!p.active ? ' · 비활성' : ''}</div></div>
       {p.id !== me.id ? (
         <div className="row"><button className="btn btn-ghost btn-s" onClick={() => open(p, 'role')}>권한</button><button className="btn btn-ghost btn-s" onClick={() => open(p, 'team')}>조 변경</button></div>
       ) : <span className="xs muted">본인</span>}
@@ -146,8 +146,8 @@ function People() {
             <div className="chips" role="radiogroup" aria-label="역할">{Object.entries(ROLE).map(([k, l]) => <button key={k} role="radio" aria-checked={role === k} className="chip" aria-pressed={role === k} onClick={() => setRole(k)}>{l}</button>)}</div>
           ) : (
             <>
-              <p className="small">현재 {target.p.teamNumber}조 {target.p.checkedInAt ? '· 이미 체크인함 (예외 변경)' : ''}</p>
-              <div className="team-grid" style={{ marginTop: 10 }}>{Array.from({ length: 8 }, (_, i) => <button key={i} className="opt num" aria-pressed={team === i + 1} onClick={() => setTeam(i + 1)}>{i + 1}조</button>)}</div>
+              <p className="small">현재 {teamLabel(target.p.teamNumber)} {target.p.checkedInAt ? '· 이미 체크인함 (예외 변경)' : ''}</p>
+              <div className="team-grid" style={{ marginTop: 10 }}>{[1, 2, 3, 4, 5, 6, 7, 8, 0].map((t) => <button key={t} className="opt num" aria-pressed={team === t} onClick={() => setTeam(t)}>{teamLabel(t)}</button>)}</div>
               <label className="field" style={{ marginTop: 12 }}><span className="label">변경 사유 (감사 기록)</span><input className="input" value={reason} maxLength={200} onChange={(e) => setReason(e.target.value)} /></label>
               <p className="hint">변경 즉시 이전 조 채팅 접근이 끊기고 새 조 채팅으로 바뀝니다. 행운권 번호는 그대로입니다.</p>
             </>
@@ -195,6 +195,42 @@ function Audit() {
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+/** 테스트용: 행운권 정보 전체 초기화 (owner) */
+function ResetTickets() {
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState('');
+  const [pw, setPw] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const run = async () => {
+    setBusy(true); setErr(null);
+    try {
+      const r = await api<{ removed: number }>('POST', '/api/owner/tickets/reset', { confirm, password: pw });
+      toast(`행운권 ${r.removed}장을 초기화했습니다. 다음 입장자부터 새 번호를 받습니다.`);
+      setOpen(false); setConfirm(''); setPw('');
+    } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); }
+  };
+  return (
+    <section className="panel">
+      <h2 className="h-sec">행운권 초기화 (테스트용)</h2>
+      <p className="xs muted" style={{ marginTop: 4 }}>모든 사람의 행운권 번호·입장 기록을 지우고 1~300을 새로 섞습니다. 점수·채팅·명단은 그대로입니다. 이미 접속해 있는 사람은 앱을 다시 열면 새 번호를 받습니다.</p>
+      <button className="btn btn-danger btn-s" style={{ marginTop: 10 }} onClick={() => setOpen(true)}>행운권 초기화…</button>
+      {open && (
+        <Sheet title="행운권 정보 초기화" onClose={() => setOpen(false)} closeDisabled={busy}
+          footer={<button className="btn btn-danger btn-block" disabled={busy || confirm !== '초기화' || !pw} onClick={() => void run()}>{busy ? '초기화 중…' : '모든 행운권 초기화'}</button>}>
+          <div className="warn-card"><b>되돌릴 수 없습니다.</b> 리허설이 끝난 뒤, 실제 입장이 시작되기 <b>전에만</b> 사용하세요. 누군가 입장하는 중에 실행하면 번호가 어긋날 수 있습니다.</div>
+          <label className="field" style={{ marginTop: 14 }}><span className="label">확인 문구: <b>초기화</b> 라고 입력</span>
+            <input className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} data-autofocus /></label>
+          <label className="field" style={{ marginTop: 12 }}><span className="label">점수 취소 비밀번호</span>
+            <input className="input" type="password" inputMode="numeric" autoComplete="off" value={pw} onChange={(e) => setPw(e.target.value)} /></label>
+          {err && <div className="form-error" role="alert" style={{ marginTop: 12 }}>{err}</div>}
+        </Sheet>
+      )}
     </section>
   );
 }

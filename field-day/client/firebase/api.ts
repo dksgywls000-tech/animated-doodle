@@ -11,7 +11,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 import { FirebaseError } from 'firebase/app';
 import { auth, authReady, db, fns, configMissing } from './fb';
-import { CATEGORIES, EVENT_SUBTYPES, SEAT_NOTES } from '../../server/services/seedData';
+import { CATEGORIES, EVENT_SUBTYPES, SEAT_NOTES, teamLabel } from '../../server/services/seedData';
 import { computeNowNext } from '../shared/nowNext';
 import type { ScheduleItem } from '../src/types';
 
@@ -118,7 +118,7 @@ export function toMessage(d: DocumentSnapshot, viewer?: string) {
 function resolveChannel(me: Me, ch: string) {
   if (ch === 'all') return 'all';
   if (ch === 'team') return `team:${me.teamNumber}`;
-  const m = /^team:([1-8])$/.exec(ch);
+  const m = /^team:([0-8])$/.exec(ch);
   if (m) { if (Number(m[1]) !== me.teamNumber) fail(403, 'forbidden_channel', '다른 조 채팅방에는 들어갈 수 없습니다.'); return ch; }
   return fail(400, 'invalid_channel', '채팅방을 찾을 수 없습니다.');
 }
@@ -178,9 +178,14 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
   if (is('POST', /^\/logout$/)) { meCache = null; await signOut(auth); return { ok: true }; }
   if (is('GET', /^\/me$/)) {
     const me = await currentMe(true);
-    const [ci, emp] = await Promise.all([getDoc(doc(db, 'checkins', me.uid)), getDoc(doc(db, 'employeeIds', me.uid))]);
+    let [ci, emp] = await Promise.all([getDoc(doc(db, 'checkins', me.uid)), getDoc(doc(db, 'employeeIds', me.uid))]);
+    if (!ci.exists()) {
+      // 행운권 초기화 직후 등: 로그인은 되어 있지만 번호가 없으면 새로 받는다
+      await call('ensureTicket', {});
+      ci = await getDoc(doc(db, 'checkins', me.uid));
+    }
     return {
-      id: me.uid, name: me.name, employeeIdMasked: mask(emp.data()?.employeeId ?? ''), teamNumber: me.teamNumber, teamName: `${me.teamNumber}조`,
+      id: me.uid, name: me.name, employeeIdMasked: mask(emp.data()?.employeeId ?? ''), teamNumber: me.teamNumber, teamName: teamLabel(me.teamNumber),
       seatNote: SEAT_NOTES[me.teamNumber] ?? '', ticketNumber: ci.data()?.ticket ?? null, checkedInAt: iso(ci.data(est)?.at),
       isStaff: me.role !== 'participant', role: me.role, csrfToken: '', demo: import.meta.env.VITE_DEMO_LABEL === 'true',
     };
@@ -331,8 +336,12 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     const people = ps.docs.map((d) => { const x = d.data(); const c = ci.get(d.id); return { id: d.id, name: x.name, employeeId: emp.get(d.id) ?? '비공개', teamNumber: x.teamNumber, role: x.role, active: x.active, ticketNumber: c?.ticket ?? null, checkedInAt: c ? isoNow(c.at) : null }; })
       .sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
     const act = people.filter((p) => p.active);
-    return { teams: Array.from({ length: 8 }, (_, i) => ({ teamNumber: i + 1, total: act.filter((p) => p.teamNumber === i + 1).length, checkedIn: act.filter((p) => p.teamNumber === i + 1 && p.checkedInAt).length })), total: act.length, checkedIn: act.filter((p) => p.checkedInAt).length, people };
+    return { teams: [1, 2, 3, 4, 5, 6, 7, 8, 0].map((t) => ({ teamNumber: t, total: act.filter((p) => p.teamNumber === t).length, checkedIn: act.filter((p) => p.teamNumber === t && p.checkedInAt).length })), total: act.length, checkedIn: act.filter((p) => p.checkedInAt).length, people };
   }
+
+  // ── 인원 추가 · 행운권 초기화 ──
+  if (is('POST', /^\/admin\/participants$/)) { await staffOnly(); return await call('addParticipant', { name: b.name, employeeId: b.employeeId, teamNumber: b.teamNumber, role: b.role }); }
+  if (is('POST', /^\/owner\/tickets\/reset$/)) { await staffOnly(true); return await call('resetTickets', { confirm: b.confirm, password: b.password }); }
 
   // ── 관리자: 공지·일정·안내 ──
   if (is('GET', /^\/admin\/announcements$/)) { const me = await staffOnly(); return { announcements: await readAnnouncements(me, true) }; }

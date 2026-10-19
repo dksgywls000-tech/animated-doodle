@@ -16,22 +16,26 @@ export class Allocator {
   private chain: Promise<unknown> = Promise.resolve();
   private nextHint = 0;
   private pool: number[] | null = null;
+  private gen: number | null = null;
 
   constructor(private db: Firestore) {}
 
+  /** 풀과 세대(gen)를 읽는다. 행운권 초기화로 세대가 바뀌면 캐시한 풀·순번 힌트를 버린다 */
   private async getPool(): Promise<number[]> {
-    if (this.pool) return this.pool;
     const s = await this.db.doc('private/allocation').get();
     if (!s.exists) throw Object.assign(new Error('allocation not initialized'), { code: 'not-initialized' });
+    const gen = (s.get('gen') as number | undefined) ?? 0;
+    if (this.pool && this.gen === gen) return this.pool;
     this.pool = s.get('pool') as number[];
+    this.gen = gen;
+    this.nextHint = 0;
     return this.pool;
   }
 
   async allocate(uid: string): Promise<Allocation> {
     const prior = await this.db.doc(`checkins/${uid}`).get();
     if (prior.exists) return { ticket: prior.get('ticket'), seq: prior.get('seq'), isNew: false };
-    const pool = await this.getPool();
-    const run = this.chain.then(() => this.claim(uid, pool), () => this.claim(uid, pool));
+    const run = this.chain.then(() => this.getPool().then((pool) => this.claim(uid, pool)), () => this.getPool().then((pool) => this.claim(uid, pool)));
     this.chain = run.catch(() => undefined);
     return run;
   }

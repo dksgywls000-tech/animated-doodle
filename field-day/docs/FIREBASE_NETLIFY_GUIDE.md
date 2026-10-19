@@ -92,43 +92,52 @@
 
 ---
 
-## 4. 화면(HTML) Netlify에 올리기
+## 4. 화면(HTML) Netlify에 올리기 — 끌어다 놓기
 
-1. https://app.netlify.com → **Add new site → Import an existing project → GitHub**
-2. 저장소 `animated-doodle` 선택
-   - **Branch to deploy**: 앱 코드가 있는 브랜치(예: `ccr-6714f13a-10y6ct`, main에 합쳤다면 `main`)
-   - **Base directory**: `field-day`
-   - Build command / Publish directory는 비워 두면 `netlify.toml`에 적힌 값(`npm run build:netlify`, `dist/netlify`)이 자동으로 쓰입니다.
-3. **Environment variables → Add variables**에 1단계에서 메모한 4개를 넣습니다.
-   ```
-   VITE_FIREBASE_API_KEY
-   VITE_FIREBASE_AUTH_DOMAIN
-   VITE_FIREBASE_PROJECT_ID
-   VITE_FIREBASE_APP_ID
-   ```
-4. **Deploy** → 2~3분 뒤 `https://이름.netlify.app` 주소가 나옵니다.
-   - 사이트 이름은 **Site configuration → Change site name**에서 바꿀 수 있습니다(예: `fieldday-2026.netlify.app`).
-   - 환경변수를 나중에 넣었다면 **Deploys → Trigger deploy → Deploy site**로 다시 배포해야 반영됩니다.
+빌드할 필요 없이 **완성된 화면 폴더**를 올립니다.
 
-> GitHub 연결 대신 직접 올리려면: 내 컴퓨터에서 4개 값을 `field-day/.env.production.local`에 적고 `npm ci && npm run build:netlify` 후 생긴 `dist/netlify` 폴더를 Netlify **Deploys** 화면에 끌어다 놓아도 됩니다.
+1. 받은 `netlify-upload.zip`을 풉니다 → `netlify` 폴더가 생깁니다.
+2. 폴더 안의 **`firebase-config.js`**를 메모장으로 열고, 1단계에서 메모한 4개 값을 따옴표 안에 붙여 넣고 저장합니다.
+   ```js
+   window.FIREBASE_CONFIG = {
+     apiKey: "AIza....",
+     authDomain: "fieldday-2026.firebaseapp.com",
+     projectId: "fieldday-2026",
+     appId: "1:1234:web:abcd",
+   };
+   ```
+3. https://app.netlify.com/drop 에 접속(Netlify 로그인) → **`netlify` 폴더를 통째로 끌어다 놓기**
+4. 1분 안에 `https://무작위이름.netlify.app` 주소가 나옵니다.
+   - **Site configuration → Change site name**에서 주소를 바꿀 수 있습니다(예: `fieldday-2026.netlify.app`).
+   - 나중에 화면을 바꿔 다시 올릴 때는 그 사이트의 **Deploys** 화면 아래 "drag and drop" 칸에 폴더를 다시 놓으면 같은 주소로 갱신됩니다.
+
+> GitHub 연결로 자동 빌드하고 싶다면: Netlify → Add new site → Import from GitHub → Base directory `field-day`, 환경변수 `VITE_FIREBASE_API_KEY`·`VITE_FIREBASE_AUTH_DOMAIN`·`VITE_FIREBASE_PROJECT_ID`·`VITE_FIREBASE_APP_ID` 4개 입력. (`netlify.toml`에 빌드 설정이 들어 있습니다)
 
 ---
 
-## 5. 처음 설정 (owner 등록)
+## 5. 처음 설정 (owner 등록) + 명단 올리기
 
 1. 브라우저로 `https://내사이트.netlify.app/setup` 접속
-2. **설정 키**(3단계 SETUP_KEY), **owner 이름·사번·조** 입력 → 설정하기
-   - 이때 일정(17:40 퇴근버스 포함)과 행운권 1~300 무작위 풀이 만들어집니다.
-   - 한 번 끝나면 이 화면은 다시 동작하지 않습니다.
-3. `https://내사이트.netlify.app` 첫 화면에서 방금 입력한 **이름·사번**으로 입장
-4. 하단 **관리자 화면 → 명단·권한 → CSV 파일 선택**으로 실제 명단을 올립니다.
-   ```
-   employee_id,name,team_number,role,active
-   000123,홍길동,3,participant,true
-   A1234,김관리,2,admin,true
-   ```
-   - 엑셀에서 저장한 CSV도 됩니다. 미리보기에서 오류가 없을 때만 **명단 반영**이 눌립니다.
-   - 관리자로 쓸 사람은 `role`을 `admin`으로.
+2. **설정 키**(3단계 SETUP_KEY)와 **owner의 이름·사번·조**를 입력 → 설정하기
+   - owner는 명단에 '관리자'로 되어 있는 분 중 **이 앱을 총괄할 한 명**으로 하세요. 이름·사번을 명단과 **똑같이** 입력합니다(명단을 올려도 owner 권한은 유지됩니다).
+   - 이때 일정(버스 12:10·12:35, 17:40 퇴근버스)과 행운권 1~300 무작위 풀이 만들어집니다. 한 번 끝나면 이 화면은 다시 동작하지 않습니다.
+3. 첫 화면에서 방금 입력한 **이름·사번**으로 입장
+4. 하단 **관리자 화면 → 명단·권한 → CSV 파일 선택** → 받은 **`명단_업로드용.csv`** 선택
+   - 미리보기에서 **추가 371명, 오류 0**인지 확인 → '역할 변경' 확인 체크가 나오면 체크 → **명단 반영**
+   - 직접 엑셀로 만들 때 머리글은 `사번, 이름, 조, 역할`(또는 `직원명, 사번, 조, 직급`)이면 됩니다. 조는 `1조`~`8조` 또는 `운영진`, 역할/직급은 `관리자`면 관리자, `일반`·`팀장`은 참가자.
+
+### 운영진
+명단에서 조가 `운영진`인 16명은 조에 속하지 않는 **운영진**으로 들어갑니다. 행운권은 똑같이 받고, 채팅의 '우리 조' 대신 **운영진 전용 방**을 씁니다. 점수판은 1~8조만 있습니다.
+
+### 인원 추가 (현장에서 명단에 없는 사람)
+**관리자 화면 → 체크인 → 인원 추가**에 이름·사번·조를 넣고 **명단에 추가**. 바로 입장할 수 있습니다. 관리자로 추가하는 것은 owner만 가능합니다.
+
+### 행운권 초기화 (리허설 후)
+**관리자 화면 → 명단·권한 → 행운권 초기화…** (owner만)
+- 확인 문구 `초기화` + 점수 취소 비밀번호(기본 1234)를 입력하면 **모든 행운권 번호·입장 기록을 지우고 1~300을 새로 섞습니다.**
+- 점수·채팅·명단은 지워지지 않습니다. 리허설 점수는 '점수 기록'에서 취소하세요.
+- 이미 접속해 있던 사람은 앱을 다시 열면 새 번호를 받습니다.
+- **행사 당일 참가자 입장이 시작된 뒤에는 절대 누르지 마세요.**
 
 ---
 
@@ -142,6 +151,7 @@
 - [ ] 관리자 화면 → **행운권** 탭에서 번호로 사람 조회
 - [ ] 전체·우리 조 채팅
 - [ ] 리허설에 쓴 점수는 **취소** 처리 (기록은 지워지지 않고 취소로 남습니다)
+- [ ] 리허설이 끝나면 **행운권 초기화** → 당일 첫 입장자부터 새 번호
 - [ ] 주소로 **QR 제작**
 
 행사 시작 시간이 다가오면 **관리자 화면 → 공지·일정**에서 "일정 확정 공개"를 켜세요(끄면 참가자에게 '초안' 표시).
@@ -164,7 +174,7 @@ npm run hash-password      # 새 비밀번호 입력 → SCORE_CANCEL_PASSWORD_H
 | 증상 | 해결 |
 |---|---|
 | 입장하기 누르면 "일시적인 오류" | 3-4단계(서비스 계정 토큰 생성자 권한) 확인 |
-| 화면에 "앱 설정이 비어 있습니다" | Netlify 환경변수 4개 확인 후 다시 배포 |
+| 화면에 "앱 설정이 비어 있습니다" | `firebase-config.js`에 4개 값을 넣었는지 확인 후 폴더를 다시 끌어다 놓기 |
 | "행사 설정이 아직 끝나지 않았습니다" | 5단계 `/setup`을 먼저 진행 |
 | 관리자 화면에서 "권한이 없습니다" | 명단 CSV에서 그 사람 `role`이 `admin`인지 확인 |
 | 배포 시 "requires the Blaze plan" | 1-3단계 요금제 업그레이드 |

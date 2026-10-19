@@ -53,11 +53,20 @@ export function parseCsv(text: string): { line: number; cells: string[] }[] {
 }
 
 const HEADER: Record<string, string> = {
-  employee_id: 'employee_id', 사번: 'employee_id', 직원번호: 'employee_id', name: 'name', 이름: 'name', 성명: 'name',
-  team_number: 'team_number', team: 'team_number', 조: 'team_number', role: 'role', 역할: 'role', 권한: 'role', active: 'active', 활성: 'active', 활성여부: 'active',
+  employee_id: 'employee_id', 사번: 'employee_id', 직원번호: 'employee_id', name: 'name', 이름: 'name', 성명: 'name', 직원명: 'name',
+  team_number: 'team_number', team: 'team_number', 조: 'team_number', 소속: 'team_number', 조편성: 'team_number', role: 'role', 역할: 'role', 권한: 'role', 직급: 'role', active: 'active', 활성: 'active', 활성여부: 'active',
 };
 const ACTIVE: Record<string, boolean> = { true: true, '1': true, y: true, yes: true, 활성: true, o: true, false: false, '0': false, n: false, no: false, 비활성: false, x: false };
-const ROLE: Record<string, Role> = { participant: 'participant', 참가자: 'participant', admin: 'admin', 관리자: 'admin', owner: 'owner', 총괄: 'owner' };
+const ROLE: Record<string, Role> = { participant: 'participant', 참가자: 'participant', 일반: 'participant', 팀장: 'participant', 조장: 'participant', admin: 'admin', 관리자: 'admin', owner: 'owner', 총괄: 'owner' };
+
+/** '3', '3조' → 3, '운영진'·'0' → 0, 그 밖은 NaN */
+export function parseTeam(v: unknown): number {
+  const t = String(v ?? '').trim();
+  if (t === '운영진' || t === '운영' || t === '0') return 0;
+  const m = /^([1-8])\s*조?$/.exec(t);
+  return m ? Number(m[1]) : NaN;
+}
+export const isTeam = (n: unknown): n is number => Number.isInteger(n) && (n as number) >= 0 && (n as number) <= 8;
 
 export function parseRoster(text: string): { rows: RosterRow[]; errors: { line: number; reason: string }[] } {
   const raw = parseCsv(text);
@@ -72,14 +81,14 @@ export function parseRoster(text: string): { rows: RosterRow[]; errors: { line: 
     const cell = (k: string) => (header.indexOf(k) >= 0 ? r.cells[header.indexOf(k)] ?? '' : '');
     const employeeId = normalizeEmployeeId(cell('employee_id'));
     const name = normalizeName(cell('name'));
-    const teamRaw = cell('team_number').trim().replace(/조$/, '');
+    const teamRaw = cell('team_number').trim();
     const roleRaw = cell('role').trim().toLowerCase();
     const activeRaw = cell('active').trim().toLowerCase();
     const reasons: string[] = [];
     if (!employeeId) reasons.push('사번이 비어 있습니다'); else if (employeeId.length > 64 || employeeId.includes('/')) reasons.push('사번 형식이 올바르지 않습니다');
     if (!name) reasons.push('이름이 비어 있습니다'); else if (name.length > 64) reasons.push('이름이 너무 깁니다');
-    const teamNumber = /^[1-8]$/.test(teamRaw) ? Number(teamRaw) : NaN;
-    if (Number.isNaN(teamNumber)) reasons.push(`조는 1~8이어야 합니다 (입력: "${teamRaw}")`);
+    const teamNumber = parseTeam(teamRaw);
+    if (Number.isNaN(teamNumber)) reasons.push(`조는 1~8 또는 운영진이어야 합니다 (입력: "${teamRaw}")`);
     const role = roleRaw === '' ? 'participant' : ROLE[roleRaw];
     if (!role) reasons.push(`역할은 participant/admin/owner 중 하나여야 합니다 (입력: "${roleRaw}")`);
     const active = activeRaw === '' ? true : ACTIVE[activeRaw];

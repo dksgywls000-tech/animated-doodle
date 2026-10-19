@@ -30,7 +30,7 @@ export function Maps({ route, go }: { route: string; go: (r: string) => void }) 
       </div>
 
       {key === 'seat' && (
-        <MapBlock map={{ src: '/assets/04_team_seating.jpg', title: '조별 자리 배치도', alt: '잔디밭 위 1~8조 자리, 운영지원·응급보건실, 푸드트럭 위치가 표시된 배치도', spot: { x: seat[0], y: seat[1], label: `${me.teamNumber}조` } }}>
+        <MapBlock map={{ src: '/assets/04_team_seating.jpg', title: '조별 자리 배치도', alt: '잔디밭 위 1~8조 자리, 운영지원·응급보건실, 푸드트럭 위치가 표시된 배치도', spot: { x: seat[0], y: seat[1], label: me.teamName } }}>
           <h3>{me.teamName} 자리</h3>
           <p className="small" style={{ marginTop: 4 }}>{me.seatNote}</p>
           <ul className="small muted" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
