@@ -26,6 +26,7 @@ class FirebaseRealtime {
 
   start(channels: string[]) { this.setChannels(channels); }
   reconnectNow() { /* Firestore SDK가 자동 재연결 */ }
+  setFocus(_tab: string) { /* 이 구현은 탭과 무관하게 구독 */ }
   on(fn: Listener) { this.listeners.add(fn); return () => { this.listeners.delete(fn); }; }
   onState(fn: (s: ConnState) => void) { this.stateListeners.add(fn); fn(this.state); return () => { this.stateListeners.delete(fn); }; }
 

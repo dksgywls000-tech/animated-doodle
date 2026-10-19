@@ -78,7 +78,8 @@ export function registerAdminRoutes(api: FastifyInstance, { config, db, hub }: A
     return sendCsv(reply, 'score-log.csv', csv);
   });
 
-  // ── 체크인 현황 ──
+  // ── 체크인 현황 ── (점수판의 요약도 같은 데이터)
+  api.get('/admin/checkins/summary', async (_req, reply) => reply.redirect('/api/admin/checkins'));
   api.get('/admin/checkins', async (req) => {
     const u = requireAdmin(req);
     const { rows } = await db.query(

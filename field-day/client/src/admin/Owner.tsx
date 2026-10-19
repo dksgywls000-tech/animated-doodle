@@ -27,7 +27,7 @@ export function Owner() {
       <h1 className="h-title">명단·권한 (owner)</h1>
       <p className="xs muted" style={{ marginBottom: 16 }}>명단과 관리자 권한 변경은 모두 감사 기록에 남습니다. 행운권·점수 기록은 명단 재업로드로 초기화되지 않습니다.</p>
       <div className="grid-2">
-        <div className="stack"><RosterUpload /><ResetTickets /><Exports /></div>
+        <div className="stack"><RosterUpload /><ResetTickets /><CancelPassword /><Exports /></div>
         <div className="stack"><People /><Audit /></div>
       </div>
     </div>
@@ -231,6 +231,32 @@ function ResetTickets() {
           {err && <div className="form-error" role="alert" style={{ marginTop: 12 }}>{err}</div>}
         </Sheet>
       )}
+    </section>
+  );
+}
+
+/** 점수 취소 비밀번호 변경 (무료 요금제 버전) */
+function CancelPassword() {
+  const toast = useToast();
+  const [pw, setPw] = useState('');
+  const [pw2, setPw2] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const save = async () => {
+    setBusy(true); setErr(null);
+    try { await api('POST', '/api/owner/cancel-password', { password: pw }); toast('취소 비밀번호를 바꿨습니다.'); setPw(''); setPw2(''); }
+    catch (e) { setErr(errMsg(e)); } finally { setBusy(false); }
+  };
+  return (
+    <section className="panel">
+      <h2 className="h-sec">점수 취소 비밀번호 변경</h2>
+      <p className="xs muted" style={{ marginTop: 4 }}>기본값은 1234입니다. 점수 취소와 행운권 초기화에 씁니다.</p>
+      <div className="row" style={{ marginTop: 10, flexWrap: 'wrap' }}>
+        <input className="input" style={{ maxWidth: 180, minHeight: 44 }} type="password" autoComplete="new-password" placeholder="새 비밀번호" aria-label="새 취소 비밀번호" value={pw} onChange={(e) => setPw(e.target.value)} />
+        <input className="input" style={{ maxWidth: 180, minHeight: 44 }} type="password" autoComplete="new-password" placeholder="한 번 더" aria-label="새 취소 비밀번호 확인" value={pw2} onChange={(e) => setPw2(e.target.value)} />
+        <button className="btn btn-ghost btn-s" disabled={busy || pw.length < 4 || pw !== pw2} onClick={() => void save()}>변경</button>
+      </div>
+      {err && <div className="form-error" role="alert" style={{ marginTop: 10 }}>{err}</div>}
     </section>
   );
 }

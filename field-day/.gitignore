@@ -16,3 +16,4 @@ firebase/*.log
 firebase-debug.log
 firestore-debug.log
 dist/netlify-emu/
+dist/netlify-free-emu/

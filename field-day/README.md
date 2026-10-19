@@ -7,7 +7,10 @@
 - 폰트: Pretendard (SIL Open Font License 1.1, npm `pretendard` 패키지에서 자체 호스팅)
 - 외부 유료 서비스 의존 없음. **외부 배포·QR 생성은 하지 않습니다.**
 
-## 배포 방식: Netlify(화면) + Firebase(서버)
+## 무료(Spark) 요금제 버전 — 카드·설치 없이
+**[docs/FIREBASE_FREE_GUIDE.md](docs/FIREBASE_FREE_GUIDE.md)** — 보안 규칙(`firebase-free/firestore.rules`)을 Firebase 콘솔에 붙여 넣고, `npm run package:free`로 만든 폴더를 Netlify에 끌어다 놓으면 됩니다. 화면 어댑터는 `client/free`. 테스트: `npm run test:free`(규칙·동시성 57개 + 화면 흐름 18단계).
+
+## 배포 방식: Netlify(화면) + Firebase(서버 함수, Blaze 요금제)
 **실제 행사용 배포는 [docs/FIREBASE_NETLIFY_GUIDE.md](docs/FIREBASE_NETLIFY_GUIDE.md)를 순서대로 따라 하세요.** Netlify에 끌어다 놓을 폴더는 `npm run package:netlify`로 만듭니다(`dist/netlify-upload.zip`).
 
 | 폴더 | 내용 |

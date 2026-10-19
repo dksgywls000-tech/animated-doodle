@@ -25,6 +25,7 @@ class DemoRealtime {
   setChannels(channels: string[]) { this.channels = channels; }
   stop() { this.channels = []; this.setState('offline'); }
   reconnectNow() { /* 데모: 항상 연결 */ }
+  setFocus(_tab: string) { /* 이 구현은 탭과 무관하게 구독 */ }
   on(fn: Listener) { this.listeners.add(fn); return () => { this.listeners.delete(fn); }; }
   onState(fn: (s: ConnState) => void) { this.stateListeners.add(fn); fn(this.state); return () => { this.stateListeners.delete(fn); }; }
 

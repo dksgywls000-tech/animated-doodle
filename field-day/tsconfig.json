@@ -20,6 +20,7 @@
     "client/src/**/*",
     "client/demo/**/*",
     "client/firebase/**/*",
-    "client/shared/**/*"
+    "client/shared/**/*",
+    "client/free/**/*"
   ]
 }

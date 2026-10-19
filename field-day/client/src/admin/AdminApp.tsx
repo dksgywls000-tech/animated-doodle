@@ -68,7 +68,7 @@ export default function AdminApp({ route, go }: { route: string; go: (r: string)
 function Board({ categories, go }: { categories: Category[]; go: (r: string) => void }) {
   const toast = useToast();
   const board = useApi<{ teams: TeamScore[]; generatedAt: string }>('/api/admin/scores/board', (ev) => ev.type === 'scores_changed');
-  const checkins = useApi<{ teams: { teamNumber: number; total: number; checkedIn: number }[]; total: number; checkedIn: number }>('/api/admin/checkins');
+  const checkins = useApi<{ teams: { teamNumber: number; total: number; checkedIn: number }[]; total: number; checkedIn: number }>('/api/admin/checkins/summary');
   const [sort, setSort] = useState<'team' | 'rank'>('team');
   const [award, setAward] = useState<{ team: number | null } | null>(null);
   const [flash, setFlash] = useState<number | null>(null);

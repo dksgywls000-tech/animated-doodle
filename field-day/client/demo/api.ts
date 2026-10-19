@@ -259,7 +259,7 @@ function route(s: State, method: string, url: string, b: any): unknown {
   }
 
   // ── 관리자: 체크인·공지·일정·경기·안내 ──
-  if (M('GET', /^\/admin\/checkins$/)) {
+  if (M('GET', /^\/admin\/checkins(\/summary)?$/)) {
     const p = admin(s);
     const people = s.participants.map((x) => { const c = s.checkins.find((y) => y.participantId === x.id); return { id: x.id, name: x.name, employeeId: p.role === 'owner' ? x.employeeId : mask(x.employeeId), teamNumber: x.teamNumber, role: x.role, active: x.active, ticketNumber: c?.ticket ?? null, checkedInAt: c?.at ?? null }; });
     const act = people.filter((x) => x.active);

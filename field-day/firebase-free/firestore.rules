@@ -1,0 +1,254 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────
+// 가을운동회 앱 — Firebase 무료(Spark) 요금제용 보안 규칙
+// 서버 함수 없이, 이 규칙이 모든 권한·검증을 맡는다.
+//
+// 로그인: 기기마다 익명 로그인 → bindings/{기기uid}에 '이름+사번' 확인을 통과한 참가자 ID를 연결
+//         loginIndex/{sha256(사번|이름)} 문서가 있어야만 연결 가능(목록 조회 불가)
+// 역할·조·활성 여부: 매 요청마다 participants/{pid}를 다시 읽어 판단
+// 행운권: claims/slots(순번 선점) → pool/{순번}(본인 순번만 열람) → checkins/tickets(번호 확정)
+// ─────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function d(c, id) { return /databases/$(database)/documents/$(c)/$(id); }
+    function signedIn() { return request.auth != null; }
+    function bound() { return signedIn() && exists(d('bindings', request.auth.uid)); }
+    function myPid() { return get(d('bindings', request.auth.uid)).data.pid; }
+    function me() { return get(d('participants', myPid())).data; }
+    function active() { return bound() && exists(d('participants', myPid())) && me().active == true; }
+    function staff() { return active() && me().role in ['admin', 'owner']; }
+    function owner() { return active() && me().role == 'owner'; }
+    function chatColl(ch) { return ch == 'all' ? 'chat_all' : 'chat_team_' + ch.split(':')[1]; }
+    function myTeamColl() { return 'chat_team_' + string(me().teamNumber); }
+    function canColl(coll) { return coll == 'chat_all' || coll == myTeamColl(); }
+    function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function str(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    // 최초 설정 중(같은 일괄 쓰기 안에서 config/public이 처음 만들어질 때)
+    function settingUp() { return signedIn() && !exists(d('config', 'public')) && existsAfter(d('config', 'public')); }
+    function isTeam(n) { return n is int && n >= 0 && n <= 8; }
+
+    // ── 공개 정보(행사 안내·일정·공지 한 문서) ──
+    match /config/public {
+      allow get: if active() || signedIn();   // 설정 여부 확인용으로 로그인 전에도 읽기 허용(개인정보 없음)
+      allow create: if signedIn() && !exists(d('config', 'public'));
+      allow update: if staff();
+      allow delete: if false;
+    }
+    match /private/settings {
+      allow read: if false;
+      allow create: if settingUp();
+      allow update: if owner() && request.resource.data.keys().hasOnly(['cancelHash']) && str(request.resource.data.cancelHash, 64, 64);
+      allow delete: if false;
+    }
+
+    // ── 로그인 ──
+    match /loginIndex/{key} {
+      allow get: if signedIn();                // 정확한 키(이름+사번 해시)를 알아야만 열람
+      allow list: if false;
+      allow create: if settingUp() || owner()
+        || (staff() && !exists(d('participants', request.resource.data.pid))
+            && existsAfter(d('participants', request.resource.data.pid))
+            && getAfter(d('participants', request.resource.data.pid)).data.role == 'participant');
+      allow delete: if owner();
+      allow update: if false;
+    }
+    match /empIndex/{key} {                     // 사번 중복 확인용(sha256(사번))
+      allow get: if staff();
+      allow list: if false;
+      allow create: if settingUp() || owner()
+        || (staff() && !exists(d('participants', request.resource.data.pid)) && existsAfter(d('participants', request.resource.data.pid)));
+      allow delete: if owner();
+      allow update: if false;
+    }
+    match /bindings/{uid} {
+      allow get: if signedIn() && uid == request.auth.uid;
+      allow create, update: if signedIn() && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['pid', 'key', 'createdAt'])
+        && (exists(d('loginIndex', request.resource.data.key)) || existsAfter(d('loginIndex', request.resource.data.key)))
+        && getAfter(d('loginIndex', request.resource.data.key)).data.pid == request.resource.data.pid
+        && getAfter(d('participants', request.resource.data.pid)).data.active == true
+        && request.resource.data.createdAt == request.time;
+      allow delete: if signedIn() && uid == request.auth.uid;
+    }
+
+    // ── 사람 ──
+    match /participants/{pid} {
+      allow get: if active() && (pid == myPid() || staff());
+      allow list: if staff();
+      allow create: if (settingUp() && request.resource.data.role == 'owner')
+        || owner()
+        || (staff() && request.resource.data.role == 'participant');
+      allow update: if owner() && isTeam(request.resource.data.teamNumber)
+        && !(pid == myPid() && (request.resource.data.role != 'owner' || request.resource.data.active != true));
+      allow delete: if false;
+    }
+    match /employeeIds/{pid} {
+      allow get: if active() && (pid == myPid() || owner());
+      allow list: if owner();
+      allow create: if settingUp() || owner()
+        || (staff() && !exists(d('participants', pid)) && existsAfter(d('participants', pid)));
+      allow update: if owner();
+      allow delete: if false;
+    }
+
+    // ── 행운권 ──
+    // 1단계: claims/{pid} + slots/{k}를 함께 생성(순번 k 선점). 한 사람당 한 번, 순번은 빈틈 없이
+    match /claims/{pid} {
+      allow get: if active() && (pid == myPid() || staff());
+      allow list: if owner();
+      allow create: if active() && pid == myPid()
+        && request.resource.data.keys().hasOnly(['seq'])
+        && request.resource.data.seq is int && request.resource.data.seq >= 1
+        && getAfter(d('slots', string(request.resource.data.seq))).data.pid == pid;
+      allow delete: if owner();
+      allow update: if false;
+    }
+    match /slots/{k} {
+      allow list, get: if active();             // 다음 순번 계산용(참가자 ID만 있음)
+      allow create: if active()
+        && request.resource.data.keys().hasOnly(['pid'])
+        && request.resource.data.pid == myPid()
+        && (k == '1' || exists(d('slots', string(int(k) - 1))))
+        && getAfter(d('claims', myPid())).data.seq == int(k);
+      allow delete: if owner();
+      allow update: if false;
+    }
+    // 무작위 풀: 자기가 선점한 순번의 번호만 열람
+    match /pool/{k} {
+      allow get: if active() && exists(d('claims', myPid())) && get(d('claims', myPid())).data.seq == int(k);
+      allow list: if false;
+      allow create, update: if settingUp() || owner();
+      allow delete: if false;
+    }
+    // 2단계: checkins/{pid} + tickets/{번호} 생성 — 번호는 반드시 풀(1~300번째) 또는 순번(301~)
+    match /checkins/{pid} {
+      allow get: if active() && (pid == myPid() || staff());
+      allow list: if staff();
+      allow create: if active() && pid == myPid()
+        && request.resource.data.keys().hasOnly(['seq', 'ticket', 'teamNumber', 'at'])
+        && request.resource.data.seq == get(d('claims', pid)).data.seq
+        && request.resource.data.ticket == (request.resource.data.seq <= 300 ? get(d('pool', string(request.resource.data.seq))).data.n : request.resource.data.seq)
+        && request.resource.data.teamNumber == me().teamNumber
+        && request.resource.data.at == request.time
+        && getAfter(d('tickets', string(request.resource.data.ticket))).data.pid == pid;
+      allow update: if owner() && onlyChanges(['teamNumber']);
+      allow delete: if owner();
+    }
+    match /tickets/{n} {
+      allow get, list: if staff();
+      allow create: if active() && request.resource.data.keys().hasOnly(['pid', 'seq'])
+        && request.resource.data.pid == myPid()
+        && getAfter(d('checkins', myPid())).data.ticket == int(n);
+      allow delete: if owner();
+      allow update: if false;
+    }
+
+    // ── 점수: 관리자만 읽기·쓰기, 원장은 수정·삭제 불가 ──
+    match /awards/{key} {
+      allow read: if staff();
+      allow create: if staff()
+        && key.matches('[A-Za-z0-9_-]{8,100}')
+        && request.resource.data.keys().hasOnly(['teamNumber', 'categoryKey', 'subtypeKey', 'points', 'reason', 'actorId', 'actorName', 'createdAt'])
+        && request.resource.data.teamNumber is int && request.resource.data.teamNumber >= 1 && request.resource.data.teamNumber <= 8
+        && request.resource.data.points is int && request.resource.data.points >= 10 && request.resource.data.points <= 200 && request.resource.data.points % 10 == 0
+        && request.resource.data.categoryKey in ['balloon', 'jumprope', 'ballbounce', 'tuberelay', 'event', 'cheer']
+        && (request.resource.data.categoryKey == 'event'
+            ? request.resource.data.subtypeKey in ['balloon_pop', 'event_jumprope', 'jegi', 'event_tube', 'other']
+            : request.resource.data.subtypeKey == null)
+        && str(request.resource.data.reason, request.resource.data.categoryKey in ['event', 'cheer'] ? 2 : 1, 200)
+        && request.resource.data.reason.trim().size() > 0
+        && request.resource.data.actorId == myPid() && request.resource.data.actorName == me().name
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+    // 취소 비밀번호 확인: 같은 일괄 쓰기 안의 cancelChecks 문서 해시가 설정값과 같아야 함(누구도 읽을 수 없음)
+    match /cancelChecks/{id} {
+      allow read: if false;
+      allow create: if staff()
+        && request.resource.data.keys().hasOnly(['pwHash', 'actorId', 'createdAt'])
+        && request.resource.data.pwHash == get(d('private', 'settings')).data.cancelHash
+        && request.resource.data.actorId == myPid() && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+    match /reversals/{awardId} {             // 원기록당 하나 → 동시에 눌러도 한 번만 차감
+      allow read: if staff();
+      allow create: if staff()
+        && request.resource.data.keys().hasOnly(['awardId', 'points', 'reason', 'actorId', 'actorName', 'checkId', 'createdAt'])
+        && request.resource.data.awardId == awardId
+        && exists(d('awards', awardId))
+        && request.resource.data.points == -get(d('awards', awardId)).data.points
+        && str(request.resource.data.reason, 2, 200)
+        && request.resource.data.actorId == myPid() && request.resource.data.actorName == me().name
+        && existsAfter(d('cancelChecks', request.resource.data.checkId))
+        && !exists(d('cancelChecks', request.resource.data.checkId))
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
+    // ── 채팅: 컬렉션 chat_all, chat_team_0 ~ chat_team_8 ──
+    match /{coll}/{msgId} {
+      allow read: if coll.matches('chat_(all|team_[0-8])') && active() && canColl(coll);
+      allow create: if coll.matches('chat_(all|team_[0-8])') && active() && canColl(coll)
+        && msgId.matches(myPid() + '_[A-Za-z0-9_-]{8,100}')
+        && request.resource.data.keys().hasOnly(['senderId', 'senderName', 'senderTeam', 'staff', 'body', 'createdAt', 'deletedAt', 'hiddenAt', 'hiddenBy'])
+        && request.resource.data.senderId == myPid()
+        && request.resource.data.senderName == me().name
+        && request.resource.data.senderTeam == me().teamNumber
+        && request.resource.data.staff == (me().role != 'participant')
+        && request.resource.data.body is string && request.resource.data.body.size() <= 500 && request.resource.data.body.trim().size() > 0
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.deletedAt == null && request.resource.data.hiddenAt == null
+        && getAfter(d('rate', myPid())).data.lastAt == request.time;
+      allow update: if coll.matches('chat_(all|team_[0-8])') && active() && (
+        (resource.data.senderId == myPid() && resource.data.deletedAt == null
+          && onlyChanges(['deletedAt']) && request.resource.data.deletedAt == request.time)
+        || (staff() && onlyChanges(['hiddenAt', 'hiddenBy']) && request.resource.data.hiddenBy == myPid()
+          && (request.resource.data.hiddenAt == null || request.resource.data.hiddenAt == request.time)));
+      allow delete: if false;
+    }
+    // 도배 방지: 1초에 메시지 1개
+    match /rate/{pid} {
+      allow get: if active() && pid == myPid();
+      allow write: if active() && pid == myPid()
+        && request.resource.data.keys().hasOnly(['lastAt'])
+        && request.resource.data.lastAt == request.time
+        && (resource == null || request.time > resource.data.lastAt + duration.value(1, 's'));
+    }
+    match /reports/{id} {
+      allow create: if active()
+        && id == request.resource.data.messageId + '_' + myPid()
+        && request.resource.data.keys().hasOnly(['messageId', 'channel', 'body', 'senderName', 'senderTeam', 'reporterId', 'reporterName', 'reason', 'status', 'createdAt'])
+        && request.resource.data.reporterId == myPid() && request.resource.data.reporterName == me().name
+        && canColl(chatColl(request.resource.data.channel))
+        && get(d(chatColl(request.resource.data.channel), request.resource.data.messageId)).data.body == request.resource.data.body
+        && str(request.resource.data.reason, 0, 200) && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time;
+      allow read: if staff();
+      allow update: if staff() && onlyChanges(['status', 'handledBy']) && request.resource.data.status in ['open', 'resolved', 'dismissed'];
+    }
+
+    // ── 도움 요청 ──
+    match /help/{id} {
+      allow create: if active()
+        && id.matches(myPid() + '_[A-Za-z0-9_-]{8,100}')
+        && request.resource.data.keys().hasOnly(['requesterId', 'requesterName', 'requesterTeam', 'kind', 'body', 'status', 'createdAt', 'updatedAt'])
+        && request.resource.data.requesterId == myPid() && request.resource.data.requesterName == me().name
+        && request.resource.data.requesterTeam == me().teamNumber
+        && request.resource.data.kind in ['route', 'supplies', 'other'] && str(request.resource.data.body, 0, 300)
+        && request.resource.data.status == 'open' && request.resource.data.createdAt == request.time;
+      allow read: if active() && (resource.data.requesterId == myPid() || staff());
+      allow update: if staff() && onlyChanges(['status', 'updatedAt']) && request.resource.data.status in ['open', 'in_progress', 'done'];
+    }
+
+    // ── 감사 기록: 관리자가 남기고 owner만 읽음 ──
+    match /audit/{id} {
+      allow create: if (staff() || settingUp())
+        && request.resource.data.keys().hasOnly(['actorId', 'actorName', 'action', 'target', 'detail', 'createdAt'])
+        && request.resource.data.createdAt == request.time;
+      allow read: if owner();
+      allow update, delete: if false;
+    }
+  }
+}

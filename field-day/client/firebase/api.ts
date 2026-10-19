@@ -325,7 +325,7 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     const x = p.data() ?? {};
     return { issued: issued.data().count, ticket: { ticketNumber: n, name: x.name, teamNumber: x.teamNumber, role: x.role, active: x.active, checkedInAt: isoNow(c.data(est)?.at), employeeId: emp?.data()?.employeeId ?? '(owner만 확인)' } };
   }
-  if (is('GET', /^\/admin\/checkins$/)) {
+  if (is('GET', /^\/admin\/checkins(\/summary)?$/)) {
     const me = await staffOnly();
     const [ps, cs, emps] = await Promise.all([
       getDocs(collection(db, 'participants')), getDocs(collection(db, 'checkins')),

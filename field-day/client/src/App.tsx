@@ -105,7 +105,7 @@ function Shell() {
     if (ev.type === 'reconnected') void loadUnread();
   }), [me.id, tab, loadUnread]);
 
-  useEffect(() => { window.scrollTo(0, 0); }, [tab]);
+  useEffect(() => { window.scrollTo(0, 0); realtime.setFocus(tab); }, [tab]);
   useEffect(() => {
     if (sessionStorage.getItem('fd-fresh') === '1') { sessionStorage.removeItem('fd-fresh'); setFresh(true); }
   }, []);

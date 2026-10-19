@@ -21,7 +21,10 @@
     "dev:firebase": "vite --config vite.netlify.config.ts",
     "firebase:build": "npm --prefix firebase/functions ci && npm --prefix firebase/functions run build",
     "test:firebase": "node scripts/firebase-test.mjs",
-    "package:netlify": "npm run build:netlify && cd dist && rm -f netlify-upload.zip && zip -qr netlify-upload.zip netlify"
+    "package:netlify": "npm run build:netlify && cd dist && rm -f netlify-upload.zip && zip -qr netlify-upload.zip netlify",
+    "build:free": "vite build --config vite.free.config.ts && node scripts/netlify-finish.mjs dist/netlify-free",
+    "package:free": "npm run build:free && cd dist && rm -rf netlify && cp -r netlify-free netlify && rm -f netlify-upload-free.zip && zip -qr netlify-upload-free.zip netlify && rm -rf netlify",
+    "test:free": "bash scripts/free-test.sh"
   },
   "license": "UNLICENSED",
   "dependencies": {
