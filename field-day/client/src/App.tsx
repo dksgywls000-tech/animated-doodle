@@ -58,7 +58,7 @@ export function App() {
     realtime.stop();
     setMe(null);
     // 메모리에 남은 개인·관리자 데이터를 확실히 지우기 위해 새로 불러온다
-    location.replace('/');
+    location.replace(location.pathname);
   }, []);
 
   if (boot === 'loading') return <div className="login" aria-busy="true"><div className="login-main"><div className="skeleton" style={{ height: 22, width: '60%' }} /><div className="skeleton" style={{ height: 120, marginTop: 28 }} /></div></div>;

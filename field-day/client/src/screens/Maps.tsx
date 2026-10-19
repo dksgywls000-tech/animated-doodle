@@ -86,7 +86,7 @@ function MapBlock({ map, children }: { map: MapDef; children: React.ReactNode })
   return (
     <section className="map-card">
       <button className="map-thumb" onClick={() => setOpen(true)} aria-label={`${map.title} 크게 보기`}>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', overflow: 'hidden' }}>
           <img src={map.src.replace('.jpg', '_thumb.jpg')} alt={map.alt} loading="lazy" />
           {map.spot && (
             <>

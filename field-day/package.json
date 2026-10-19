@@ -15,7 +15,8 @@
     "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "assets": "python3 scripts/prepare_assets.py"
+    "assets": "python3 scripts/prepare_assets.py",
+    "build:demo": "node scripts/build-demo.mjs && cp dist/field-day-demo.html preview/field-day-demo.html"
   },
   "license": "UNLICENSED",
   "dependencies": {

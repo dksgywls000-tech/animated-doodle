@@ -1,0 +1,5 @@
+.demo-fab { position: fixed; bottom: calc(var(--tab-h) + var(--safe-b) + 16px); left: 16px; z-index: 60; height: 32px; padding: 0 12px; border-radius: 999px; border: 0; background: var(--ink); color: var(--lime); font-weight: 900; font-size: 12px; letter-spacing: .08em; box-shadow: var(--shadow); }
+.demo-panel { position: fixed; top: calc(12px + var(--safe-t)); right: 12px; left: 12px; max-width: 380px; margin-left: auto; z-index: 75; background: var(--paper); border: 2px solid var(--ink); border-radius: 18px; padding: 14px 16px; box-shadow: 0 20px 50px -20px rgba(0,0,0,.5); }
+.demo-acc { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 13px; }
+.demo-acc td { padding: 4px 6px; border-top: 1px solid var(--line); }
+.demo-acc td:nth-child(2) { font-weight: 800; font-variant-numeric: tabular-nums; }

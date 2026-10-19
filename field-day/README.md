@@ -15,6 +15,13 @@
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | 배포 준비 안내 (직접 배포용) |
 | [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) | 실행한 테스트와 결과, 알려진 미완료 사항 |
 
+## 설치 없이 미리보기 (HTML 파일 1개)
+[`preview/field-day-demo.html`](preview/field-day-demo.html)을 내려받아 더블클릭하면 브라우저에서 바로 열립니다.
+- 실제 앱과 같은 화면 코드에 **브라우저 안 가짜 백엔드**를 붙인 데모입니다. 데이터는 그 브라우저(localStorage)에만 저장되고 다른 사람·기기와 공유되지 않습니다.
+- 같은 파일을 탭 2개로 열어 관리자·참가자로 각각 입장하면 점수·채팅 실시간 반영을 볼 수 있습니다. 왼쪽 아래 탭바 위 **DEMO** 버튼에서 시각 가정·초기화를 할 수 있습니다.
+- **실제 행사용이 아닙니다.** 행운권 중복 방지, 점수 비공개, 명단 보호는 서버 버전에서만 보장됩니다.
+- 다시 만들기: `npm run build:demo`
+
 ## 로컬 실행 (데모 모드)
 ```bash
 cd field-day
