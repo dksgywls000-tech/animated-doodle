@@ -1,0 +1,15 @@
+employee_id,name,team_number,role,active
+TEST-0001,테스트총괄,1,owner,true
+TEST-0002,테스트관리자,2,admin,true
+TEST-0003,테스트참가자 가,1,participant,true
+TEST-0004,테스트참가자 나,2,participant,true
+TEST-0005,테스트참가자 다,3,participant,true
+TEST-0006,테스트참가자 라,4,participant,true
+TEST-0007,테스트참가자 마,5,participant,true
+TEST-0008,테스트참가자 바,6,participant,true
+TEST-0009,테스트참가자 사,7,participant,true
+TEST-0010,테스트참가자 아,8,participant,true
+TEST-0011,테스트동명,3,participant,true
+TEST-0012,테스트동명,5,participant,true
+000123,테스트영시작,4,participant,true
+TEST-0014,테스트비활성,6,participant,false

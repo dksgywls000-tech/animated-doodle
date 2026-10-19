@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+test-results/
+playwright-report/
+e2e/screenshots/
+# 실제 명단·원본 운영자료는 커밋하지 않는다
+roster*.csv
+!roster_template.csv
+source-assets/
+*.log
