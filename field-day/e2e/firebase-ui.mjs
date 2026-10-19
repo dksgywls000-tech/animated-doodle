@@ -1,0 +1,126 @@
+// Netlify 빌드 + Firebase 에뮬레이터로 실제 화면 흐름 검증 (scripts/firebase-ui-test.sh에서 실행)
+import { chromium } from '@playwright/test';
+const BASE = 'http://127.0.0.1:4173';
+const out = process.env.SHOTS ?? 'e2e/screenshots';
+const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+let failed = 0;
+const ok = (c, m) => { console.log(c ? '  ✓' : '  ✗', m); if (!c) failed++; };
+const errors = [];
+async function page(w = 390) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: 844 }, locale: 'ko-KR', timezoneId: 'Asia/Seoul' });
+  const p = await ctx.newPage();
+  p.on('pageerror', (e) => errors.push(e.message));
+  return p;
+}
+async function login(p, name, emp) {
+  await p.goto(BASE + '/');
+  await p.getByLabel('이름').fill(name); await p.getByLabel('사번').fill(emp);
+  await p.getByRole('button', { name: '입장하기' }).click();
+  await p.locator('.ticket-no').waitFor({ timeout: 20000 });
+}
+try {
+  // 1. 최초 설정
+  const o = await page(1280);
+  await o.goto(BASE + '/setup');
+  await o.getByLabel(/설정 키/).fill('test-setup-key-123');
+  await o.getByLabel('owner 이름').fill('총괄');
+  await o.getByLabel('owner 사번').fill('O-1');
+  await o.getByRole('button', { name: '설정하기' }).click();
+  await o.getByText('설정이 끝났습니다').first().waitFor({ timeout: 20000 });
+  ok(true, '/setup에서 owner 등록');
+  // 2. owner 로그인 → 명단 업로드
+  await login(o, '총괄', 'O-1');
+  ok(true, 'owner 로그인, 행운권 ' + await o.locator('.ticket-no').innerText());
+  await o.goto(BASE + '/#/admin/owner');
+  const csv = ['employee_id,name,team_number,role,active', 'M-1,관리일,2,admin,true', 'P-1,참가일,3,,', 'P-2,참가오,5,,'].join('\n');
+  await o.locator('input[type=file]').setInputFiles({ name: 'roster.csv', mimeType: 'text/csv', buffer: Buffer.from('﻿' + csv) });
+  await o.getByText('추가 3').first().waitFor({ timeout: 20000 });
+  await o.getByText('역할 변경').count();
+  await o.getByRole('button', { name: '명단 반영' }).click();
+  await o.getByText(/명단 반영: 추가 3/).first().waitFor({ timeout: 20000 });
+  ok(true, '명단 CSV 업로드·반영');
+  await o.screenshot({ path: `${out}/fb-owner.png`, fullPage: true });
+
+  // 3. 참가자 화면
+  const p = await page();
+  await login(p, '참가일', 'P-1');
+  const ticket = (await p.locator('.ticket-no').innerText()).replace(/\D/g, '');
+  ok(await p.locator('.ticket-team .big').innerText() === '3조', '참가자 3조 표시');
+  ok(!(await p.getByRole('button', { name: '관리자 화면' }).count()), '참가자에게 관리자 버튼 없음');
+  await p.screenshot({ path: `${out}/fb-pass.png`, fullPage: true });
+  await p.goto(BASE + '/#/schedule');
+  await p.getByText('퇴근버스 탑승').first().waitFor({ timeout: 15000 });
+  const sched = await p.locator('main').innerText();
+  ok(sched.includes('17:40') && !/단체줄넘기|튜브릴레이|공 튕기기/.test(sched), '일정: 17:40 퇴근버스, 경기별 세부 없음');
+  await p.screenshot({ path: `${out}/fb-schedule.png`, fullPage: true });
+  await p.goto(BASE + '/#/admin');
+  await p.getByText('관리자만 볼 수 있는 화면입니다').first().waitFor();
+  ok(true, '참가자 관리자 화면 접근 차단');
+
+  // 4. 관리자: 점수 부여 → owner 화면 실시간 반영, 참가자 미수신
+  const a = await page();
+  await login(a, '관리일', 'M-1');
+  await o.goto(BASE + '/#/admin');
+  const card3 = o.getByRole('button', { name: /^3조 .*점수 부여/ });
+  await card3.waitFor({ timeout: 15000 });
+  await a.getByRole('button', { name: '관리자 화면' }).click();
+  await a.getByRole('button', { name: /^3조 .*점수 부여/ }).click();
+  const sh = a.getByRole('dialog');
+  await sh.getByRole('button', { name: '2. 단체줄넘기' }).click();
+  await sh.getByRole('button', { name: '100', exact: true }).click();
+  await sh.getByRole('button', { name: '2위', exact: true }).click();
+  await sh.getByRole('button', { name: '확인 단계로' }).click();
+  await sh.getByRole('button', { name: '3조에 100점 부여' }).click();
+  await a.getByText('3조에 100점을 부여했습니다').first().waitFor({ timeout: 20000 });
+  await a.getByRole('button', { name: '확인' }).click();
+  await o.waitForFunction(() => [...document.querySelectorAll('.team-card')].some((c) => c.textContent?.startsWith('3조') && c.textContent.includes('100')), null, { timeout: 15000 });
+  ok(true, '관리자 부여 → 다른 관리자(owner) 점수판 실시간 반영');
+  ok(!(await p.content()).includes('100점'), '참가자 화면에 점수 없음');
+  // 취소
+  await a.goto(BASE + '/#/admin/log');
+  await a.getByRole('button', { name: '취소' }).first().click();
+  const d = a.getByRole('dialog');
+  await d.getByLabel('취소 사유').fill('입력 실수'); await d.getByLabel('취소 비밀번호').fill('0000');
+  await d.getByRole('button', { name: /상쇄/ }).click();
+  await d.getByText('점수는 차감되지 않았습니다').first().waitFor({ timeout: 15000 });
+  await d.getByLabel('취소 비밀번호').fill('1234');
+  await d.getByRole('button', { name: /상쇄/ }).click();
+  await a.getByText('취소됨').first().waitFor({ timeout: 15000 });
+  ok(true, '틀린 비밀번호 거절 → 1234로 취소');
+  await a.screenshot({ path: `${out}/fb-log.png`, fullPage: true });
+
+  // 5. 행운권 조회
+  await a.goto(BASE + '/#/admin/tickets');
+  await a.getByLabel('행운권 번호').fill(ticket);
+  await a.getByRole('button', { name: '조회' }).click();
+  await a.getByText('참가일').first().waitFor({ timeout: 15000 });
+  ok((await a.locator('main').innerText()).includes('3조'), `행운권 ${ticket}번 → 참가일 · 3조`);
+  await a.screenshot({ path: `${out}/fb-tickets.png` });
+  await a.getByLabel('행운권 번호').fill('999');
+  await a.getByRole('button', { name: '조회' }).click();
+  await a.getByText('아직 아무에게도 발급되지 않았습니다').first().waitFor({ timeout: 15000 });
+  ok(true, '미발급 번호 안내');
+
+  // 6. 채팅 실시간
+  const p5 = await page();
+  await login(p5, '참가오', 'P-2');
+  await p.goto(BASE + '/#/chat'); await p5.goto(BASE + '/#/chat');
+  await p.getByLabel('메시지 입력').fill('전체 방 실시간 테스트');
+  await p.getByRole('button', { name: '보내기' }).click();
+  await p5.getByText('전체 방 실시간 테스트').first().waitFor({ timeout: 15000 });
+  ok(true, '전체 채팅 실시간 전달');
+  await p.getByRole('tab', { name: /우리 조/ }).click(); await p5.getByRole('tab', { name: /우리 조/ }).click();
+  await p.waitForTimeout(1200);
+  await p.getByLabel('메시지 입력').fill('3조끼리만');
+  await p.getByRole('button', { name: '보내기' }).click();
+  await p.getByText('3조끼리만').first().waitFor();
+  await p5.waitForTimeout(1500);
+  ok(!(await p5.getByText('3조끼리만').count()), '다른 조(5조)에는 3조 메시지 안 보임');
+  await p.screenshot({ path: `${out}/fb-chat.png` });
+} catch (e) {
+  failed++; console.log('  ✗ 예외:', e.message.split('\n')[0]);
+}
+ok(errors.length === 0, '페이지 오류 없음 ' + errors.slice(0, 3).join(' | '));
+await browser.close();
+console.log(failed ? `실패 ${failed}` : '모두 통과');
+process.exit(failed ? 1 : 0);

@@ -21,16 +21,16 @@ await login(A, '테스트참가자 다', 'TEST-0005');
 const t1 = await A.locator('.ticket-no').innerText();
 ok(/No\.\d{3}/.test(t1), 'ticket ' + t1);
 await A.screenshot({ path: `${out}/d2-pass.png` });
-ok((await A.locator('.nownext').innerText()).includes('단체줄넘기'), 'now = 단체줄넘기 at simulated 14:10');
+ok((await A.locator('.nownext').innerText()).includes('조별 체육대회'), 'now = 조별 체육대회 at simulated 14:10');
 await A.reload(); await A.locator('.ticket-no').waitFor();
 ok((await A.locator('.ticket-no').innerText()) === t1, 'ticket stable after reload');
 await A.goto(url + '#/map/seat'); await A.waitForTimeout(500);
 const nat = await A.locator('.map-thumb img').evaluate((i) => i.naturalWidth);
 ok(nat > 100, 'map image loaded ' + nat);
 await A.screenshot({ path: `${out}/d3-map.png` });
-await A.goto(url + '#/schedule'); await A.getByRole('tab', { name: '메인 경기 4종' }).click();
-await A.getByRole('button', { name: /단체줄넘기/ }).click(); await A.waitForTimeout(300);
-ok(await A.locator('.game-photo img').evaluate((i) => i.naturalWidth > 100), 'game photo loaded');
+await A.goto(url + '#/schedule'); await A.waitForTimeout(300);
+const sch = await A.locator('main').innerText();
+ok(sch.includes('17:40') && sch.includes('퇴근버스 탑승') && !/단체줄넘기|튜브릴레이/.test(sch), 'schedule macro only + 17:40 bus');
 
 // 두 번째 탭: 관리자
 const B = await ctx.newPage(); B.on('pageerror', (e) => errors.push(e.message));
@@ -47,6 +47,11 @@ await B.getByRole('button', { name: '확인' }).click();
 ok((await B.getByRole('button', { name: /^3조 .*점수 부여/ }).innerText()).includes('100'), 'board shows 100');
 await B.screenshot({ path: `${out}/d4-admin.png` });
 ok(!(await A.content()).includes('100점'), 'participant tab has no score');
+await B.goto(url + '#/admin/tickets');
+await B.getByLabel('행운권 번호').fill(t1.replace(/\D/g, ''));
+await B.getByRole('button', { name: '조회' }).click();
+await B.getByText('테스트참가자 다').first().waitFor({ timeout: 3000 }).then(() => ok(true, 'ticket lookup finds owner')).catch(() => ok(false, 'ticket lookup finds owner'));
+await B.screenshot({ path: `${out}/d6-tickets.png` });
 
 // 채팅 실시간 (탭 간)
 await A.goto(url + '#/chat'); await B.goto(url + '#/chat');

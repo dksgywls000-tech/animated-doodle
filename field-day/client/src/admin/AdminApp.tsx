@@ -9,12 +9,13 @@ import { Ops } from './Ops';
 import { Requests } from './Requests';
 import { Checkins } from './Checkins';
 import { Owner } from './Owner';
+import { Tickets } from './Tickets';
 import type { Category, TeamScore } from './types';
 import { useToast } from '../components/Toast';
 import { realtime } from '../realtime';
 
 const NAV = [
-  ['', '점수판'], ['log', '점수 기록'], ['ops', '공지·일정'], ['requests', '요청·신고'], ['checkins', '체크인'],
+  ['', '점수판'], ['log', '점수 기록'], ['ops', '공지·일정'], ['tickets', '행운권'], ['requests', '요청·신고'], ['checkins', '체크인'],
 ] as const;
 
 export default function AdminApp({ route, go }: { route: string; go: (r: string) => void }) {
@@ -55,6 +56,7 @@ export default function AdminApp({ route, go }: { route: string; go: (r: string)
             {sub === 'ops' && <Ops />}
             {sub === 'requests' && <Requests />}
             {sub === 'checkins' && <Checkins />}
+            {sub === 'tickets' && <Tickets />}
             {sub === 'owner' && me.role === 'owner' && <Owner />}
           </>
         )}

@@ -7,7 +7,7 @@ import { TicketFull } from '../components/TicketFull';
 import { HelpSheet } from '../components/HelpSheet';
 import { IconBell, IconExpand, IconHelp, IconSeat } from '../components/Icons';
 import { Sheet } from '../components/Sheet';
-import type { Announcement, Game, ScheduleItem, NowNext, EventInfo } from '../types';
+import type { Announcement, ScheduleItem, NowNext, EventInfo } from '../types';
 
 export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean }) {
   const { me, logout } = useMe();
@@ -17,7 +17,6 @@ export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean })
   const home = useApi<{ event: EventInfo; nowNext: NowNext; current: ScheduleItem[]; next: ScheduleItem | null; announcements: Announcement[] }>(
     '/api/home', (ev) => ev.type === 'public_changed',
   );
-  const games = useApi<{ games: Game[] }>('/api/games', (ev) => ev.type === 'public_changed' && ev.data?.what === 'games');
   const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   useEffect(() => { if (home.data) setLoadedAt(new Date()); }, [home.data]);
   // 현재/다음은 분 단위로 다시 계산
@@ -25,10 +24,6 @@ export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean })
 
   const h = home.data;
   const teamColor = TEAM_COLORS[me.teamNumber];
-  const myGames = (games.data?.games ?? []).flatMap((g) => {
-    const m = g.bracket.find((b) => b.a === me.teamNumber || b.b === me.teamNumber);
-    return m ? [{ game: g, match: m }] : [];
-  });
 
   return (
     <main className="page">
@@ -76,22 +71,6 @@ export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean })
         <span className="meta">{loadedAt ? `${fmtTime(loadedAt)} 갱신` : ''}</span>
       </div>
       {home.loading && !h ? <div className="skeleton" style={{ height: 96 }} /> : h ? <NowNextCard h={h} go={go} /> : <ErrorLine onRetry={home.reload} />}
-
-      {myGames.length > 0 && (
-        <>
-          <div className="sec-head"><h2 className="h-sec">{me.teamName} 첫 경기</h2><button className="btn btn-plain small" onClick={() => go('/schedule')}>경기 설명</button></div>
-          <div className="mygames">
-            {myGames.map(({ game, match }) => (
-              <div className="mygame" key={game.key}>
-                <div className="g">{game.number}. {game.title}</div>
-                <div className="v num">{game.key === 'balloon' ? `${match.label} · ${match.a}·${match.b}조` : `${match.label} · ${match.a}조 vs ${match.b}조`}</div>
-                <div className="xs muted">{game.players}</div>
-              </div>
-            ))}
-          </div>
-          <p className="xs muted" style={{ marginTop: 8 }}>출전 선수는 조장 안내에 따라 ‘심판·선수 이동’ 시간에 경기장으로 이동합니다. 이후 대진은 현장 결과에 따라 정해집니다.</p>
-        </>
-      )}
 
       <div className="sec-head">
         <h2 className="h-sec">공지</h2>

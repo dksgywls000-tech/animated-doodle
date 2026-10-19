@@ -2,7 +2,7 @@ import { randomInt } from 'node:crypto';
 import type { Db } from '../db.js';
 import { withTx } from '../db.js';
 
-import { CATEGORIES, EVENT_SUBTYPES, SCHEDULE, GAMES, SEAT_NOTES } from './seedData.js';
+import { CATEGORIES, EVENT_SUBTYPES, SCHEDULE, GAMES, SEAT_NOTES, RETURN_BUS_NOTE } from './seedData.js';
 
 export { SEAT_NOTES };
 export const TICKET_POOL_SIZE = 300;
@@ -24,13 +24,14 @@ export function secureShuffle(n: number): number[] {
 export async function initEvent(db: Db, eventId: string): Promise<{ created: boolean }> {
   return withTx(db, async (tx) => {
     const ins = await tx.query(
-      `INSERT INTO events (id, title, event_date, venue, parking_note, departure_note)
-       VALUES ($1, '2026 하이테크본부 가을운동회', '2026-10-21', '이충동 부락산 분수공원 야외공연장', $2, $3)
+      `INSERT INTO events (id, title, event_date, venue, parking_note, departure_note, return_bus_note, return_bus_published)
+       VALUES ($1, '2026 하이테크본부 가을운동회', '2026-10-21', '이충동 부락산 분수공원 야외공연장', $2, $3, $4, true)
        ON CONFLICT (id) DO NOTHING`,
       [
         eventId,
         '자차 이용 시 이충문화체육센터 주차장. 원문 안내: 3시간 무료, 초과 요금은 개인 부담(지원 없음).',
         '기존 귀향/퇴근버스 탑승지에서 출발합니다. 버스 4대 2회 운행 예정이며 배차는 별도 안내됩니다.',
+        RETURN_BUS_NOTE,
       ],
     );
     const created = (ins.rowCount ?? 0) > 0;

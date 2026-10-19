@@ -5,7 +5,7 @@ import { cx, fmtFull, timeRange } from '../util';
 import { Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
 import { IconCheck, IconPlus } from '../components/Icons';
-import type { Announcement, Game, ScheduleItem } from '../types';
+import type { Announcement, ScheduleItem } from '../types';
 
 const STATUS_LABEL: Record<string, string> = { scheduled: '예정', time_tbd: '시간 확인 중', live: '진행 중', done: '종료', delayed: '지연' };
 
@@ -25,7 +25,6 @@ export function Ops() {
         </div>
         <div className="stack">
           <ScheduleAdmin />
-          <GamesAdmin />
         </div>
       </div>
     </div>
@@ -193,37 +192,5 @@ function ScheduleEdit({ item, onClose, onSave }: { item: ScheduleItem | null; on
       <label className="field" style={{ marginTop: 12 }}><span className="label">지연·변경 안내</span><input className="input" value={f.delayNote} maxLength={120} placeholder="예: 10분 늦게 시작합니다" onChange={(e) => setF({ ...f, delayNote: e.target.value })} /></label>
       <label className="check"><input type="checkbox" checked={f.public} onChange={(e) => setF({ ...f, public: e.target.checked })} />참가자에게 공개</label>
     </Sheet>
-  );
-}
-
-function GamesAdmin() {
-  const toast = useToast();
-  const { data, reload } = useApi<{ games: Game[] }>('/api/admin/games');
-  const [edit, setEdit] = useState<Game | null>(null);
-  const save = async () => {
-    if (!edit) return;
-    try { await api('PATCH', `/api/admin/games/${edit.key}`, edit); toast('경기 설명을 저장했습니다'); setEdit(null); await reload(); } catch (e) { toast(errMsg(e)); }
-  };
-  return (
-    <section className="panel">
-      <h2 className="h-sec">공개용 경기 설명</h2>
-      <p className="xs muted">참가자에게는 인원·순서·방법만 보입니다. 배점은 쓰지 마세요.</p>
-      {data?.games.map((g) => (
-        <div className="list-row" key={g.key}>
-          <div><div style={{ fontWeight: 700 }}>{g.number}. {g.title}</div>{g.pendingNote && <div className="xs" style={{ color: 'var(--orange-text)' }}>확정 전: {g.pendingNote}</div>}</div>
-          <button className="btn btn-ghost btn-s" onClick={() => setEdit(g)}>수정</button>
-        </div>
-      ))}
-      {edit && (
-        <Sheet title={`${edit.title} 설명 수정`} onClose={() => setEdit(null)} footer={<button className="btn btn-primary btn-block" onClick={() => void save()}>저장</button>}>
-          <label className="field"><span className="label">참가 인원</span><input className="input" value={edit.players} maxLength={100} onChange={(e) => setEdit({ ...edit, players: e.target.value })} /></label>
-          <label className="field" style={{ marginTop: 12 }}><span className="label">요약</span><textarea className="textarea" value={edit.summary} maxLength={300} onChange={(e) => setEdit({ ...edit, summary: e.target.value })} /></label>
-          <label className="field" style={{ marginTop: 12 }}><span className="label">진행 방법 (줄마다 한 단계)</span><textarea className="textarea" style={{ minHeight: 140 }} value={edit.howTo} maxLength={1000} onChange={(e) => setEdit({ ...edit, howTo: e.target.value })} /></label>
-          <label className="field" style={{ marginTop: 12 }}><span className="label">대진 안내</span><input className="input" value={edit.bracketNote} maxLength={200} onChange={(e) => setEdit({ ...edit, bracketNote: e.target.value })} /></label>
-          <label className="field" style={{ marginTop: 12 }}><span className="label">확정 전 안내 (확정되면 비우기)</span><input className="input" value={edit.pendingNote} maxLength={200} onChange={(e) => setEdit({ ...edit, pendingNote: e.target.value })} /></label>
-          <label className="check"><input type="checkbox" checked={edit.published} onChange={(e) => setEdit({ ...edit, published: e.target.checked })} />참가자에게 공개</label>
-        </Sheet>
-      )}
-    </section>
   );
 }

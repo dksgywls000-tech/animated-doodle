@@ -7,8 +7,19 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "vite/client"
+    ]
   },
-  "include": ["client/src/**/*", "client/demo/**/*"]
+  "include": [
+    "client/src/**/*",
+    "client/demo/**/*",
+    "client/firebase/**/*",
+    "client/shared/**/*"
+  ]
 }

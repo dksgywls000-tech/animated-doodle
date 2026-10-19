@@ -111,20 +111,22 @@ describe('공지·일정·도움 요청', () => {
     expect((await req(ctx.app, part, 'GET', '/api/announcements')).json().announcements[0].read).toBe(true);
   });
 
-  it('일정은 초안 상태로 시작, 시간 확인 중 항목 존재, 원문 배점 미노출', async () => {
+  it('일정은 초안 상태로 시작, 거시 일정만(경기별 세부 없음), 퇴근버스 17:40, 원문 배점 미노출', async () => {
     const s = (await req(ctx.app, part, 'GET', '/api/schedule')).json();
     expect(s.event.schedulePublished).toBe(false);
-    expect(s.items.some((i: any) => i.status === 'time_tbd' && i.title === '공 튕기기')).toBe(true);
+    const titles = s.items.map((i: any) => i.title);
+    for (const g of ['단체줄넘기', '공 튕기기', '튜브릴레이', '풍선기둥']) expect(titles.join('|')).not.toContain(g);
+    expect(s.items.find((i: any) => i.title === '퇴근버스 탑승').startTime).toBe('17:40');
     expect(JSON.stringify(s)).not.toMatch(/200점|100점|50점|배점/);
     expect(s.event.parking).toBeNull();
-    expect(s.event.returnBus).toBeNull();
+    expect(s.event.returnBus).toContain('17:40');
     const g = (await req(ctx.app, part, 'GET', '/api/games')).body;
     expect(g).not.toMatch(/200점|100점|50점|배점|점수/);
   });
 
   it('관리자가 진행 중으로 지정하면 수동 기준이 현재 항목', async () => {
     const items = (await req(ctx.app, admin, 'GET', '/api/admin/schedule')).json().items;
-    const jr = items.find((i: any) => i.gameKey === 'jumprope');
+    const jr = items.find((i: any) => i.title === '조별 체육대회');
     const r = await req(ctx.app, admin, 'PATCH', `/api/admin/schedule/${jr.id}`, { ...jr, status: 'live', delayNote: '5분 지연' });
     expect(r.statusCode).toBe(200);
     const h = (await req(ctx.app, part, 'GET', '/api/home')).json();
@@ -154,7 +156,7 @@ describe('공지·일정·도움 요청', () => {
     const items = (await req(ctx.app, admin, 'GET', '/api/admin-setup-none')).statusCode;
     expect(items).toBe(404);
     const c = (await req(ctx.app, admin, 'GET', '/api/admin/setup-checklist')).json().items;
-    expect(c.map((i: any) => i.key)).toEqual(expect.arrayContaining(['overlap', 'tube_third', 'cancel_password']));
+    expect(c.map((i: any) => i.key)).toEqual(expect.arrayContaining(['schedule', 'cancel_password', 'roster']));
   });
 
   it('오류 응답에 DB 원문 오류가 노출되지 않는다', async () => {
@@ -163,6 +165,19 @@ describe('공지·일정·도움 요청', () => {
     const bad = await ctx.app.inject({ method: 'POST', url: '/api/login', headers: { 'content-type': 'application/json' }, payload: '{bad json' });
     expect(bad.statusCode).toBe(400);
     expect(bad.body).not.toMatch(/Unexpected|SyntaxError|postgres|relation/i);
+  });
+});
+
+describe('행운권 번호 조회', () => {
+  it('관리자는 번호로 주인 조회(사번 마스킹), owner는 전체 사번, 참가자는 403, 미발급 번호는 null', async () => {
+    const me = (await req(ctx.app, part, 'GET', '/api/me')).json();
+    const r = (await req(ctx.app, admin, 'GET', `/api/admin/tickets/${me.ticketNumber}`)).json();
+    expect(r.ticket).toMatchObject({ name: '참가', teamNumber: 3 });
+    expect(r.ticket.employeeId).not.toBe('PA-1');
+    expect((await req(ctx.app, owner, 'GET', `/api/admin/tickets/${me.ticketNumber}`)).json().ticket.employeeId).toBe('PA-1');
+    expect((await req(ctx.app, part, 'GET', `/api/admin/tickets/${me.ticketNumber}`)).statusCode).toBe(403);
+    expect((await req(ctx.app, admin, 'GET', '/api/admin/tickets/99999')).json().ticket).toBeNull();
+    expect((await req(ctx.app, admin, 'GET', '/api/admin/tickets/abc')).statusCode).toBe(400);
   });
 });
 

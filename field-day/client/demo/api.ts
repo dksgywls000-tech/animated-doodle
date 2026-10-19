@@ -265,6 +265,12 @@ function route(s: State, method: string, url: string, b: any): unknown {
     const act = people.filter((x) => x.active);
     return { teams: Array.from({ length: 8 }, (_, i) => ({ teamNumber: i + 1, total: act.filter((x) => x.teamNumber === i + 1).length, checkedIn: act.filter((x) => x.teamNumber === i + 1 && x.checkedInAt).length })), total: act.length, checkedIn: act.filter((x) => x.checkedInAt).length, people };
   }
+  if ((m = M('GET', /^\/admin\/tickets\/([^/]+)$/))) {
+    const a = admin(s); const n = Number(m[1]);
+    if (!Number.isInteger(n) || n < 1) fail(400, 'invalid_ticket', '행운권 번호를 숫자로 입력해 주세요.');
+    const c = s.checkins.find((x) => x.ticket === n); const p = c && s.participants.find((x) => x.id === c.participantId);
+    return { issued: s.checkins.length, ticket: p ? { ticketNumber: n, name: p.name, teamNumber: p.teamNumber, role: p.role, active: p.active, checkedInAt: c!.at, employeeId: a.role === 'owner' ? p.employeeId : mask(p.employeeId) } : null };
+  }
   if (M('GET', /^\/admin\/announcements$/)) { const p = admin(s); return { announcements: anns(s, p.id, true) }; }
   if (M('POST', /^\/admin\/announcements$/)) {
     admin(s); const t = now();
@@ -322,8 +328,6 @@ function route(s: State, method: string, url: string, b: any): unknown {
     return { items: [
       { key: 'roster', label: '실제 참가자 명단 업로드', done: false, detail: '데모는 가상 TEST 명단 10명' },
       { key: 'cancel_password', label: '점수 취소 비밀번호 운영값 설정', done: false, detail: '데모는 1234 고정' },
-      { key: 'overlap', label: '14:30 이벤트 단체줄넘기 ↔ 공 튕기기 시간 중복 확정', done: tbd === 0, detail: `‘시간 확인 중’ 일정 ${tbd}개` },
-      { key: 'tube_third', label: '튜브릴레이 3위 결정 방식(3·4위전 vs 기록) 확정', done: !s.games.find((g) => g.key === 'tuberelay')?.pendingNote.includes('3·4위'), detail: '확정 후 경기 설명의 ‘확정 전’ 문구를 지워 주세요' },
       { key: 'schedule', label: '최종 일정 확정 공개', done: s.event.schedulePublished, detail: s.event.schedulePublished ? '공개됨' : '참가자에게 ‘초안’으로 표시 중' },
       { key: 'parking', label: '주차 안내 확인 후 공개', done: s.event.parkingPublished, detail: s.event.parkingPublished ? '공개됨' : '미공개' },
       { key: 'return_bus', label: '귀가 버스 배차 안내 입력', done: s.event.returnBusPublished && !!s.event.returnBusNote, detail: s.event.returnBusNote ? '입력됨' : '미입력' },

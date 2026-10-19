@@ -16,13 +16,18 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "assets": "python3 scripts/prepare_assets.py",
-    "build:demo": "node scripts/build-demo.mjs && cp dist/field-day-demo.html preview/field-day-demo.html"
+    "build:demo": "node scripts/build-demo.mjs && cp dist/field-day-demo.html preview/field-day-demo.html",
+    "build:netlify": "vite build --config vite.netlify.config.ts",
+    "dev:firebase": "vite --config vite.netlify.config.ts",
+    "firebase:build": "npm --prefix firebase/functions ci && npm --prefix firebase/functions run build",
+    "test:firebase": "node scripts/firebase-test.mjs"
   },
   "license": "UNLICENSED",
   "dependencies": {
     "@fastify/cookie": "^11.1.3",
     "@fastify/static": "^10.1.6",
     "fastify": "^5.12.7",
+    "firebase": "^13.0.0",
     "pg": "^8.23.1",
     "ws": "^8.22.0"
   },

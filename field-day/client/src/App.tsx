@@ -149,7 +149,7 @@ function Shell() {
       <nav className="tabbar" aria-label="주요 메뉴">
         <div className="tabbar-inner">
           <TabBtn id="pass" cur={tab} go={go} label="내 패스" icon={<IconPass />} />
-          <TabBtn id="schedule" cur={tab} go={go} label="일정·경기" icon={<IconSchedule />} />
+          <TabBtn id="schedule" cur={tab} go={go} label="일정" icon={<IconSchedule />} />
           <TabBtn id="map" cur={tab} go={go} label="안내 지도" icon={<IconMap />} />
           <TabBtn id="chat" cur={tab} go={go} label="채팅" icon={<IconChat />} badge={totalUnread} />
         </div>

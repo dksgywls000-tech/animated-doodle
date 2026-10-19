@@ -7,6 +7,21 @@
 - 폰트: Pretendard (SIL Open Font License 1.1, npm `pretendard` 패키지에서 자체 호스팅)
 - 외부 유료 서비스 의존 없음. **외부 배포·QR 생성은 하지 않습니다.**
 
+## 배포 방식: Netlify(화면) + Firebase(서버)
+**실제 행사용 배포는 [docs/FIREBASE_NETLIFY_GUIDE.md](docs/FIREBASE_NETLIFY_GUIDE.md)를 순서대로 따라 하세요.**
+
+| 폴더 | 내용 |
+|---|---|
+| `client/src` | 화면(React). 모든 배포 방식이 같이 씀 |
+| `client/firebase` | Firebase 연결 어댑터 + `/setup` 최초 설정 화면 (Netlify 빌드: `npm run build:netlify`) |
+| `firebase/functions` | Cloud Functions: 로그인·행운권 배정, 점수 부여·취소, 명단·권한 |
+| `firebase/firestore.rules` | 보안 규칙: 참가자에게 점수·다른 조 채팅·사번 차단 |
+| `netlify.toml` | Netlify 빌드·헤더 설정 (Base directory = `field-day`) |
+| `server/` | (대안) Node + PostgreSQL 단독 서버 버전 |
+| `preview/field-day-demo.html` | 설치 없이 여는 미리보기 데모 |
+
+Firebase 버전 테스트: `npm run test:firebase`(에뮬레이터 72개 항목), `bash scripts/firebase-ui-test.sh`(Netlify 빌드 브라우저 흐름).
+
 ## 문서
 | 문서 | 내용 |
 |---|---|

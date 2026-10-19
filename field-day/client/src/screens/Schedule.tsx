@@ -1,27 +1,19 @@
 import { useState } from 'react';
 import { useApi } from '../hooks';
-import { useMe } from '../session';
 import { cx, fmtTime, timeRange } from '../util';
-import { IconChevron } from '../components/Icons';
-import { ImageViewer } from '../components/ImageViewer';
 import { ErrorLine } from './Pass';
-import type { EventInfo, Game, NowNext, ScheduleItem } from '../types';
+import type { EventInfo, NowNext, ScheduleItem } from '../types';
 
 const STATUS_BADGE: Record<string, [string, string] | undefined> = {
   live: ['진행 중', 'lime'], delayed: ['지연', 'orange'], time_tbd: ['시간 확인 중', 'gray'], done: ['종료', 'gray'],
 };
 
 export function Schedule() {
-  const [tab, setTab] = useState<'time' | 'games'>('time');
   return (
     <main className="page">
       <div className="topbar"><span className="eyebrow">SCHEDULE<span className="dot" />10.21 WED</span></div>
-      <h1 className="h-title" style={{ marginTop: 8 }}>일정·경기</h1>
-      <div className="seg" role="tablist" style={{ marginTop: 16 }}>
-        <button role="tab" aria-selected={tab === 'time'} onClick={() => setTab('time')}>시간표</button>
-        <button role="tab" aria-selected={tab === 'games'} onClick={() => setTab('games')}>메인 경기 4종</button>
-      </div>
-      <div style={{ marginTop: 16 }}>{tab === 'time' ? <Timeline /> : <Games />}</div>
+      <h1 className="h-title" style={{ marginTop: 8 }}>오늘 일정</h1>
+      <div style={{ marginTop: 16 }}><Timeline /></div>
     </main>
   );
 }
@@ -56,8 +48,8 @@ function Timeline() {
               <div className="tl-body">
                 <div className="tl-card">
                   <div className="tl-title">
-                    {i.kind === 'main' && <span className="badge">메인</span>}
-                    {i.kind === 'event' && <span className="badge orange">이벤트</span>}
+                    
+                    
                     <span>{i.title}</span>
                     {badge && <span className={`badge ${badge[1]}`}>{badge[0]}</span>}
                     {isNext && !isNow && <span className="badge">다음</span>}
@@ -74,63 +66,6 @@ function Timeline() {
       <p className="xs muted" style={{ marginTop: 12 }}>
         {nowNext.basis === 'manual' ? '‘진행 중’은 운영진이 지정한 상태입니다.' : '‘지금’은 예정 시각 기준 표시입니다.'} 마지막 변경 {fmtTime(data.lastUpdated)}
       </p>
-    </div>
-  );
-}
-
-function Games() {
-  const { me } = useMe();
-  const { data, error, reload } = useApi<{ games: Game[] }>('/api/games', (ev) => ev.type === 'public_changed' && ev.data?.what === 'games');
-  const [open, setOpen] = useState<string | null>(null);
-  const [photo, setPhoto] = useState<Game | null>(null);
-  if (error && !data) return <ErrorLine onRetry={reload} />;
-  if (!data) return <div className="skeleton" style={{ height: 320 }} />;
-  return (
-    <div>
-      {data.games.map((g) => {
-        const isOpen = open === g.key;
-        return (
-          <section className="game" key={g.key}>
-            <button className="game-head" aria-expanded={isOpen} aria-controls={`g-${g.key}`} onClick={() => setOpen(isOpen ? null : g.key)}>
-              <span className="game-no num">{g.number}</span>
-              <span><span className="game-title">{g.title}</span><br /><span className="game-sub">{g.players}</span></span>
-              <span className="chev"><IconChevron /></span>
-            </button>
-            {isOpen && (
-              <div className="game-body" id={`g-${g.key}`}>
-                {g.image && (
-                  <button className="map-thumb game-photo" onClick={() => setPhoto(g)} aria-label={`${g.title} 예시 사진 크게 보기`} style={{ borderRadius: 12 }}>
-                    <img src={g.image.replace('.jpg', '_thumb.jpg')} alt={`${g.title} 진행 방식 예시 사진`} loading="lazy" />
-                    <figcaption>예시 사진 · 이번 행사 사진 아님</figcaption>
-                  </button>
-                )}
-                <p style={{ marginTop: 12, fontWeight: 600 }}>{g.summary}</p>
-                <ol className="steps">{g.howTo.split('\n').filter(Boolean).map((s, i) => <li key={i}>{s}</li>)}</ol>
-                {g.bracket.length > 0 && (
-                  <>
-                    <div className="step-title">{g.key === 'balloon' ? '연합팀 구성' : '1라운드 대진'}</div>
-                    <div className="bracket">
-                      {g.bracket.map((b) => {
-                        const mine = b.a === me.teamNumber || b.b === me.teamNumber;
-                        return (
-                          <div key={b.label} className={cx('m', mine && 'mine')}>
-                            <div className="l">{b.label}{mine && ' · 우리 조'}</div>
-                            <div className="vs num">{g.key === 'balloon' ? `${b.a}조 + ${b.b}조` : `${b.a}조 vs ${b.b}조`}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {g.bracketNote && <p className="small muted" style={{ marginTop: 8 }}>{g.bracketNote}</p>}
-                  </>
-                )}
-                {g.pendingNote && <div className="note-card" style={{ marginTop: 12 }}><b>확정 전</b> · {g.pendingNote}</div>}
-              </div>
-            )}
-          </section>
-        );
-      })}
-      <p className="xs muted" style={{ marginTop: 12 }}>경기 진행과 판정은 현장 진행자·심판 안내를 따릅니다.</p>
-      {photo?.image && <ImageViewer src={photo.image} alt={`${photo.title} 예시 사진`} title={`${photo.title} · 예시 사진`} onClose={() => setPhoto(null)} />}
     </div>
   );
 }

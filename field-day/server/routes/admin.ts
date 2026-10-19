@@ -103,6 +103,28 @@ export function registerAdminRoutes(api: FastifyInstance, { config, db, hub }: A
     };
   });
 
+  // ── 행운권 번호 조회 ──
+  api.get<{ Params: { number: string } }>('/admin/tickets/:number', async (req) => {
+    const u = requireAdmin(req);
+    const n = Number(req.params.number);
+    if (!Number.isInteger(n) || n < 1 || n > 100000) throw new AppError(400, 'invalid_ticket', '행운권 번호를 숫자로 입력해 주세요.');
+    const { rows } = await db.query(
+      `SELECT c.ticket_number, c.checkin_sequence, c.checked_in_at, p.id, p.name, p.employee_id, p.team_number, p.role, p.active
+       FROM checkins c JOIN participants p ON p.id=c.participant_id WHERE c.event_id=$1 AND c.ticket_number=$2`,
+      [ev, n],
+    );
+    const issued = await db.query(`SELECT count(*) AS n FROM checkins WHERE event_id=$1`, [ev]);
+    await db.query(`INSERT INTO audit_events (event_id, actor_id, actor_name, action, target) VALUES ($1,$2,$3,'ticket_lookup',$4)`, [ev, u.participantId, u.name, String(n)]);
+    const r = rows[0];
+    return {
+      issued: Number(issued.rows[0].n),
+      ticket: r ? {
+        ticketNumber: r.ticket_number, name: r.name, teamNumber: r.team_number, role: r.role, active: r.active, checkedInAt: r.checked_in_at,
+        employeeId: u.role === 'owner' ? r.employee_id : maskEmployeeId(r.employee_id),
+      } : null,
+    };
+  });
+
   // ── 공지 ──
   api.get('/admin/announcements', async (req) => { const u = requireAdmin(req); return { announcements: await getAnnouncements(db, ev, u.participantId, true) }; });
 
@@ -296,8 +318,6 @@ export function registerAdminRoutes(api: FastifyInstance, { config, db, hub }: A
       items: [
         { key: 'roster', label: '실제 참가자 명단 업로드', done: Number(c.roster) > Number(c.staff), detail: `활성 ${c.roster}명 (운영진 ${c.staff}명)` },
         { key: 'cancel_password', label: '점수 취소 비밀번호 운영값 설정', done: !config.cancelPasswordIsDefault, detail: config.cancelPasswordIsDefault ? '기본값 사용 중 — 서버 환경변수로 변경 권장' : '서버 환경변수 설정됨' },
-        { key: 'overlap', label: '14:30 이벤트 단체줄넘기 ↔ 공 튕기기 시간 중복 확정', done: Number(c.tbd) === 0, detail: `‘시간 확인 중’ 일정 ${c.tbd}개` },
-        { key: 'tube_third', label: '튜브릴레이 3위 결정 방식(3·4위전 vs 기록) 확정', done: !games.find((g) => g.key === 'tuberelay')?.pendingNote.includes('3·4위'), detail: '확정 후 경기 설명의 ‘확정 전’ 문구를 지워 주세요' },
         { key: 'schedule', label: '최종 일정 확정 공개', done: e.schedule_published, detail: e.schedule_published ? '공개됨' : '참가자에게 ‘초안’으로 표시 중' },
         { key: 'parking', label: '주차 안내(3시간 무료·초과 개인 부담) 확인 후 공개', done: e.parking_published, detail: e.parking_published ? '공개됨' : '미공개' },
         { key: 'return_bus', label: '귀가 버스 배차 안내 입력', done: e.return_bus_published && !!e.return_bus_note, detail: e.return_bus_note ? (e.return_bus_published ? '공개됨' : '입력됨 · 미공개') : '미입력' },

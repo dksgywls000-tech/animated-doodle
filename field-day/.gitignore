@@ -11,3 +11,8 @@ roster*.csv
 !roster_template.csv
 source-assets/
 *.log
+firebase/functions/.env.local
+firebase/*.log
+firebase-debug.log
+firestore-debug.log
+dist/netlify-emu/

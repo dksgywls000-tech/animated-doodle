@@ -21,26 +21,14 @@ export const EVENT_SUBTYPES = [
 export type Seed = [start: string | null, end: string | null, title: string, note: string, kind: string, game: string | null, status: string];
 export const SCHEDULE: Seed[] = [
   ['12:10', null, '1회차 버스 출발', '공사팀 · 기존 귀향/퇴근버스 탑승지', 'general', null, 'scheduled'],
-  ['12:20', '13:00', '도착 · 조끼 수령', '분수광장 하차 후 야외공연장까지 도보 이동. 추첨권·조별 위치 안내', 'general', null, 'scheduled'],
+  ['12:20', '13:10', '도착 · 조끼 수령 · 인원 확인', '분수광장 하차 후 야외공연장까지 도보 이동', 'general', null, 'scheduled'],
   ['12:30', null, '2회차 버스 출발', '지원팀 + 잔여 인원 · 배차는 별도 안내', 'general', null, 'scheduled'],
-  ['13:00', '13:10', '인원 확인', '조끼 착용 후 조별 2줄 정렬', 'general', null, 'scheduled'],
-  ['13:10', '13:15', '행사 식순 안내', '', 'general', null, 'scheduled'],
-  ['13:15', '13:20', '개회사', '본부장', 'general', null, 'scheduled'],
-  ['13:20', '13:25', '준비운동', '', 'general', null, 'scheduled'],
-  ['13:25', '13:35', '조별 자리 이동', '조장 인솔 · 종목별 선수 안내', 'general', null, 'scheduled'],
-  ['13:35', '13:40', '심판·선수 이동', '13:40까지 경기장으로 이동', 'general', null, 'scheduled'],
-  ['13:40', '14:00', '풍선기둥 세우기 · 풍선 빨리 터트리기', '두 종목이 이어서 진행됩니다', 'main', 'balloon', 'scheduled'],
-  ['14:00', '14:30', '단체줄넘기', '메인 경기', 'main', 'jumprope', 'scheduled'],
-  ['14:30', '14:40', '이벤트 단체줄넘기', '', 'event', null, 'scheduled'],
-  ['14:30', '15:00', '공 튕기기', '메인 경기 · 시작 시각 확인 중', 'main', 'ballbounce', 'time_tbd'],
-  ['15:00', '15:15', '이벤트 제기차기', '조별 3명', 'event', null, 'scheduled'],
-  ['15:15', '15:40', '튜브릴레이', '메인 경기', 'main', 'tuberelay', 'scheduled'],
-  ['15:40', '16:00', '이벤트 튜브릴레이', '', 'event', null, 'scheduled'],
-  [null, null, '추가 이벤트', '시간 여유가 있을 때 진행자가 운영', 'event', null, 'time_tbd'],
+  ['13:10', '13:40', '개회식 · 준비운동', '식순 안내 · 개회사 · 조별 자리 이동', 'general', null, 'scheduled'],
+  ['13:40', '16:00', '조별 체육대회', '메인 경기와 이벤트가 이어서 진행됩니다', 'main', null, 'scheduled'],
   ['16:05', '16:45', '소통 TALK', '조별 음식 지급', 'break', null, 'scheduled'],
   ['16:45', '17:00', '시상식 · 경품추첨', '', 'general', null, 'scheduled'],
-  ['17:00', '17:15', '폐회사', '본부장', 'general', null, 'scheduled'],
-  ['17:15', '17:20', '단체사진 · 조별 정리', '물품 반납', 'general', null, 'scheduled'],
+  ['17:00', '17:20', '폐회 · 단체사진', '폐회사 후 단체사진, 조별 물품 반납', 'general', null, 'scheduled'],
+  ['17:40', null, '퇴근버스 탑승', '탑승 위치는 현장에서 안내합니다', 'general', null, 'scheduled'],
 ];
 
 const tournament = (pairs: [number, number][]) => pairs.map(([a, b], i) => ({ label: `${i + 1}경기`, a, b }));
@@ -99,3 +87,6 @@ export const SEAT_NOTES: Record<number, string> = {
   8: '배치도 오른쪽 아랫줄 끝',
 };
 
+
+/** 귀가(퇴근) 버스 기본 안내 — 운영자가 관리자 화면에서 수정 가능 */
+export const RETURN_BUS_NOTE = '17:40 퇴근버스 탑승. 탑승 위치는 현장에서 안내합니다.';

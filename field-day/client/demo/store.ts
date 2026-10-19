@@ -4,9 +4,9 @@
  * - 로그인 상태는 탭별(sessionStorage)이라 탭 두 개로 관리자·참가자를 동시에 볼 수 있다
  * - 실제 운영용이 아니다. 실제 앱은 서버가 권한·동시성을 보장한다.
  */
-import { CATEGORIES, EVENT_SUBTYPES, GAMES, SCHEDULE, SEAT_NOTES } from '../../server/services/seedData';
+import { CATEGORIES, EVENT_SUBTYPES, GAMES, SCHEDULE, SEAT_NOTES, RETURN_BUS_NOTE } from '../../server/services/seedData';
 
-const KEY = 'fd-demo-v1';
+const KEY = 'fd-demo-v2';
 const SESSION_KEY = 'fd-demo-session';
 export const CANCEL_PASSWORD = '1234';
 
@@ -107,7 +107,7 @@ export function seed(images: Record<string, string>): State {
     event: {
       schedulePublished: false, parkingPublished: false,
       parkingNote: '자차 이용 시 이충문화체육센터 주차장. 원문 안내: 3시간 무료, 초과 요금은 개인 부담(지원 없음).',
-      returnBusPublished: false, returnBusNote: '',
+      returnBusPublished: true, returnBusNote: RETURN_BUS_NOTE,
       departureNote: '기존 귀향/퇴근버스 탑승지에서 출발합니다. 버스 4대 2회 운행 예정이며 배차는 별도 안내됩니다.',
       statusNote: '', statusNoteUpdatedAt: null, updatedAt: t,
     },

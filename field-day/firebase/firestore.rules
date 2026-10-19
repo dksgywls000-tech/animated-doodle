@@ -1,0 +1,170 @@
+rules_version = '2';
+
+// 가을운동회 앱 Firestore 보안 규칙
+// - 역할·조·활성 여부는 매번 participants/{uid} 문서를 다시 읽어 판단한다(토큰 값을 믿지 않음)
+// - 점수(awards/reversals)·행운권 목록(tickets)·사번(employeeIds)은 참가자가 읽을 수 없다
+// - 로그인·행운권 배정·점수 부여/취소·명단 변경은 Cloud Functions만 쓴다(여기서는 쓰기 금지)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function meDoc() { return get(/databases/$(database)/documents/participants/$(request.auth.uid)); }
+    function active() { return signedIn() && exists(/databases/$(database)/documents/participants/$(request.auth.uid)) && meDoc().data.active == true; }
+    function staff() { return active() && meDoc().data.role in ['admin', 'owner']; }
+    function owner() { return active() && meDoc().data.role == 'owner'; }
+    function canChannel(ch) { return ch == 'all' || ch == 'team:' + string(meDoc().data.teamNumber); }
+    function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function str(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+
+    // ── 행사 공개 설정 ──
+    match /config/event {
+      allow read: if active();
+      allow update: if staff()
+        && onlyChanges(['schedulePublished', 'parkingPublished', 'parkingNote', 'returnBusPublished', 'returnBusNote', 'departureNote', 'statusNote', 'statusNoteUpdatedAt', 'updatedAt'])
+        && request.resource.data.schedulePublished is bool && request.resource.data.parkingPublished is bool && request.resource.data.returnBusPublished is bool
+        && str(request.resource.data.parkingNote, 0, 300) && str(request.resource.data.returnBusNote, 0, 300)
+        && str(request.resource.data.departureNote, 0, 300) && str(request.resource.data.statusNote, 0, 140)
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    // ── 사람·체크인 ──
+    match /participants/{uid} {
+      allow read: if active() && (uid == request.auth.uid || staff());
+      allow write: if false;
+    }
+    match /employeeIds/{uid} {
+      allow read: if active() && (uid == request.auth.uid || owner());
+      allow write: if false;
+    }
+    match /checkins/{uid} {
+      allow read: if active() && (uid == request.auth.uid || staff());
+      allow write: if false;
+    }
+    match /tickets/{n} {
+      allow read: if staff();
+      allow write: if false;
+    }
+
+    // ── 점수: 관리자만 읽기, 쓰기는 함수만 ──
+    match /awards/{id} {
+      allow read: if staff();
+      allow write: if false;
+    }
+    match /reversals/{id} {
+      allow read: if staff();
+      allow write: if false;
+    }
+
+    // ── 채팅 ──
+    match /messages/{msgId} {
+      // 쿼리는 반드시 where('channel','==', ...)로 자기 방만 조회해야 통과한다
+      allow read: if active() && canChannel(resource.data.channel);
+      allow create: if active()
+        && msgId.matches(request.auth.uid + '_[A-Za-z0-9_-]{8,100}')
+        && request.resource.data.keys().hasOnly(['channel', 'senderId', 'senderName', 'senderTeam', 'staff', 'body', 'createdAt', 'deletedAt', 'hiddenAt', 'hiddenBy'])
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.senderName == meDoc().data.name
+        && request.resource.data.senderTeam == meDoc().data.teamNumber
+        && request.resource.data.staff == (meDoc().data.role != 'participant')
+        && canChannel(request.resource.data.channel)
+        && request.resource.data.body is string && request.resource.data.body.size() <= 500 && request.resource.data.body.trim().size() > 0
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.deletedAt == null && request.resource.data.hiddenAt == null
+        // 도배 방지: 같은 배치에서 rate 문서를 지금 시각으로 갱신해야 함 (1초에 1개)
+        && getAfter(/databases/$(database)/documents/rate/$(request.auth.uid)).data.lastAt == request.time;
+      allow update: if active() && (
+        (resource.data.senderId == request.auth.uid && resource.data.deletedAt == null
+          && onlyChanges(['deletedAt']) && request.resource.data.deletedAt == request.time)
+        || (staff() && onlyChanges(['hiddenAt', 'hiddenBy'])
+          && request.resource.data.hiddenBy == request.auth.uid
+          && (request.resource.data.hiddenAt == null || request.resource.data.hiddenAt == request.time))
+      );
+      allow delete: if false;
+    }
+    match /rate/{uid} {
+      allow read: if signedIn() && uid == request.auth.uid;
+      allow write: if active() && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['lastAt'])
+        && request.resource.data.lastAt == request.time
+        && (resource == null || request.time > resource.data.lastAt + duration.value(1, 's'));
+    }
+    match /reads/{uid} {
+      allow read, write: if active() && uid == request.auth.uid;
+    }
+    match /reports/{id} {
+      allow create: if active()
+        && id == request.resource.data.messageId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['messageId', 'reporterId', 'reporterName', 'reason', 'status', 'createdAt', 'channel', 'body', 'senderName', 'senderTeam'])
+        // 관리자가 다른 조 메시지도 처리할 수 있도록 원문 사본을 같이 저장(원본과 같아야 함)
+        && request.resource.data.channel == get(/databases/$(database)/documents/messages/$(request.resource.data.messageId)).data.channel
+        && request.resource.data.body == get(/databases/$(database)/documents/messages/$(request.resource.data.messageId)).data.body
+        && request.resource.data.senderName == get(/databases/$(database)/documents/messages/$(request.resource.data.messageId)).data.senderName
+        && request.resource.data.senderTeam == get(/databases/$(database)/documents/messages/$(request.resource.data.messageId)).data.senderTeam
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.reporterName == meDoc().data.name
+        && str(request.resource.data.reason, 0, 200)
+        && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time
+        && canChannel(get(/databases/$(database)/documents/messages/$(request.resource.data.messageId)).data.channel);
+      allow read: if staff();
+      allow update: if staff() && onlyChanges(['status', 'handledBy']) && request.resource.data.status in ['open', 'resolved', 'dismissed'];
+    }
+
+    // ── 공지·일정 ──
+    match /announcements/{id} {
+      allow read: if active() && (resource.data.published == true || staff());
+      allow create, update: if staff()
+        && request.resource.data.keys().hasOnly(['title', 'body', 'important', 'published', 'createdAt', 'updatedAt'])
+        && str(request.resource.data.title, 1, 80) && str(request.resource.data.body, 0, 1000)
+        && request.resource.data.important is bool && request.resource.data.published is bool
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+    match /annReads/{uid} {
+      allow read, write: if active() && uid == request.auth.uid;
+    }
+    match /schedule/{id} {
+      allow read: if active() && (resource.data.public == true || staff());
+      allow create, update: if staff()
+        && request.resource.data.keys().hasOnly(['sortOrder', 'startTime', 'endTime', 'title', 'note', 'kind', 'status', 'delayNote', 'public', 'updatedAt'])
+        && str(request.resource.data.title, 1, 60) && str(request.resource.data.note, 0, 200) && str(request.resource.data.delayNote, 0, 120)
+        && request.resource.data.status in ['scheduled', 'time_tbd', 'live', 'done', 'delayed']
+        && request.resource.data.public is bool && request.resource.data.sortOrder is int
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    // ── 도움 요청 ──
+    match /help/{id} {
+      allow create: if active()
+        && id.matches(request.auth.uid + '_[A-Za-z0-9_-]{8,100}')
+        && request.resource.data.keys().hasOnly(['requesterId', 'requesterName', 'requesterTeam', 'kind', 'body', 'status', 'createdAt', 'updatedAt'])
+        && request.resource.data.requesterId == request.auth.uid
+        && request.resource.data.requesterName == meDoc().data.name
+        && request.resource.data.requesterTeam == meDoc().data.teamNumber
+        && request.resource.data.kind in ['route', 'supplies', 'other']
+        && str(request.resource.data.body, 0, 300)
+        && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time;
+      allow read: if active() && (resource.data.requesterId == request.auth.uid || staff());
+      allow update: if staff() && onlyChanges(['status', 'updatedAt']) && request.resource.data.status in ['open', 'in_progress', 'done'];
+    }
+
+    // ── 감사 기록: 관리자 화면 동작 일부는 클라이언트가 남기고, 읽기는 owner만 ──
+    match /audit/{id} {
+      allow create: if staff()
+        && request.resource.data.keys().hasOnly(['actorId', 'actorName', 'action', 'target', 'detail', 'createdAt'])
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.actorName == meDoc().data.name
+        && request.resource.data.action in ['ticket_lookup', 'chat_hide', 'chat_unhide', 'schedule_update', 'event_info_update', 'export_scores', 'export_audit']
+        && request.resource.data.createdAt == request.time;
+      allow read: if owner();
+      allow update, delete: if false;
+    }
+
+    // 그 밖(loginIndex, private, limits 등)은 함수만 접근
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
