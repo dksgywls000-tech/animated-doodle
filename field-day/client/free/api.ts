@@ -442,6 +442,17 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     void auditLog(me, 'coupon_stop');
     return { ok: true };
   }
+  if (is('POST', /^\/admin\/coupon\/reset$/)) {
+    const me = await staffOnly();
+    if (b.confirm !== '초기화') fail(400, 'confirm', "확인 문구 '초기화'를 정확히 입력해 주세요.");
+    try { await setDoc(doc(db, 'cancelChecks', rid()), { pwHash: await pwHash(String(b.password ?? '')), actorId: me.pid, createdAt: serverTimestamp() }); }
+    catch (e) { if (isDenied(e)) fail(403, 'bad_password', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.'); throw e; }
+    await editPublic(() => ({ coupon: null }));          // 먼저 잠가서 지우는 동안 아무도 긁지 않게
+    const all = await getDocs(collection(db, 'coupons'));
+    await writeChunks(all.docs.map((d) => (bt) => bt.delete(d.ref)));
+    void auditLog(me, 'coupon_reset', null, { removed: all.size });
+    return { removed: all.size };
+  }
   if ((m = is('POST', /^\/admin\/coupon\/claim\/([^/]+)$/))) {
     const me = await staffOnly();
     const c = (await readPublic(true)).coupon as CouponDoc | undefined;

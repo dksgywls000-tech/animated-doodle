@@ -202,6 +202,15 @@ function route(s: State, method: string, url: string, b: any): unknown {
     const a = admin(s); if (s.coupon) s.coupon.active = false;
     audit(s, a, 'coupon_stop'); pub('public', 'public_changed', { what: 'coupon' }); return { ok: true };
   }
+  if (M('POST', /^\/admin\/coupon\/reset$/)) {
+    const a = admin(s);
+    if (b.confirm !== '초기화') fail(400, 'confirm', "확인 문구 '초기화'를 정확히 입력해 주세요.");
+    if (String(b.password ?? '') !== CANCEL_PASSWORD) fail(403, 'bad_password', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.');
+    const removed = s.coupon?.entries.length ?? 0;
+    s.coupon = null; audit(s, a, 'coupon_reset', null, { removed });
+    pub('public', 'public_changed', { what: 'coupon' });
+    return { removed };
+  }
   if ((m = M('POST', /^\/admin\/coupon\/claim\/([^/]+)$/))) {
     const a = admin(s); const e = s.coupon?.entries.find((x) => x.pid === m![1]);
     if (!e) fail(404, 'not_found', '쿠폰 기록이 없습니다.');

@@ -3,6 +3,7 @@ import { api, errMsg } from '../api';
 import { useApi } from '../hooks';
 import { useToast } from '../components/Toast';
 import { fmtTime, teamLabel } from '../util';
+import { Sheet } from '../components/Sheet';
 
 interface Winner { pid: string; name: string; teamNumber: number; scratchedAt: string | null; claimedAt: string | null }
 interface Excluded { pid: string; name: string; teamNumber: number }
@@ -127,6 +128,44 @@ export function CouponAdmin() {
           ))}
         </section>
       )}
+
+      <ResetCoupon onDone={() => void st.reload()} />
     </div>
+  );
+}
+
+/** 쿠폰 초기화(테스트용) — 배포·긁은 기록·수령 기록을 모두 지운다. 당첨 제외 명단은 남긴다 */
+function ResetCoupon({ onDone }: { onDone: () => void }) {
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState('');
+  const [pw, setPw] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const run = async () => {
+    setBusy(true); setErr(null);
+    try {
+      const r = await api<{ removed: number }>('POST', '/api/admin/coupon/reset', { confirm, password: pw });
+      toast(`쿠폰 기록 ${r.removed}건을 초기화했습니다. 다시 배포할 수 있습니다.`);
+      setOpen(false); setConfirm(''); setPw(''); onDone();
+    } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); }
+  };
+  return (
+    <section className="panel" style={{ marginTop: 16 }}>
+      <h2 className="h-sec">쿠폰 초기화 (테스트용)</h2>
+      <p className="xs muted" style={{ marginTop: 4 }}>지금까지 배포한 쿠폰·당첨자·긁은 기록·수령 기록을 모두 지우고, 모든 사람의 쿠폰을 '잠김' 상태로 되돌립니다. 당첨 제외 명단은 그대로 남습니다.</p>
+      <button className="btn btn-danger btn-s" style={{ marginTop: 10 }} onClick={() => setOpen(true)}>쿠폰 초기화…</button>
+      {open && (
+        <Sheet title="쿠폰 정보 초기화" onClose={() => setOpen(false)} closeDisabled={busy}
+          footer={<button className="btn btn-danger btn-block" disabled={busy || confirm !== '초기화' || !pw} onClick={() => void run()}>{busy ? '초기화 중…' : '모든 쿠폰 기록 초기화'}</button>}>
+          <div className="warn-card"><b>되돌릴 수 없습니다.</b> 리허설이 끝난 뒤, 실제 쿠폰을 배포하기 <b>전에만</b> 사용하세요.</div>
+          <label className="field" style={{ marginTop: 14 }}><span className="label">확인 문구: <b>초기화</b> 라고 입력</span>
+            <input className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} data-autofocus /></label>
+          <label className="field" style={{ marginTop: 12 }}><span className="label">점수 취소 비밀번호</span>
+            <input className="input" type="password" inputMode="numeric" autoComplete="off" value={pw} onChange={(e) => setPw(e.target.value)} /></label>
+          {err && <div className="form-error" role="alert" style={{ marginTop: 12 }}>{err}</div>}
+        </Sheet>
+      )}
+    </section>
   );
 }

@@ -175,6 +175,20 @@ try {
   await a.getByRole('button', { name: '마감하기' }).click();
   await a.getByRole('button', { name: '쿠폰 배포' }).waitFor({ timeout: 15000 });
   ok(true, '쿠폰 마감');
+  // 6-2. 쿠폰 초기화
+  await a.getByRole('button', { name: '쿠폰 초기화…' }).click();
+  const cr = a.getByRole('dialog');
+  await cr.getByLabel(/확인 문구/).fill('초기화');
+  await cr.getByLabel('점수 취소 비밀번호').fill('0000');
+  await cr.getByRole('button', { name: '모든 쿠폰 기록 초기화' }).click();
+  await cr.getByText('비밀번호가 맞지 않습니다').first().waitFor({ timeout: 15000 });
+  await cr.getByLabel('점수 취소 비밀번호').fill('1234');
+  await cr.getByRole('button', { name: '모든 쿠폰 기록 초기화' }).click();
+  await a.getByText(/쿠폰 기록 \d+건을 초기화했습니다/).first().waitFor({ timeout: 20000 });
+  ok(await a.getByRole('button', { name: '참가오 제외 해제' }).count() === 1, '틀린 비밀번호 거절 → 쿠폰 초기화 (제외 명단은 유지)');
+  await p.bringToFront();
+  await p.getByText('쿠폰이 잠겨 있어요').first().waitFor({ timeout: 15000 });
+  ok(true, '초기화 후 참가자 쿠폰이 다시 잠김');
   // 7. 인원 추가 → 바로 입장
   await o.goto(BASE + '/#/admin/checkins');
   await o.getByLabel('이름', { exact: true }).fill('현장추가');
