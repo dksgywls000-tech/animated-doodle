@@ -212,6 +212,28 @@ await rejects(updateDoc(doc(o.db, 'participants', o.pid), { role: 'admin' }), 'o
   b4.set(doc(adm.db, 'empIndex', await empKey('900001')), { pid: pid4 });
   await rejects(b4.commit(), '같은 사번 중복 추가 차단');
 }
+// 스크래치 쿠폰
+{
+  const cid = 'cpn' + rid().slice(0, 8);
+  const cdoc = (c, pid) => doc(c.db, 'coupons', `${cid}_${pid}`);
+  const base = (pid, win) => ({ pid, campaignId: cid, win, scratchedAt: null, claimedAt: null });
+  await rejects(setDoc(cdoc(p, p.pid), base(p.pid, true)), '참가자는 쿠폰을 직접 만들 수 없음');
+  await rejects(setDoc(doc(adm.db, 'coupons', `${cid}_wrong`), base(p.pid, true)), '쿠폰 문서 ID와 내용 불일치 거절');
+  const cb = writeBatch(adm.db); cb.set(cdoc(adm, p.pid), base(p.pid, true)); cb.set(cdoc(adm, cheat.pid), base(cheat.pid, false)); await cb.commit();
+  ok(true, '관리자가 쿠폰 배포(당첨 미리 추첨)');
+  ok((await getDoc(cdoc(p, p.pid))).data().win === true, '참가자는 자기 쿠폰 열람');
+  await rejects(getDoc(cdoc(p, cheat.pid)), '남의 쿠폰 열람 불가');
+  await rejects(getDocs(collection(p.db, 'coupons')), '참가자는 쿠폰 목록 조회 불가');
+  await rejects(updateDoc(cdoc(cheat, cheat.pid), { win: true }), '꽝을 당첨으로 바꾸기 차단');
+  await rejects(updateDoc(cdoc(cheat, cheat.pid), { claimedAt: serverTimestamp() }), '참가자가 스스로 수령 처리 불가');
+  await updateDoc(cdoc(p, p.pid), { scratchedAt: serverTimestamp() });
+  ok(true, '자기 쿠폰 긁기');
+  await rejects(updateDoc(cdoc(p, p.pid), { scratchedAt: serverTimestamp() }), '두 번 긁기 차단');
+  await updateDoc(cdoc(adm, p.pid), { claimedAt: serverTimestamp() });
+  ok(true, '관리자 수령 처리');
+  const won = await getDocs(query(collection(adm.db, 'coupons'), where('campaignId', '==', cid), where('win', '==', true)));
+  ok(won.size === 1, '관리자 당첨자 목록 조회');
+}
 // 초기화(owner)
 const reset = async () => {
   const ops = [];

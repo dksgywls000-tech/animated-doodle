@@ -187,6 +187,22 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ── 스크래치 쿠폰: coupons/{배포ID}_{pid} — 당첨 여부는 배포 때 관리자 기기에서 미리 뽑아 둔다 ──
+    match /coupons/{id} {
+      allow get: if active() && (resource == null || resource.data.pid == myPid() || staff());
+      allow list: if staff();
+      allow create: if staff()
+        && request.resource.data.keys().hasOnly(['pid', 'campaignId', 'win', 'scratchedAt', 'claimedAt'])
+        && id == request.resource.data.campaignId + '_' + request.resource.data.pid
+        && request.resource.data.win is bool
+        && request.resource.data.scratchedAt == null && request.resource.data.claimedAt == null;
+      allow update: if active() && (
+        (resource.data.pid == myPid() && resource.data.scratchedAt == null
+          && onlyChanges(['scratchedAt']) && request.resource.data.scratchedAt == request.time)
+        || (staff() && onlyChanges(['claimedAt'])));
+      allow delete: if staff();
+    }
+
     // ── 채팅: 컬렉션 chat_all, chat_team_0 ~ chat_team_8 ──
     match /{coll}/{msgId} {
       allow read: if coll.matches('chat_(all|team_[0-8])') && active() && canColl(coll);

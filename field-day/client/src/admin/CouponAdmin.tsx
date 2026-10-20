@@ -1,0 +1,102 @@
+import { useState } from 'react';
+import { api, errMsg } from '../api';
+import { useApi } from '../hooks';
+import { useToast } from '../components/Toast';
+import { fmtTime, teamLabel } from '../util';
+
+interface Winner { pid: string; name: string; teamNumber: number; scratchedAt: string | null; claimedAt: string | null }
+interface Coupon { active: boolean; id: string; title: string; winners: number; eligible: number; deployedAt: string }
+
+/** 스크래치 쿠폰 배포 — 당첨 개수를 정해 배포하면 그 순간 입장해 있던 사람에게 쿠폰이 열린다 */
+export function CouponAdmin() {
+  const toast = useToast();
+  const st = useApi<{ coupon: Coupon | null; winners: Winner[]; scratched: number }>('/api/admin/coupon', (ev) => ev.type === 'public_changed');
+  const [count, setCount] = useState('10');
+  const [title, setTitle] = useState('텀블러');
+  const [includeStaff, setIncludeStaff] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const c = st.data?.coupon;
+
+  const run = async (fn: () => Promise<unknown>, done: string) => {
+    setBusy(true); setErr(null);
+    try { await fn(); toast(done); await st.reload(); } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); setConfirm(false); }
+  };
+  const deploy = () => run(() => api('POST', '/api/admin/coupon/deploy', { count: Number(count), title, includeStaff }), '쿠폰을 배포했습니다');
+  const stop = () => run(() => api('POST', '/api/admin/coupon/stop'), '쿠폰을 마감했습니다');
+  const claim = (w: Winner) => run(() => api('POST', `/api/admin/coupon/claim/${w.pid}`, { claimed: !w.claimedAt }), w.claimedAt ? '수령 표시를 취소했습니다' : `${w.name}님 수령 완료`);
+
+  return (
+    <div style={{ maxWidth: 720 }}>
+      <h1 className="h-title">스크래치 쿠폰</h1>
+      <p className="xs muted" style={{ marginBottom: 12 }}>
+        배포 버튼을 누른 순간 <b>입장해 있는 참가자</b>에게 쿠폰이 열리고, 그중 정한 개수만큼 무작위로 당첨됩니다. 당첨자는 배포 순간 정해지며 바꿀 수 없습니다.
+      </p>
+
+      {c?.active ? (
+        <section className="panel">
+          <div className="between" style={{ flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <div className="xs muted">진행 중 · {fmtTime(c.deployedAt)} 배포</div>
+              <div style={{ fontSize: 22, fontWeight: 900 }}>{c.title} {c.winners}개</div>
+              <div className="small muted">대상 {c.eligible}명 · 긁은 사람 <b className="num" style={{ color: 'var(--ink)' }}>{st.data!.scratched}</b>명</div>
+            </div>
+            {confirm
+              ? <div className="row"><button className="btn btn-danger" disabled={busy} onClick={() => void stop()}>마감하기</button><button className="btn btn-ghost" onClick={() => setConfirm(false)}>취소</button></div>
+              : <button className="btn btn-ghost" onClick={() => setConfirm(true)}>쿠폰 마감</button>}
+          </div>
+        </section>
+      ) : (
+        <section className="panel">
+          <div className="row" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <label className="field" style={{ flex: 2, minWidth: 160 }}>
+              <span className="label">경품 이름</span>
+              <input className="input" value={title} maxLength={30} onChange={(e) => setTitle(e.target.value)} />
+            </label>
+            <label className="field" style={{ flex: 1, minWidth: 120 }}>
+              <span className="label">당첨 개수</span>
+              <input className="input num" inputMode="numeric" aria-label="당첨 개수" value={count} onChange={(e) => setCount(e.target.value.replace(/\D/g, ''))} style={{ fontSize: 22, fontWeight: 800 }} />
+            </label>
+          </div>
+          <label className="row small" style={{ marginTop: 10, gap: 8 }}>
+            <input type="checkbox" checked={includeStaff} onChange={(e) => setIncludeStaff(e.target.checked)} />
+            운영진·관리자도 대상에 포함
+          </label>
+          <div style={{ marginTop: 14 }}>
+            {confirm ? (
+              <div className="warn-card" role="alert">
+                <b>{title || '텀블러'} {count}개</b>로 배포할까요? 지금 입장해 있는 사람에게 바로 쿠폰이 열립니다.
+                <div className="row" style={{ marginTop: 10 }}>
+                  <button className="btn btn-primary" disabled={busy} onClick={() => void deploy()}>{busy ? '배포 중…' : '배포'}</button>
+                  <button className="btn btn-ghost" onClick={() => setConfirm(false)}>취소</button>
+                </div>
+              </div>
+            ) : (
+              <button className="btn btn-primary btn-block" disabled={!Number(count)} onClick={() => setConfirm(true)}>쿠폰 배포</button>
+            )}
+          </div>
+          {c && !c.active && <p className="xs muted" style={{ marginTop: 10 }}>지난 쿠폰: {c.title} {c.winners}개 · {fmtTime(c.deployedAt)} 배포 · 마감됨. 새로 배포하면 새 쿠폰이 열립니다.</p>}
+        </section>
+      )}
+      {err && <div className="form-error" role="alert" style={{ marginTop: 12 }}>{err}</div>}
+
+      {c && (
+        <section className="panel" style={{ marginTop: 16 }}>
+          <div className="between" style={{ marginBottom: 8 }}>
+            <h2 className="h-sec">당첨자 {st.data!.winners.length}명</h2>
+            <span className="xs muted">수령 {st.data!.winners.filter((w) => w.claimedAt).length}명</span>
+          </div>
+          {st.data!.winners.map((w) => (
+            <div className="list-row" key={w.pid} style={{ alignItems: 'center' }}>
+              <span><b>{w.name}</b> <span className="xs muted">{teamLabel(w.teamNumber)} · {w.scratchedAt ? `${fmtTime(w.scratchedAt)} 확인` : '아직 안 긁음'}</span></span>
+              <button className={w.claimedAt ? 'btn btn-s btn-ghost' : 'btn btn-s btn-primary'} disabled={busy} onClick={() => void claim(w)}>
+                {w.claimedAt ? '수령 완료 ✓' : '수령 처리'}
+              </button>
+            </div>
+          ))}
+        </section>
+      )}
+    </div>
+  );
+}

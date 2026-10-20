@@ -7,6 +7,7 @@ import { TicketFull } from '../components/TicketFull';
 import { HelpSheet } from '../components/HelpSheet';
 import { IconBell, IconExpand, IconHelp, IconSeat } from '../components/Icons';
 import { Sheet } from '../components/Sheet';
+import { CouponCard } from './Coupon';
 import type { Announcement, ScheduleItem, NowNext, EventInfo } from '../types';
 
 export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean }) {
@@ -58,6 +59,8 @@ export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean })
           </div>
         </div>
       </section>
+
+      <CouponCard />
 
       {h?.event.statusNote && (
         <div className="status-banner" role="status" style={{ marginTop: 16 }}>

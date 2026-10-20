@@ -125,6 +125,7 @@ export async function ensureTicket(pid: string, teamNumber: number): Promise<{ t
 }
 
 // ── 공개 문서(행사 안내·일정·공지) ──
+interface CouponDoc { active: boolean; id: string; title: string; winners: number; eligible: number; deployedAt: number }
 interface PublicDoc { [k: string]: any; schedule: any[]; announcements: any[] }
 let publicCache: { at: number; data: PublicDoc } | null = null;
 export function setPublicCache(data: PublicDoc | null) { publicCache = data ? { at: Date.now(), data } : null; }
@@ -358,6 +359,77 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
   }
 
   // ── 관리자: 점수 ──
+  // ── 스크래치 쿠폰 ──
+  if (is('GET', /^\/coupon$/)) {
+    const me = await currentMe();
+    const c = (await readPublic()).coupon as CouponDoc | undefined;
+    if (!c?.id) return { active: false, title: '텀블러', id: null, mine: null };
+    const s = await getDoc(doc(db, 'coupons', `${c.id}_${me.pid}`));
+    const x = s.data();
+    return { active: !!c.active, title: c.title, id: c.id, mine: x ? { win: !!x.win, scratched: !!x.scratchedAt } : null };
+  }
+  if (is('POST', /^\/coupon\/scratch$/)) {
+    const me = await currentMe();
+    const c = (await readPublic()).coupon as CouponDoc | undefined;
+    if (!c?.id) fail(409, 'no_coupon', '진행 중인 쿠폰이 없습니다.');
+    const ref = doc(db, 'coupons', `${c!.id}_${me.pid}`);
+    try { await updateDoc(ref, { scratchedAt: serverTimestamp() }); } catch (e) { if (!isDenied(e)) throw e; } // 이미 긁음
+    return { ok: true };
+  }
+  if (is('GET', /^\/admin\/coupon$/)) {
+    await staffOnly();
+    const c = (await readPublic(true)).coupon as CouponDoc | undefined;
+    if (!c?.id) return { coupon: null, winners: [], scratched: 0 };
+    const col = collection(db, 'coupons');
+    const [ws, notYet] = await Promise.all([
+      getDocs(query(col, where('campaignId', '==', c.id), where('win', '==', true))),
+      getCountFromServer(query(col, where('campaignId', '==', c.id), where('scratchedAt', '==', null))),
+    ]);
+    const winners = await Promise.all(ws.docs.map(async (d) => {
+      const x = d.data(est); const p = (await getDoc(doc(db, 'participants', x.pid))).data() ?? {};
+      return { pid: x.pid, name: p.name ?? '(알 수 없음)', teamNumber: p.teamNumber ?? 0, scratchedAt: iso(x.scratchedAt), claimedAt: iso(x.claimedAt) };
+    }));
+    winners.sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
+    return { coupon: { ...c, deployedAt: isoNow(c.deployedAt) }, winners, scratched: c.eligible - notYet.data().count };
+  }
+  if (is('POST', /^\/admin\/coupon\/deploy$/)) {
+    const me = await staffOnly();
+    const cur = (await readPublic(true)).coupon as CouponDoc | undefined;
+    if (cur?.active) fail(409, 'active', '이미 진행 중인 쿠폰이 있습니다. 먼저 마감해 주세요.');
+    const count = Number(b.count);
+    const title = String(b.title ?? '텀블러').trim().slice(0, 30) || '텀블러';
+    if (!Number.isInteger(count) || count < 1 || count > 500) fail(400, 'invalid_count', '당첨 개수를 1 이상의 숫자로 입력해 주세요.');
+    const [ps, cs] = await Promise.all([getDocs(collection(db, 'participants')), getDocs(collection(db, 'checkins'))]);
+    const inNow = new Set(cs.docs.map((d) => d.id));
+    const pool = ps.docs.filter((d) => {
+      const x = d.data();
+      return x.active && inNow.has(d.id) && (b.includeStaff ? true : x.role === 'participant' && x.teamNumber >= 1);
+    }).map((d) => d.id);
+    if (!pool.length) fail(409, 'nobody', '쿠폰을 받을 입장자가 없습니다.');
+    if (count > pool.length) fail(400, 'too_many', `당첨 개수가 대상 인원(${pool.length}명)보다 많습니다.`);
+    const order = secureShuffle(pool.length);
+    const win = new Set(order.slice(0, count).map((n) => pool[n - 1]));
+    const id = rid().slice(0, 12);
+    await writeChunks(pool.map((pid) => (bt) => bt.set(doc(db, 'coupons', `${id}_${pid}`), { pid, campaignId: id, win: win.has(pid), scratchedAt: null, claimedAt: null })));
+    await editPublic(() => ({ coupon: { active: true, id, title, winners: count, eligible: pool.length, deployedAt: Date.now() } }));
+    void auditLog(me, 'coupon_deploy', id, { title, winners: count, eligible: pool.length });
+    return { ok: true, eligible: pool.length, winners: count };
+  }
+  if (is('POST', /^\/admin\/coupon\/stop$/)) {
+    const me = await staffOnly();
+    await editPublic((d) => ({ coupon: d.coupon ? { ...d.coupon, active: false } : null }));
+    void auditLog(me, 'coupon_stop');
+    return { ok: true };
+  }
+  if ((m = is('POST', /^\/admin\/coupon\/claim\/([^/]+)$/))) {
+    const me = await staffOnly();
+    const c = (await readPublic(true)).coupon as CouponDoc | undefined;
+    if (!c?.id) fail(409, 'no_coupon', '쿠폰 기록이 없습니다.');
+    await updateDoc(doc(db, 'coupons', `${c!.id}_${m[1]}`), { claimedAt: b.claimed ? serverTimestamp() : null });
+    void auditLog(me, b.claimed ? 'coupon_claim' : 'coupon_unclaim', m[1]);
+    return { ok: true };
+  }
+
   if (is('GET', /^\/admin\/scores\/categories$/)) { await staffOnly(); return { categories: CATS.map((c) => ({ ...c, subtypes: c.kind === 'event' ? SUBS : [] })) }; }
   if (is('GET', /^\/admin\/scores\/board$/)) { await staffOnly(); return { teams: await board(), generatedAt: new Date().toISOString() }; }
   if (is('GET', /^\/admin\/scores\/log$/)) {

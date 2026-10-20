@@ -3,7 +3,7 @@
  * 서버 규칙(로그인 검증, 행운권 정책, 점수 10~200, 취소 1회, 채팅 조 제한 등)을 흉내 내지만
  * 모든 데이터가 이 브라우저에만 있으므로 보안·공유 기능은 없다.
  */
-import { load, save, session, rid, now, CATS, SUBS, SEAT_NOTES, CANCEL_PASSWORD, type State, type P, type Msg } from './store';
+import { load, save, session, rid, now, shuffle, CATS, SUBS, SEAT_NOTES, CANCEL_PASSWORD, type State, type P, type Msg } from './store';
 import { realtime } from './realtime';
 
 export class ApiError extends Error {
@@ -142,6 +142,51 @@ function route(s: State, method: string, url: string, b: any): unknown {
   const q = u.searchParams;
   const M = (m: string, re: RegExp) => (method === m ? re.exec(path) : null);
   let m: RegExpExecArray | null;
+
+  // ── 스크래치 쿠폰 ──
+  if (M('GET', /^\/coupon$/)) {
+    const p = me(s); const c = s.coupon;
+    if (!c) return { active: false, title: '텀블러', id: null, mine: null };
+    const e = c.entries.find((x) => x.pid === p.id);
+    return { active: c.active, title: c.title, id: c.id, mine: e ? { win: e.win, scratched: !!e.scratchedAt } : null };
+  }
+  if (M('POST', /^\/coupon\/scratch$/)) {
+    const p = me(s); const e = s.coupon?.entries.find((x) => x.pid === p.id);
+    if (!e) fail(409, 'no_coupon', '진행 중인 쿠폰이 없습니다.');
+    e!.scratchedAt ??= now(); return { ok: true };
+  }
+  if (M('GET', /^\/admin\/coupon$/)) {
+    admin(s); const c = s.coupon;
+    if (!c) return { coupon: null, winners: [], scratched: 0 };
+    const { entries, ...coupon } = c;
+    const winners = entries.filter((e) => e.win).map((e) => { const p = s.participants.find((x) => x.id === e.pid); return { pid: e.pid, name: p?.name ?? '(알 수 없음)', teamNumber: p?.teamNumber ?? 0, scratchedAt: e.scratchedAt, claimedAt: e.claimedAt }; })
+      .sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
+    return { coupon, winners, scratched: entries.filter((e) => e.scratchedAt).length };
+  }
+  if (M('POST', /^\/admin\/coupon\/deploy$/)) {
+    const a = admin(s);
+    if (s.coupon?.active) fail(409, 'active', '이미 진행 중인 쿠폰이 있습니다. 먼저 마감해 주세요.');
+    const count = Number(b.count); const title = String(b.title ?? '텀블러').trim().slice(0, 30) || '텀블러';
+    if (!Number.isInteger(count) || count < 1 || count > 500) fail(400, 'invalid_count', '당첨 개수를 1 이상의 숫자로 입력해 주세요.');
+    const inNow = new Set(s.checkins.map((c) => c.participantId));
+    const pool = s.participants.filter((p) => p.active && inNow.has(p.id) && (b.includeStaff || (p.role === 'participant' && p.teamNumber >= 1))).map((p) => p.id);
+    if (!pool.length) fail(409, 'nobody', '쿠폰을 받을 입장자가 없습니다.');
+    if (count > pool.length) fail(400, 'too_many', `당첨 개수가 대상 인원(${pool.length}명)보다 많습니다.`);
+    const win = new Set(shuffle(pool.length).slice(0, count).map((n) => pool[n - 1]));
+    s.coupon = { active: true, id: rid().slice(0, 12), title, winners: count, eligible: pool.length, deployedAt: now(), entries: pool.map((pid) => ({ pid, win: win.has(pid), scratchedAt: null, claimedAt: null })) };
+    audit(s, a, 'coupon_deploy', s.coupon.id, { title, winners: count, eligible: pool.length });
+    pub('public', 'public_changed', { what: 'coupon' });
+    return { ok: true, eligible: pool.length, winners: count };
+  }
+  if (M('POST', /^\/admin\/coupon\/stop$/)) {
+    const a = admin(s); if (s.coupon) s.coupon.active = false;
+    audit(s, a, 'coupon_stop'); pub('public', 'public_changed', { what: 'coupon' }); return { ok: true };
+  }
+  if ((m = M('POST', /^\/admin\/coupon\/claim\/([^/]+)$/))) {
+    const a = admin(s); const e = s.coupon?.entries.find((x) => x.pid === m![1]);
+    if (!e) fail(404, 'not_found', '쿠폰 기록이 없습니다.');
+    e!.claimedAt = b.claimed ? now() : null; audit(s, a, b.claimed ? 'coupon_claim' : 'coupon_unclaim', m[1]); return { ok: true };
+  }
 
   // ── 공개·로그인 ──
   if (M('GET', /^\/public\/event$/)) return { title: '2026 하이테크본부 가을운동회', date: '2026-10-21', venue: '이충동 부락산 분수공원 야외공연장', demo: true };
