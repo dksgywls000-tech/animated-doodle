@@ -1,3 +1,4 @@
+import { ReturnBusCard } from '../components/ReturnBus';
 import { useState } from 'react';
 import { useApi } from '../hooks';
 import { useMe } from '../session';
@@ -63,10 +64,9 @@ export function Maps({ route, go }: { route: string; go: (r: string) => void }) 
           <MapBlock map={{ src: '/assets/03_venue_access_map.jpg', title: '하차장 → 행사장', alt: '부락산 분수공원 분수광장 하차장과 야외공연장 행사장 위치가 표시된 지도' }}>
             <h3>하차장과 행사장은 다릅니다</h3>
             <p className="small" style={{ marginTop: 4 }}><b>하차</b> 부락산 분수공원 분수광장 → <b>도보 이동</b> → <b>행사장</b> 야외공연장(지도 위쪽 노란 원)</p>
-            <div className="note-card" style={{ marginTop: 10 }}>
-              <b>귀가 버스</b> · {event?.returnBus ?? '배차는 운영진이 확정한 뒤 이곳과 공지로 안내합니다.'}
-            </div>
           </MapBlock>
+          <div style={{ height: 12 }} />
+          <ReturnBusCard />
         </>
       )}
       {key === 'parking' && (

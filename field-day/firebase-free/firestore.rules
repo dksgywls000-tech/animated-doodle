@@ -203,6 +203,12 @@ service cloud.firestore {
       allow delete: if staff();
     }
 
+    match /couponExclude/{pid} {               // 당첨 제외 명단 — 관리자만 보고 고친다
+      allow read: if staff();
+      allow create, update: if staff() && request.resource.data.keys().hasOnly(['name', 'teamNumber', 'createdAt']);
+      allow delete: if staff();
+    }
+
     // ── 채팅: 컬렉션 chat_all, chat_team_0 ~ chat_team_8 ──
     match /{coll}/{msgId} {
       allow read: if coll.matches('chat_(all|team_[0-8])') && active() && canColl(coll);

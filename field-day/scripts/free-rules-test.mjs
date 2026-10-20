@@ -234,6 +234,13 @@ await rejects(updateDoc(doc(o.db, 'participants', o.pid), { role: 'admin' }), 'o
   const won = await getDocs(query(collection(adm.db, 'coupons'), where('campaignId', '==', cid), where('win', '==', true)));
   ok(won.size === 1, '관리자 당첨자 목록 조회');
 }
+// 쿠폰 당첨 제외 명단 — 관리자만
+await rejects(getDocs(collection(p.db, 'couponExclude')), '참가자는 당첨 제외 명단 열람 불가');
+await rejects(getDoc(doc(p.db, 'couponExclude', p.pid)), '참가자는 자기가 제외됐는지도 확인 불가');
+await rejects(setDoc(doc(p.db, 'couponExclude', p.pid), { name: 'x', teamNumber: 3, createdAt: serverTimestamp() }), '참가자는 제외 명단 수정 불가');
+await setDoc(doc(adm.db, 'couponExclude', cheat.pid), { name: '참가오', teamNumber: 5, createdAt: serverTimestamp() });
+ok((await getDocs(collection(adm.db, 'couponExclude'))).size === 1, '관리자 제외 명단 추가·조회');
+await deleteDoc(doc(adm.db, 'couponExclude', cheat.pid));
 // 초기화(owner)
 const reset = async () => {
   const ops = [];

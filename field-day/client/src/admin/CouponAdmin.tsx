@@ -5,15 +5,17 @@ import { useToast } from '../components/Toast';
 import { fmtTime, teamLabel } from '../util';
 
 interface Winner { pid: string; name: string; teamNumber: number; scratchedAt: string | null; claimedAt: string | null }
+interface Excluded { pid: string; name: string; teamNumber: number }
 interface Coupon { active: boolean; id: string; title: string; winners: number; eligible: number; deployedAt: string }
 
 /** 스크래치 쿠폰 배포 — 당첨 개수를 정해 배포하면 그 순간 입장해 있던 사람에게 쿠폰이 열린다 */
 export function CouponAdmin() {
   const toast = useToast();
-  const st = useApi<{ coupon: Coupon | null; winners: Winner[]; scratched: number }>('/api/admin/coupon', (ev) => ev.type === 'public_changed');
+  const st = useApi<{ coupon: Coupon | null; winners: Winner[]; scratched: number; excluded: Excluded[] }>('/api/admin/coupon', (ev) => ev.type === 'public_changed');
   const [count, setCount] = useState('10');
   const [title, setTitle] = useState('텀블러');
-  const [includeStaff, setIncludeStaff] = useState(false);
+  const [names, setNames] = useState('');
+  const [exMsg, setExMsg] = useState<{ added: string[]; problems: string[] } | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -23,15 +25,17 @@ export function CouponAdmin() {
     setBusy(true); setErr(null);
     try { await fn(); toast(done); await st.reload(); } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); setConfirm(false); }
   };
-  const deploy = () => run(() => api('POST', '/api/admin/coupon/deploy', { count: Number(count), title, includeStaff }), '쿠폰을 배포했습니다');
+  const deploy = () => run(() => api('POST', '/api/admin/coupon/deploy', { count: Number(count), title }), '쿠폰을 배포했습니다');
   const stop = () => run(() => api('POST', '/api/admin/coupon/stop'), '쿠폰을 마감했습니다');
+  const addEx = () => run(async () => { const r = await api<{ added: string[]; problems: string[] }>('POST', '/api/admin/coupon/exclude', { names }); setExMsg(r); if (!r.problems.length) setNames(''); }, '당첨 제외 명단을 저장했습니다');
+  const delEx = (x: Excluded) => run(() => api('DELETE', `/api/admin/coupon/exclude/${x.pid}`), `${x.name}님을 제외 명단에서 뺐습니다`);
   const claim = (w: Winner) => run(() => api('POST', `/api/admin/coupon/claim/${w.pid}`, { claimed: !w.claimedAt }), w.claimedAt ? '수령 표시를 취소했습니다' : `${w.name}님 수령 완료`);
 
   return (
     <div style={{ maxWidth: 720 }}>
       <h1 className="h-title">스크래치 쿠폰</h1>
       <p className="xs muted" style={{ marginBottom: 12 }}>
-        배포 버튼을 누른 순간 <b>입장해 있는 참가자</b>에게 쿠폰이 열리고, 그중 정한 개수만큼 무작위로 당첨됩니다. 당첨자는 배포 순간 정해지며 바꿀 수 없습니다.
+        배포 버튼을 누른 순간 <b>입장해 있는 모든 사람(운영진 포함)</b>에게 쿠폰이 열리고, 그중 정한 개수만큼 무작위로 당첨됩니다. 당첨자는 배포 순간 정해지며 바꿀 수 없습니다.
       </p>
 
       {c?.active ? (
@@ -59,10 +63,6 @@ export function CouponAdmin() {
               <input className="input num" inputMode="numeric" aria-label="당첨 개수" value={count} onChange={(e) => setCount(e.target.value.replace(/\D/g, ''))} style={{ fontSize: 22, fontWeight: 800 }} />
             </label>
           </div>
-          <label className="row small" style={{ marginTop: 10, gap: 8 }}>
-            <input type="checkbox" checked={includeStaff} onChange={(e) => setIncludeStaff(e.target.checked)} />
-            운영진·관리자도 대상에 포함
-          </label>
           <div style={{ marginTop: 14 }}>
             {confirm ? (
               <div className="warn-card" role="alert">
@@ -79,6 +79,36 @@ export function CouponAdmin() {
           {c && !c.active && <p className="xs muted" style={{ marginTop: 10 }}>지난 쿠폰: {c.title} {c.winners}개 · {fmtTime(c.deployedAt)} 배포 · 마감됨. 새로 배포하면 새 쿠폰이 열립니다.</p>}
         </section>
       )}
+      <section className="panel" style={{ marginTop: 16 }} aria-label="당첨 제외 명단">
+        <div className="between" style={{ marginBottom: 6 }}>
+          <h2 className="h-sec">당첨 제외 {st.data?.excluded.length ?? 0}명</h2>
+          <span className="xs muted">관리자 화면에만 보임</span>
+        </div>
+        <p className="xs muted" style={{ marginBottom: 8 }}>
+          여기 있는 사람도 쿠폰은 똑같이 받고 긁을 수 있지만 <b>항상 꽝</b>이 나옵니다. 참가자 화면에는 제외 사실이 표시되지 않습니다. 다음 배포부터 적용됩니다.
+        </p>
+        {!!st.data?.excluded.length && (
+          <div className="chips" style={{ marginBottom: 10 }}>
+            {st.data.excluded.map((x) => (
+              <button key={x.pid} className="chip" disabled={busy} onClick={() => void delEx(x)} aria-label={`${x.name} 제외 해제`}>
+                {x.name} · {teamLabel(x.teamNumber)} ✕
+              </button>
+            ))}
+          </div>
+        )}
+        <label className="field">
+          <span className="label">추가할 이름 (줄바꿈·쉼표로 여러 명, 동명이인은 '홍길동 3조')</span>
+          <textarea className="input" rows={3} value={names} onChange={(e) => setNames(e.target.value)} aria-label="제외할 이름" placeholder={'예: 홍길동 1조\n김철수 2조'} />
+        </label>
+        <button className="btn btn-ghost" style={{ marginTop: 8 }} disabled={busy || !names.trim()} onClick={() => void addEx()}>제외 명단에 추가</button>
+        {exMsg && (
+          <div className="xs" style={{ marginTop: 8 }} role="status">
+            {exMsg.added.length > 0 && <div>추가: {exMsg.added.join(', ')}</div>}
+            {exMsg.problems.map((p) => <div key={p} style={{ color: 'var(--orange-text)' }}>{p}</div>)}
+          </div>
+        )}
+      </section>
+
       {err && <div className="form-error" role="alert" style={{ marginTop: 12 }}>{err}</div>}
 
       {c && (

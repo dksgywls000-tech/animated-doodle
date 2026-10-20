@@ -157,11 +157,13 @@ function route(s: State, method: string, url: string, b: any): unknown {
   }
   if (M('GET', /^\/admin\/coupon$/)) {
     admin(s); const c = s.coupon;
-    if (!c) return { coupon: null, winners: [], scratched: 0 };
+    const excluded = (s.couponExclude ?? []).map((pid) => s.participants.find((x) => x.id === pid)).filter((p): p is P => !!p)
+      .map((p) => ({ pid: p.id, name: p.name, teamNumber: p.teamNumber })).sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
+    if (!c) return { coupon: null, winners: [], scratched: 0, excluded };
     const { entries, ...coupon } = c;
     const winners = entries.filter((e) => e.win).map((e) => { const p = s.participants.find((x) => x.id === e.pid); return { pid: e.pid, name: p?.name ?? '(알 수 없음)', teamNumber: p?.teamNumber ?? 0, scratchedAt: e.scratchedAt, claimedAt: e.claimedAt }; })
       .sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
-    return { coupon, winners, scratched: entries.filter((e) => e.scratchedAt).length };
+    return { coupon, winners, scratched: entries.filter((e) => e.scratchedAt).length, excluded };
   }
   if (M('POST', /^\/admin\/coupon\/deploy$/)) {
     const a = admin(s);
@@ -169,14 +171,32 @@ function route(s: State, method: string, url: string, b: any): unknown {
     const count = Number(b.count); const title = String(b.title ?? '텀블러').trim().slice(0, 30) || '텀블러';
     if (!Number.isInteger(count) || count < 1 || count > 500) fail(400, 'invalid_count', '당첨 개수를 1 이상의 숫자로 입력해 주세요.');
     const inNow = new Set(s.checkins.map((c) => c.participantId));
-    const pool = s.participants.filter((p) => p.active && inNow.has(p.id) && (b.includeStaff || (p.role === 'participant' && p.teamNumber >= 1))).map((p) => p.id);
+    const ex = new Set(s.couponExclude ?? []);
+    const pool = s.participants.filter((p) => p.active && inNow.has(p.id)).map((p) => p.id);
+    const canWin = pool.filter((pid) => !ex.has(pid));
     if (!pool.length) fail(409, 'nobody', '쿠폰을 받을 입장자가 없습니다.');
-    if (count > pool.length) fail(400, 'too_many', `당첨 개수가 대상 인원(${pool.length}명)보다 많습니다.`);
-    const win = new Set(shuffle(pool.length).slice(0, count).map((n) => pool[n - 1]));
+    if (count > canWin.length) fail(400, 'too_many', `당첨 개수가 당첨 가능 인원(${canWin.length}명)보다 많습니다.`);
+    const win = new Set(shuffle(canWin.length).slice(0, count).map((n) => canWin[n - 1]));
     s.coupon = { active: true, id: rid().slice(0, 12), title, winners: count, eligible: pool.length, deployedAt: now(), entries: pool.map((pid) => ({ pid, win: win.has(pid), scratchedAt: null, claimedAt: null })) };
     audit(s, a, 'coupon_deploy', s.coupon.id, { title, winners: count, eligible: pool.length });
     pub('public', 'public_changed', { what: 'coupon' });
     return { ok: true, eligible: pool.length, winners: count };
+  }
+  if (M('POST', /^\/admin\/coupon\/exclude$/)) {
+    admin(s); const added: string[] = []; const problems: string[] = [];
+    for (const raw of String(b.names ?? '').split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 100)) {
+      const mm = /^(.+?)\s*\(?\s*([0-8])\s*조?\s*\)?$/.exec(raw);
+      const name = (mm ? mm[1] : raw).normalize('NFC').trim(); const team = mm ? Number(mm[2]) : null;
+      const found = s.participants.filter((p) => p.name === name && (team === null || p.teamNumber === team));
+      if (!found.length) { problems.push(`${raw}: 명단에 없음`); continue; }
+      if (found.length > 1) { problems.push(`${raw}: 같은 이름 ${found.length}명 — '${name} 3조'처럼 조를 붙여 주세요`); continue; }
+      s.couponExclude = [...new Set([...(s.couponExclude ?? []), found[0].id])];
+      added.push(`${found[0].name}(${found[0].teamNumber ? found[0].teamNumber + '조' : '운영진'})`);
+    }
+    return { added, problems };
+  }
+  if ((m = M('DELETE', /^\/admin\/coupon\/exclude\/([^/]+)$/))) {
+    admin(s); s.couponExclude = (s.couponExclude ?? []).filter((x) => x !== m![1]); return { ok: true };
   }
   if (M('POST', /^\/admin\/coupon\/stop$/)) {
     const a = admin(s); if (s.coupon) s.coupon.active = false;

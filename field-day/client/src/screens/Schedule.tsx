@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApi } from '../hooks';
 import { cx, fmtTime, timeRange } from '../util';
 import { ErrorLine } from './Pass';
+import { ReturnBusCard } from '../components/ReturnBus';
 import type { EventInfo, NowNext, ScheduleItem } from '../types';
 
 const STATUS_BADGE: Record<string, [string, string] | undefined> = {
@@ -48,15 +49,14 @@ function Timeline() {
               <div className="tl-body">
                 <div className="tl-card">
                   <div className="tl-title">
-                    
-                    
                     <span>{i.title}</span>
                     {badge && <span className={`badge ${badge[1]}`}>{badge[0]}</span>}
                     {isNext && !isNow && <span className="badge">다음</span>}
                   </div>
-                  {i.note && <div className="tl-note">{i.note}</div>}
+                  {i.note && !i.title.includes('퇴근버스') && <div className="tl-note">{i.note}</div>}
                   {i.status === 'time_tbd' && <div className="tl-note">시작 시각은 운영진이 확인 중입니다.</div>}
                   {i.delayNote && <div className="tl-delay">{i.delayNote}</div>}
+                  {i.title.includes('퇴근버스') && <ReturnBusCard compact />}
                 </div>
               </div>
             </li>

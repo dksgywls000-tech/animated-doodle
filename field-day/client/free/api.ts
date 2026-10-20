@@ -379,7 +379,9 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
   if (is('GET', /^\/admin\/coupon$/)) {
     await staffOnly();
     const c = (await readPublic(true)).coupon as CouponDoc | undefined;
-    if (!c?.id) return { coupon: null, winners: [], scratched: 0 };
+    const excluded = (await getDocs(collection(db, 'couponExclude'))).docs.map((d) => ({ pid: d.id, name: d.data().name as string, teamNumber: d.data().teamNumber as number }))
+      .sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
+    if (!c?.id) return { coupon: null, winners: [], scratched: 0, excluded };
     const col = collection(db, 'coupons');
     const [ws, notYet] = await Promise.all([
       getDocs(query(col, where('campaignId', '==', c.id), where('win', '==', true))),
@@ -390,7 +392,7 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
       return { pid: x.pid, name: p.name ?? '(알 수 없음)', teamNumber: p.teamNumber ?? 0, scratchedAt: iso(x.scratchedAt), claimedAt: iso(x.claimedAt) };
     }));
     winners.sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name));
-    return { coupon: { ...c, deployedAt: isoNow(c.deployedAt) }, winners, scratched: c.eligible - notYet.data().count };
+    return { coupon: { ...c, deployedAt: isoNow(c.deployedAt) }, winners, scratched: c.eligible - notYet.data().count, excluded };
   }
   if (is('POST', /^\/admin\/coupon\/deploy$/)) {
     const me = await staffOnly();
@@ -401,19 +403,38 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     if (!Number.isInteger(count) || count < 1 || count > 500) fail(400, 'invalid_count', '당첨 개수를 1 이상의 숫자로 입력해 주세요.');
     const [ps, cs] = await Promise.all([getDocs(collection(db, 'participants')), getDocs(collection(db, 'checkins'))]);
     const inNow = new Set(cs.docs.map((d) => d.id));
-    const pool = ps.docs.filter((d) => {
-      const x = d.data();
-      return x.active && inNow.has(d.id) && (b.includeStaff ? true : x.role === 'participant' && x.teamNumber >= 1);
-    }).map((d) => d.id);
+    const ex = new Set((await getDocs(collection(db, 'couponExclude'))).docs.map((d) => d.id));
+    const pool = ps.docs.filter((d) => d.data().active && inNow.has(d.id)).map((d) => d.id);   // 운영진 포함 입장자 전원
+    const canWin = pool.filter((pid) => !ex.has(pid));                                           // 당첨 제외 명단은 꽝 쿠폰만
     if (!pool.length) fail(409, 'nobody', '쿠폰을 받을 입장자가 없습니다.');
-    if (count > pool.length) fail(400, 'too_many', `당첨 개수가 대상 인원(${pool.length}명)보다 많습니다.`);
-    const order = secureShuffle(pool.length);
-    const win = new Set(order.slice(0, count).map((n) => pool[n - 1]));
+    if (count > canWin.length) fail(400, 'too_many', `당첨 개수가 당첨 가능 인원(${canWin.length}명)보다 많습니다.`);
+    const order = secureShuffle(canWin.length);
+    const win = new Set(order.slice(0, count).map((n) => canWin[n - 1]));
     const id = rid().slice(0, 12);
     await writeChunks(pool.map((pid) => (bt) => bt.set(doc(db, 'coupons', `${id}_${pid}`), { pid, campaignId: id, win: win.has(pid), scratchedAt: null, claimedAt: null })));
     await editPublic(() => ({ coupon: { active: true, id, title, winners: count, eligible: pool.length, deployedAt: Date.now() } }));
-    void auditLog(me, 'coupon_deploy', id, { title, winners: count, eligible: pool.length });
+    void auditLog(me, 'coupon_deploy', id, { title, winners: count, eligible: pool.length, excluded: pool.length - canWin.length });
     return { ok: true, eligible: pool.length, winners: count };
+  }
+  if (is('POST', /^\/admin\/coupon\/exclude$/)) {
+    // 당첨 제외 명단(관리자만 볼 수 있음). '이름' 또는 '이름 3조' 형식, 줄바꿈·쉼표로 여러 명
+    const me = await staffOnly();
+    const added: string[] = []; const problems: string[] = [];
+    for (const raw of String(b.names ?? '').split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 100)) {
+      const mm = /^(.+?)\s*\(?\s*([0-8])\s*조?\s*\)?$/.exec(raw);
+      const name = normalizeName(mm ? mm[1] : raw); const team = mm ? Number(mm[2]) : null;
+      const found = (await getDocs(query(collection(db, 'participants'), where('name', '==', name)))).docs.filter((d) => team === null || d.data().teamNumber === team);
+      if (!found.length) { problems.push(`${raw}: 명단에 없음`); continue; }
+      if (found.length > 1) { problems.push(`${raw}: 같은 이름 ${found.length}명 — '${name} 3조'처럼 조를 붙여 주세요`); continue; }
+      const d = found[0];
+      await setDoc(doc(db, 'couponExclude', d.id), { name: d.data().name, teamNumber: d.data().teamNumber, createdAt: serverTimestamp() });
+      added.push(`${d.data().name}(${teamLabel(d.data().teamNumber)})`);
+    }
+    if (added.length) void auditLog(me, 'coupon_exclude', null, { count: added.length });
+    return { added, problems };
+  }
+  if ((m = is('DELETE', /^\/admin\/coupon\/exclude\/([^/]+)$/))) {
+    await staffOnly(); await deleteDoc(doc(db, 'couponExclude', m[1])); return { ok: true };
   }
   if (is('POST', /^\/admin\/coupon\/stop$/)) {
     const me = await staffOnly();

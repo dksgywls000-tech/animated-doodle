@@ -557,3 +557,21 @@ body.kb-open .tabbar { display: none; }
   .rainbow-halo, .rainbow-text, .coupon.ready .coupon-foil { animation: none; }
   .scratch-card, .rainbow-arc { animation: none; }
 }
+
+/* ── 퇴근버스 ── */
+.bus-card { border-radius: var(--radius-m); background: var(--green); color: #fff; padding: 16px; }
+.bus-card.compact { padding: 12px; margin-top: 10px; }
+.bus-head { display: flex; align-items: center; gap: 12px; }
+.bus-time { white-space: nowrap; font-size: 30px; font-weight: 900; letter-spacing: -.02em; color: var(--lime); line-height: 1; }
+.bus-card.compact .bus-place { font-size: 15px; }
+.bus-card.compact .bus-list { margin-top: 8px; }
+.bus-card.compact .bus-no { min-width: 48px; font-size: 15px; }
+.bus-card.compact .bus-route { font-size: 14px; }
+.bus-kicker { font-size: 11px; letter-spacing: .14em; font-weight: 800; color: rgba(255,255,255,.65); }
+.bus-place { font-size: 17px; font-weight: 800; }
+.bus-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.bus-list li { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 10px; }
+.bus-no { flex: none; min-width: 56px; text-align: center; background: var(--lime); color: var(--ink); border-radius: 8px; padding: 4px 6px; font-weight: 900; font-size: 17px; }
+.bus-no small { font-size: 11px; font-weight: 800; margin-left: 1px; }
+.bus-route { font-size: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.bus-arrow { color: var(--lime); font-weight: 900; }

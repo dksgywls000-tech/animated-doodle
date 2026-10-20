@@ -28,7 +28,7 @@ export const SCHEDULE: Seed[] = [
   ['16:05', '16:45', '소통 TALK', '조별 음식 지급', 'break', null, 'scheduled'],
   ['16:45', '17:00', '시상식 · 경품추첨', '', 'general', null, 'scheduled'],
   ['17:00', '17:20', '폐회 · 단체사진', '폐회사 후 단체사진, 조별 물품 반납', 'general', null, 'scheduled'],
-  ['17:40', null, '퇴근버스 탑승', '탑승 위치는 현장에서 안내합니다', 'general', null, 'scheduled'],
+  ['17:40', null, '퇴근버스 탑승', '이충동 분수공원 앞 출발', 'general', null, 'scheduled'],
 ];
 
 const tournament = (pairs: [number, number][]) => pairs.map(([a, b], i) => ({ label: `${i + 1}경기`, a, b }));
@@ -90,7 +90,7 @@ export const SEAT_NOTES: Record<number, string> = {
 
 
 /** 귀가(퇴근) 버스 기본 안내 — 운영자가 관리자 화면에서 수정 가능 */
-export const RETURN_BUS_NOTE = '17:40 퇴근버스 탑승. 탑승 위치는 현장에서 안내합니다.';
+export const RETURN_BUS_NOTE = '17:40 이충동 분수공원 앞 출발 · 1호차 아이파크→용이·비전 / 2호차 블루시티→고덕 / 3호차 블루시티→상공회의소 / 4·5호차 블루시티';
 
 /** 조 번호 0 = 운영진(조에 속하지 않는 행사 운영 인원) */
 export const STAFF_TEAM = 0;

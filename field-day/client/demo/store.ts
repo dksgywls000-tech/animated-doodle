@@ -39,6 +39,8 @@ export interface State {
   help: Help[];
   reports: Report[];
   audit: { id: number; actorName: string | null; action: string; target: string | null; detail: unknown; createdAt: string }[];
+  /** 쿠폰 당첨 제외(관리자만 앎) */
+  couponExclude?: string[];
   /** 스크래치 쿠폰(배포 시 당첨자를 미리 뽑아 둔다) */
   coupon?: { active: boolean; id: string; title: string; winners: number; eligible: number; deployedAt: string; entries: { pid: string; win: boolean; scratchedAt: string | null; claimedAt: string | null }[] } | null;
   /** 데모 전용: 'real'이면 실제 시각, 아니면 행사 당일의 HH:MM으로 가정 */
