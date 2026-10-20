@@ -575,3 +575,9 @@ body.kb-open .tabbar { display: none; }
 .bus-no small { font-size: 11px; font-weight: 800; margin-left: 1px; }
 .bus-route { font-size: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .bus-arrow { color: var(--lime); font-weight: 900; }
+
+/* ── 조장 전용 체크인 카드 ── */
+.leader-card { border-radius: var(--radius-m); background: var(--paper); border: 1.5px solid var(--green); padding: 14px 16px; }
+.leader-kicker { font-size: 12px; font-weight: 800; color: var(--green); letter-spacing: .02em; }
+.leader-count b { font-size: 28px; font-weight: 900; }
+.leader-count span { font-size: 14px; color: var(--ink-2); margin-left: 2px; }

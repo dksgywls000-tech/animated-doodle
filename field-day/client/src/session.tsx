@@ -11,6 +11,8 @@ export interface Me {
   checkedInAt: string | null;
   isStaff: boolean;
   role: 'participant' | 'admin' | 'owner';
+  /** 조장 — 자기 조 체크인 현황을 볼 수 있음 */
+  isLeader?: boolean;
   csrfToken: string;
   demo: boolean;
 }

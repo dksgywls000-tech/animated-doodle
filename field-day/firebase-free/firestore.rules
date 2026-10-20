@@ -28,6 +28,8 @@ service cloud.firestore {
     // 최초 설정 중(같은 일괄 쓰기 안에서 config/public이 처음 만들어질 때)
     function settingUp() { return signedIn() && !exists(d('config', 'public')) && existsAfter(d('config', 'public')); }
     function isTeam(n) { return n is int && n >= 0 && n <= 8; }
+    // 조장: leaders/{pid} 문서가 있고 지금 자기 조와 같을 때(조를 옮기면 자동으로 권한 없음)
+    function leaderOf(t) { return active() && exists(d('leaders', myPid())) && get(d('leaders', myPid())).data.teamNumber == t && me().teamNumber == t; }
 
     // ── 공개 정보(행사 안내·일정·공지 한 문서) ──
     match /config/public {
@@ -76,7 +78,7 @@ service cloud.firestore {
     // ── 사람 ──
     match /participants/{pid} {
       allow get: if active() && (pid == myPid() || staff());
-      allow list: if staff();
+      allow list: if staff() || leaderOf(resource.data.teamNumber);   // 조장은 자기 조원만
       allow create: if (settingUp() && request.resource.data.role == 'owner')
         || owner()
         || (staff() && request.resource.data.role == 'participant');
@@ -125,7 +127,7 @@ service cloud.firestore {
     // 2단계: checkins/{pid} + tickets/{번호} 생성 — 번호는 반드시 풀(1~300번째) 또는 순번(301~)
     match /checkins/{pid} {
       allow get: if active() && (pid == myPid() || staff());
-      allow list: if staff();
+      allow list: if staff() || leaderOf(resource.data.teamNumber);
       allow create: if active() && pid == myPid()
         && request.resource.data.keys().hasOnly(['seq', 'ticket', 'teamNumber', 'at'])
         && request.resource.data.seq == get(d('claims', pid)).data.seq
@@ -161,7 +163,8 @@ service cloud.firestore {
         && request.resource.data.reason.trim().size() > 0
         && request.resource.data.actorId == myPid() && request.resource.data.actorName == me().name
         && request.resource.data.createdAt == request.time;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if owner();                 // 행사 전 전체 초기화(owner)
     }
     // 취소 비밀번호 확인: 같은 일괄 쓰기 안의 cancelChecks 문서 해시가 설정값과 같아야 함(누구도 읽을 수 없음)
     match /cancelChecks/{id} {
@@ -184,7 +187,8 @@ service cloud.firestore {
         && existsAfter(d('cancelChecks', request.resource.data.checkId))
         && !exists(d('cancelChecks', request.resource.data.checkId))
         && request.resource.data.createdAt == request.time;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if owner();
     }
 
     // ── 스크래치 쿠폰: coupons/{배포ID}_{pid} — 당첨 여부는 배포 때 관리자 기기에서 미리 뽑아 둔다 ──
@@ -203,6 +207,12 @@ service cloud.firestore {
       allow delete: if staff();
     }
 
+    match /leaders/{pid} {                      // 조장 지정 — 본인은 자기 문서만, 관리자는 전체
+      allow get: if active() && (pid == myPid() || staff());
+      allow list: if staff();
+      allow create, update: if staff() && request.resource.data.keys().hasOnly(['name', 'teamNumber', 'createdAt']) && isTeam(request.resource.data.teamNumber);
+      allow delete: if staff();
+    }
     match /couponExclude/{pid} {               // 당첨 제외 명단 — 관리자만 보고 고친다
       allow read: if staff();
       allow create, update: if staff() && request.resource.data.keys().hasOnly(['name', 'teamNumber', 'createdAt']);
@@ -249,6 +259,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow read: if staff();
       allow update: if staff() && onlyChanges(['status', 'handledBy']) && request.resource.data.status in ['open', 'resolved', 'dismissed'];
+      allow delete: if owner();
     }
 
     // ── 도움 요청 ──
@@ -262,6 +273,7 @@ service cloud.firestore {
         && request.resource.data.status == 'open' && request.resource.data.createdAt == request.time;
       allow read: if active() && (resource.data.requesterId == myPid() || staff());
       allow update: if staff() && onlyChanges(['status', 'updatedAt']) && request.resource.data.status in ['open', 'in_progress', 'done'];
+      allow delete: if owner();
     }
 
     // ── 감사 기록: 관리자가 남기고 owner만 읽음 ──

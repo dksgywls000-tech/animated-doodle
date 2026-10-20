@@ -184,6 +184,11 @@ function resolveChannel(me: Me, ch: string) {
 }
 const lastRead = (pid: string, ch: string) => Number(ls.get(`fd-read|${pid}|${ch}`) ?? 0);
 const markRead = (pid: string, ch: string) => ls.set(`fd-read|${pid}|${ch}`, String(Date.now()));
+/** 전체 초기화 이후 메시지만 보이게(다른 조 채팅은 owner도 읽을 수 없어 지우는 대신 기준 시각을 둔다) */
+async function chatSince(): Promise<Timestamp | null> {
+  const v = (await readPublic()).chatResetAt;
+  return v instanceof Timestamp ? v : typeof v === 'number' ? Timestamp.fromMillis(v) : null;
+}
 
 // ── 점수 ──
 export async function readLedger() {
@@ -206,6 +211,35 @@ async function board() {
     return { teamNumber: t, name: `${t}조`, total: mine.reduce((s, e) => s + e.points + (e.reversal?.points ?? 0), 0), activeAwards: mine.filter((e) => !e.reversal).length };
   });
   return teams.map((t) => ({ ...t, rank: 1 + teams.filter((o) => o.total > t.total).length }));
+}
+
+/** '이름' 또는 '이름 3조'를 줄바꿈·쉼표로 여러 명 받아 coll/{pid}에 {name, teamNumber} 저장 */
+async function addByNames(coll: 'couponExclude' | 'leaders', text: string) {
+  const added: string[] = []; const problems: string[] = [];
+  for (const raw of text.split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 100)) {
+    const mm = /^(.+?)\s*\(?\s*([0-8])\s*조?\s*\)?$/.exec(raw);
+    const name = normalizeName(mm ? mm[1] : raw); const team = mm ? Number(mm[2]) : null;
+    const found = (await getDocs(query(collection(db, 'participants'), where('name', '==', name)))).docs.filter((d) => team === null || d.data().teamNumber === team);
+    if (!found.length) { problems.push(`${raw}: 명단에 없음`); continue; }
+    if (found.length > 1) { problems.push(`${raw}: 같은 이름 ${found.length}명 — '${name} 3조'처럼 조를 붙여 주세요`); continue; }
+    const d = found[0];
+    await setDoc(doc(db, coll, d.id), { name: d.data().name, teamNumber: d.data().teamNumber, createdAt: serverTimestamp() });
+    added.push(`${d.data().name}(${teamLabel(d.data().teamNumber)})`);
+  }
+  return { added, problems };
+}
+
+/** 행운권: 입장 기록·번호·순번을 지우고 1~300을 새로 섞는다. 지운 입장 기록 수를 돌려준다 */
+async function resetTickets() {
+  const removed = (await getCountFromServer(collection(db, 'checkins'))).data().count;
+  const ops: ((bt: ReturnType<typeof writeBatch>) => void)[] = [];
+  for (const col of ['checkins', 'tickets', 'claims', 'slots']) {
+    const sn = await getDocs(collection(db, col));
+    sn.docs.forEach((d) => ops.push((bt) => bt.delete(d.ref)));
+  }
+  secureShuffle(300).forEach((n, i) => ops.push((bt) => bt.set(doc(db, 'pool', String(i + 1)), { n })));
+  await writeChunks(ops);
+  return removed;
 }
 
 // ── 명단 쓰기 도우미 ──
@@ -261,8 +295,9 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     const me = await currentMe(true);
     let ci = await getDoc(doc(db, 'checkins', me.pid));
     if (!ci.exists()) { await ensureTicket(me.pid, me.teamNumber); ci = await getDoc(doc(db, 'checkins', me.pid)); } // 행운권 초기화 직후 등
-    const emp = await getDoc(doc(db, 'employeeIds', me.pid)).catch(() => null);
+    const [emp, ld] = await Promise.all([getDoc(doc(db, 'employeeIds', me.pid)).catch(() => null), getDoc(doc(db, 'leaders', me.pid)).catch(() => null)]);
     return {
+      isLeader: !!ld?.exists() && ld.data()!.teamNumber === me.teamNumber,
       id: me.pid, name: me.name, employeeIdMasked: mask(emp?.data()?.employeeId ?? ''), teamNumber: me.teamNumber, teamName: teamLabel(me.teamNumber),
       seatNote: SEAT_NOTES[me.teamNumber] ?? '', ticketNumber: ci.data()?.ticket ?? null, checkedInAt: iso(ci.data(est)?.at),
       isStaff: me.role !== 'participant', role: me.role, csrfToken: '', demo: false,
@@ -306,7 +341,7 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
   if (is('GET', /^\/chat\/unread$/)) {
     const me = await currentMe();
     const count = async (ch: string) => {
-      const since = Timestamp.fromMillis(lastRead(me.pid, ch));
+      const since = Timestamp.fromMillis(Math.max(lastRead(me.pid, ch), (await chatSince())?.toMillis() ?? 0));
       return Math.min(99, (await getCountFromServer(query(collection(db, chatColl(ch)), where('createdAt', '>', since)))).data().count);
     };
     const [all, team] = await Promise.all([count('all'), count(`team:${me.teamNumber}`)]);
@@ -315,7 +350,8 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
   if ((m = is('GET', /^\/chat\/([^/]+)\/messages$/))) {
     const me = await currentMe(); const ch = resolveChannel(me, decodeURIComponent(m[1])); const coll = chatColl(ch);
     const before = q.get('before');
-    const parts = [orderBy('createdAt', 'desc'), ...(before ? [startAfter(Timestamp.fromDate(new Date(before.split('|')[0])))] : []), limit(50)];
+    const since = await chatSince();
+    const parts = [...(since ? [where('createdAt', '>', since)] : []), orderBy('createdAt', 'desc'), ...(before ? [startAfter(Timestamp.fromDate(new Date(before.split('|')[0])))] : []), limit(50)];
     const s = await getDocs(query(collection(db, coll), ...(parts as [])));
     const messages = s.docs.map((d) => toMessage(d, coll, me.pid)).reverse();
     return { channel: ch, messages, nextCursor: s.size === 50 ? `${messages[0].createdAt}|${messages[0].id}` : null };
@@ -417,21 +453,40 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     return { ok: true, eligible: pool.length, winners: count };
   }
   if (is('POST', /^\/admin\/coupon\/exclude$/)) {
-    // 당첨 제외 명단(관리자만 볼 수 있음). '이름' 또는 '이름 3조' 형식, 줄바꿈·쉼표로 여러 명
+    // 당첨 제외 명단(관리자만 볼 수 있음)
     const me = await staffOnly();
-    const added: string[] = []; const problems: string[] = [];
-    for (const raw of String(b.names ?? '').split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 100)) {
-      const mm = /^(.+?)\s*\(?\s*([0-8])\s*조?\s*\)?$/.exec(raw);
-      const name = normalizeName(mm ? mm[1] : raw); const team = mm ? Number(mm[2]) : null;
-      const found = (await getDocs(query(collection(db, 'participants'), where('name', '==', name)))).docs.filter((d) => team === null || d.data().teamNumber === team);
-      if (!found.length) { problems.push(`${raw}: 명단에 없음`); continue; }
-      if (found.length > 1) { problems.push(`${raw}: 같은 이름 ${found.length}명 — '${name} 3조'처럼 조를 붙여 주세요`); continue; }
-      const d = found[0];
-      await setDoc(doc(db, 'couponExclude', d.id), { name: d.data().name, teamNumber: d.data().teamNumber, createdAt: serverTimestamp() });
-      added.push(`${d.data().name}(${teamLabel(d.data().teamNumber)})`);
-    }
-    if (added.length) void auditLog(me, 'coupon_exclude', null, { count: added.length });
-    return { added, problems };
+    const r = await addByNames('couponExclude', String(b.names ?? ''));
+    if (r.added.length) void auditLog(me, 'coupon_exclude', null, { count: r.added.length });
+    return r;
+  }
+  // ── 조장: 자기 조 체크인 현황 ──
+  if (is('GET', /^\/admin\/leaders$/)) {
+    await staffOnly();
+    const sn = await getDocs(collection(db, 'leaders'));
+    return { people: sn.docs.map((d) => ({ pid: d.id, name: d.data().name as string, teamNumber: d.data().teamNumber as number })).sort((a, b) => a.teamNumber - b.teamNumber || a.name.localeCompare(b.name)) };
+  }
+  if (is('POST', /^\/admin\/leaders$/)) {
+    const me = await staffOnly();
+    const r = await addByNames('leaders', String(b.names ?? ''));
+    if (r.added.length) void auditLog(me, 'leader_add', null, { names: r.added });
+    return r;
+  }
+  if ((m = is('DELETE', /^\/admin\/leaders\/([^/]+)$/))) {
+    const me = await staffOnly(); await deleteDoc(doc(db, 'leaders', m[1])); void auditLog(me, 'leader_remove', m[1]); return { ok: true };
+  }
+  if (is('GET', /^\/team\/checkins$/)) {
+    const me = await currentMe();
+    const ld = await getDoc(doc(db, 'leaders', me.pid));
+    if (!ld.exists() || ld.data()!.teamNumber !== me.teamNumber) fail(403, 'forbidden', '조장만 볼 수 있습니다.');
+    const t = me.teamNumber;
+    const [ps, cs] = await Promise.all([
+      getDocs(query(collection(db, 'participants'), where('teamNumber', '==', t))),
+      getDocs(query(collection(db, 'checkins'), where('teamNumber', '==', t))),
+    ]);
+    const at = new Map(cs.docs.map((d) => [d.id, isoNow(d.data(est).at)]));
+    const people = ps.docs.filter((d) => d.data().active).map((d) => ({ id: d.id, name: d.data().name as string, checkedInAt: at.get(d.id) ?? null }))
+      .sort((a, b) => Number(!!a.checkedInAt) - Number(!!b.checkedInAt) || a.name.localeCompare(b.name));
+    return { teamNumber: t, total: people.length, checkedIn: people.filter((p) => p.checkedInAt).length, people, generatedAt: new Date().toISOString() };
   }
   if ((m = is('DELETE', /^\/admin\/coupon\/exclude\/([^/]+)$/))) {
     await staffOnly(); await deleteDoc(doc(db, 'couponExclude', m[1])); return { ok: true };
@@ -692,16 +747,31 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     if (b.confirm !== '초기화') fail(400, 'confirm', "확인 문구 '초기화'를 정확히 입력해 주세요.");
     try { await setDoc(doc(db, 'cancelChecks', rid()), { pwHash: await pwHash(String(b.password ?? '')), actorId: me.pid, createdAt: serverTimestamp() }); }
     catch (e) { if (isDenied(e)) fail(403, 'bad_password', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.'); throw e; }
-    const removed = (await getCountFromServer(collection(db, 'checkins'))).data().count;
-    const ops: ((bt: ReturnType<typeof writeBatch>) => void)[] = [];
-    for (const col of ['checkins', 'tickets', 'claims', 'slots']) {
-      const s = await getDocs(collection(db, col));
-      s.docs.forEach((d) => ops.push((bt) => bt.delete(d.ref)));
-    }
-    secureShuffle(300).forEach((n, i) => ops.push((bt) => bt.set(doc(db, 'pool', String(i + 1)), { n })));
-    await writeChunks(ops);
+    const removed = await resetTickets();
     void auditLog(me, 'tickets_reset', null, { removed });
     return { removed };
+  }
+  if (is('POST', /^\/owner\/reset-all$/)) {
+    // 행사 시작 전 전체 초기화 — 명단·권한·공지·일정·당첨 제외·조장 지정은 그대로
+    const me = await staffOnly(true);
+    if (b.confirm !== '초기화') fail(400, 'confirm', "확인 문구 '초기화'를 정확히 입력해 주세요.");
+    const want = { scores: true, tickets: true, coupons: true, chat: true, help: true, ...(b.parts ?? {}) } as Record<string, boolean>;
+    if (!Object.values(want).some(Boolean)) fail(400, 'nothing', '초기화할 항목을 하나 이상 선택해 주세요.');
+    try { await setDoc(doc(db, 'cancelChecks', rid()), { pwHash: await pwHash(String(b.password ?? '')), actorId: me.pid, createdAt: serverTimestamp() }); }
+    catch (e) { if (isDenied(e)) fail(403, 'bad_password', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.'); throw e; }
+    const done: Record<string, number> = {};
+    const wipe = async (cols: string[]) => {
+      let n = 0;
+      for (const col of cols) { const sn = await getDocs(collection(db, col)); n += sn.size; await writeChunks(sn.docs.map((d) => (bt) => bt.delete(d.ref))); }
+      return n;
+    };
+    if (want.coupons) { await editPublic(() => ({ coupon: null })); done.coupons = await wipe(['coupons']); }
+    if (want.scores) done.scores = await wipe(['reversals', 'awards']);
+    if (want.chat) { await editPublic(() => ({ chatResetAt: serverTimestamp() })); done.chat = await wipe(['reports']); }
+    if (want.help) done.help = await wipe(['help']);
+    if (want.tickets) done.tickets = await resetTickets();
+    void auditLog(me, 'reset_all', null, done);
+    return { done };
   }
   if (is('POST', /^\/owner\/cancel-password$/)) {
     await staffOnly(true);

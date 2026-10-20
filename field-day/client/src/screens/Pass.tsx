@@ -8,6 +8,7 @@ import { HelpSheet } from '../components/HelpSheet';
 import { IconBell, IconExpand, IconHelp, IconSeat } from '../components/Icons';
 import { Sheet } from '../components/Sheet';
 import { CouponCard } from './Coupon';
+import { TeamCheckins } from './TeamCheckins';
 import type { Announcement, ScheduleItem, NowNext, EventInfo } from '../types';
 
 export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean }) {
@@ -59,6 +60,8 @@ export function Pass({ go, fresh }: { go: (r: string) => void; fresh: boolean })
           </div>
         </div>
       </section>
+
+      {me.isLeader && <TeamCheckins />}
 
       <CouponCard />
 

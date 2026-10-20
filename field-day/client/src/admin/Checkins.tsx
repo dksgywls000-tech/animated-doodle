@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApi } from '../hooks';
 import { fmtFull, formatTicket, teamLabel } from '../util';
 import { AddPerson } from './AddPerson';
+import { Leaders } from './Leaders';
 
 interface Person { id: string; name: string; employeeId: string; teamNumber: number; role: string; active: boolean; ticketNumber: number | null; checkedInAt: string | null }
 
@@ -17,6 +18,7 @@ export function Checkins() {
       <div className="between"><h1 className="h-title">체크인 현황</h1><button className="btn btn-ghost btn-s" onClick={() => void reload()}>새로고침</button></div>
       <p className="small muted">입장 <b className="num">{data.checkedIn}</b> / 활성 명단 {data.total}명. 체크인은 최초 로그인 성공 시 기록됩니다.</p>
       <div style={{ margin: '12px 0' }}><AddPerson onAdded={() => void reload()} /></div>
+      <div style={{ margin: '12px 0' }}><Leaders /></div>
       <div className="checkin-strip" style={{ marginTop: 12 }}>
         {data.teams.map((c) => (
           <button key={c.teamNumber} className="c" style={{ textAlign: 'left', borderStyle: team === c.teamNumber ? 'solid' : 'dashed', borderColor: team === c.teamNumber ? 'var(--green)' : undefined }} onClick={() => setTeam(team === c.teamNumber ? 0 : c.teamNumber)} aria-pressed={team === c.teamNumber}>

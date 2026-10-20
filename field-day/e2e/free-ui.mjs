@@ -189,6 +189,18 @@ try {
   await p.bringToFront();
   await p.getByText('쿠폰이 잠겨 있어요').first().waitFor({ timeout: 15000 });
   ok(true, '초기화 후 참가자 쿠폰이 다시 잠김');
+  // 6-3. 조장 지정 → 조장만 자기 조 체크인 현황
+  ok(!(await p.locator('.leader-card').count()), '조장 지정 전에는 체크인 카드 없음');
+  await o.goto(BASE + '/#/admin/checkins');
+  await o.getByLabel('조장 이름').fill('참가일 3조');
+  await o.getByRole('button', { name: '조장으로 지정' }).click();
+  await o.getByRole('button', { name: '참가일 조장 해제' }).waitFor({ timeout: 15000 });
+  await p.bringToFront(); await p.reload();
+  await p.locator('.leader-card').waitFor({ timeout: 20000 });
+  ok((await p.locator('.leader-card').innerText()).includes('3조 체크인'), '조장 화면에 우리 조 체크인 현황 표시');
+  await p.locator('.leader-card').screenshot({ path: `${out}/free-leader.png` });
+  await p5.bringToFront(); await p5.reload(); await p5.locator('.ticket-no').waitFor({ timeout: 20000 });
+  ok(!(await p5.locator('.leader-card').count()), '일반 참가자에게는 표시 안 됨');
   // 7. 인원 추가 → 바로 입장
   await o.goto(BASE + '/#/admin/checkins');
   await o.getByLabel('이름', { exact: true }).fill('현장추가');
@@ -213,6 +225,23 @@ try {
   await p.goto(BASE + '/#/pass'); await p.reload();
   await p.locator('.ticket-no').waitFor({ timeout: 20000 });
   ok(/No\.\d{3}/.test(await p.locator('.ticket-no').innerText()), '초기화 후 참가자가 앱을 다시 열면 새 번호 표시');
+  // 9. 행사 시작 전 전체 초기화
+  await o.bringToFront(); await o.goto(BASE + '/#/admin/owner');
+  await o.getByRole('button', { name: '전체 초기화…' }).click();
+  const ra = o.getByRole('dialog');
+  await ra.getByLabel(/확인 문구/).fill('초기화');
+  await ra.getByLabel('점수 취소 비밀번호').fill('1234');
+  await ra.getByRole('button', { name: '5개 항목 초기화' }).click();
+  await o.getByText(/초기화 완료/).first().waitFor({ timeout: 30000 });
+  await o.goto(BASE + '/#/admin');
+  await o.locator('.team-card').first().waitFor({ timeout: 15000 });
+  ok(!(await o.locator('.team-card').allInnerTexts()).some((t) => /[1-9]\d*점/.test(t.replace(/\s/g, ''))), '전체 초기화 → 점수 0');
+  await p.bringToFront(); await p.goto(BASE + '/#/chat'); await p.reload();
+  await p.getByLabel('메시지 입력').waitFor({ timeout: 15000 }); await p.waitForTimeout(1500);
+  ok(!(await p.getByText('전체 방 실시간 테스트').count()), '전체 초기화 → 지난 채팅 안 보임');
+  await p.goto(BASE + '/#/pass');
+  await p.getByText('쿠폰이 잠겨 있어요').first().waitFor({ timeout: 15000 });
+  ok(true, '전체 초기화 → 쿠폰 잠김');
 } catch (e) {
   failed++; console.log('  ✗ 예외:', e.message.split('\n')[0]);
 }

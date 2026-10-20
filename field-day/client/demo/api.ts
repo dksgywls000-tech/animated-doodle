@@ -112,6 +112,19 @@ function log(s: State, q: URLSearchParams) {
     && (!status || e.status === status)).slice(0, limit);
 }
 
+function byNames(s: State, text: string) {
+  const added: string[] = []; const problems: string[] = []; const ids: string[] = [];
+  for (const raw of text.split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 100)) {
+    const mm = /^(.+?)\s*\(?\s*([0-8])\s*조?\s*\)?$/.exec(raw);
+    const name = (mm ? mm[1] : raw).normalize('NFC').trim(); const team = mm ? Number(mm[2]) : null;
+    const found = s.participants.filter((p) => p.name === name && (team === null || p.teamNumber === team));
+    if (!found.length) { problems.push(`${raw}: 명단에 없음`); continue; }
+    if (found.length > 1) { problems.push(`${raw}: 같은 이름 ${found.length}명 — '${name} 3조'처럼 조를 붙여 주세요`); continue; }
+    ids.push(found[0].id); added.push(`${found[0].name}(${found[0].teamNumber ? found[0].teamNumber + '조' : '운영진'})`);
+  }
+  return { added, problems, ids };
+}
+
 function checkin(s: State, p: P) {
   const ex = s.checkins.find((c) => c.participantId === p.id);
   if (ex) return { ...ex, isNew: false };
@@ -183,17 +196,40 @@ function route(s: State, method: string, url: string, b: any): unknown {
     return { ok: true, eligible: pool.length, winners: count };
   }
   if (M('POST', /^\/admin\/coupon\/exclude$/)) {
-    admin(s); const added: string[] = []; const problems: string[] = [];
-    for (const raw of String(b.names ?? '').split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 100)) {
-      const mm = /^(.+?)\s*\(?\s*([0-8])\s*조?\s*\)?$/.exec(raw);
-      const name = (mm ? mm[1] : raw).normalize('NFC').trim(); const team = mm ? Number(mm[2]) : null;
-      const found = s.participants.filter((p) => p.name === name && (team === null || p.teamNumber === team));
-      if (!found.length) { problems.push(`${raw}: 명단에 없음`); continue; }
-      if (found.length > 1) { problems.push(`${raw}: 같은 이름 ${found.length}명 — '${name} 3조'처럼 조를 붙여 주세요`); continue; }
-      s.couponExclude = [...new Set([...(s.couponExclude ?? []), found[0].id])];
-      added.push(`${found[0].name}(${found[0].teamNumber ? found[0].teamNumber + '조' : '운영진'})`);
-    }
-    return { added, problems };
+    admin(s); const r = byNames(s, String(b.names ?? ''));
+    s.couponExclude = [...new Set([...(s.couponExclude ?? []), ...r.ids])]; return { added: r.added, problems: r.problems };
+  }
+  if (M('GET', /^\/admin\/leaders$/)) {
+    admin(s);
+    return { people: (s.leaders ?? []).map((id) => s.participants.find((x) => x.id === id)).filter((p): p is P => !!p).map((p) => ({ pid: p.id, name: p.name, teamNumber: p.teamNumber })) };
+  }
+  if (M('POST', /^\/admin\/leaders$/)) {
+    admin(s); const r = byNames(s, String(b.names ?? ''));
+    s.leaders = [...new Set([...(s.leaders ?? []), ...r.ids])]; return { added: r.added, problems: r.problems };
+  }
+  if ((m = M('DELETE', /^\/admin\/leaders\/([^/]+)$/))) { admin(s); s.leaders = (s.leaders ?? []).filter((x) => x !== m![1]); return { ok: true }; }
+  if (M('GET', /^\/team\/checkins$/)) {
+    const p = me(s);
+    if (!(s.leaders ?? []).includes(p.id)) fail(403, 'forbidden', '조장만 볼 수 있습니다.');
+    const people = s.participants.filter((x) => x.active && x.teamNumber === p.teamNumber)
+      .map((x) => ({ id: x.id, name: x.name, checkedInAt: s.checkins.find((c) => c.participantId === x.id)?.at ?? null }))
+      .sort((a, c) => Number(!!a.checkedInAt) - Number(!!c.checkedInAt) || a.name.localeCompare(c.name));
+    return { teamNumber: p.teamNumber, total: people.length, checkedIn: people.filter((x) => x.checkedInAt).length, people, generatedAt: now() };
+  }
+  if (M('POST', /^\/owner\/reset-all$/)) {
+    const o = owner(s);
+    if (b.confirm !== '초기화') fail(400, 'confirm', "확인 문구 '초기화'를 정확히 입력해 주세요.");
+    if (b.password !== CANCEL_PASSWORD) fail(403, 'bad_password', '비밀번호가 맞지 않습니다. 아무것도 지워지지 않았습니다.');
+    const want = { scores: true, tickets: true, coupons: true, chat: true, help: true, ...(b.parts ?? {}) } as Record<string, boolean>;
+    const done: Record<string, number> = {};
+    if (want.scores) { done.scores = s.awards.length + s.reversals.length; s.awards = []; s.reversals = []; }
+    if (want.coupons) { done.coupons = s.coupon?.entries.length ?? 0; s.coupon = null; }
+    if (want.chat) { done.chat = s.reports.length; s.messages = []; s.reports = []; }
+    if (want.help) { done.help = s.help.length; s.help = []; }
+    if (want.tickets) { done.tickets = s.checkins.length; s.checkins = []; s.nextSeq = 1; s.pool = shuffle(300); }
+    audit(s, o, 'reset_all', null, done);
+    pub('public', 'public_changed', { what: 'all' }); pub('admin', 'scores_changed');
+    return { done };
   }
   if ((m = M('DELETE', /^\/admin\/coupon\/exclude\/([^/]+)$/))) {
     admin(s); s.couponExclude = (s.couponExclude ?? []).filter((x) => x !== m![1]); return { ok: true };
@@ -231,7 +267,7 @@ function route(s: State, method: string, url: string, b: any): unknown {
   if (M('GET', /^\/me$/)) {
     const p = me(s); const c = s.checkins.find((x) => x.participantId === p.id) ?? (checkin(s, p), s.checkins.find((x) => x.participantId === p.id));
     return { id: p.id, name: p.name, employeeIdMasked: mask(p.employeeId), teamNumber: p.teamNumber, teamName: p.teamNumber === 0 ? '운영진' : `${p.teamNumber}조`, seatNote: SEAT_NOTES[p.teamNumber],
-      ticketNumber: c?.ticket ?? null, checkedInAt: c?.at ?? null, isStaff: isStaff(p), role: p.role, csrfToken: 'demo', demo: true };
+      ticketNumber: c?.ticket ?? null, checkedInAt: c?.at ?? null, isStaff: isStaff(p), role: p.role, isLeader: (s.leaders ?? []).includes(p.id), csrfToken: 'demo', demo: true };
   }
   if (M('GET', /^\/home$/)) {
     const p = me(s); const items = sched(s); const nn = nowNext(s, items);

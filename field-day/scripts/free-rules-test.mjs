@@ -241,6 +241,29 @@ await rejects(setDoc(doc(p.db, 'couponExclude', p.pid), { name: 'x', teamNumber:
 await setDoc(doc(adm.db, 'couponExclude', cheat.pid), { name: '참가오', teamNumber: 5, createdAt: serverTimestamp() });
 ok((await getDocs(collection(adm.db, 'couponExclude'))).size === 1, '관리자 제외 명단 추가·조회');
 await deleteDoc(doc(adm.db, 'couponExclude', cheat.pid));
+// 조장: 자기 조 체크인만
+{
+  await rejects(getDocs(query(collection(p.db, 'participants'), where('teamNumber', '==', 3))), '조장 지정 전에는 조원 목록 불가');
+  await rejects(setDoc(doc(p.db, 'leaders', p.pid), { name: '참가일', teamNumber: 3, createdAt: serverTimestamp() }), '스스로 조장 지정 불가');
+  await setDoc(doc(adm.db, 'leaders', p.pid), { name: '참가일', teamNumber: 3, createdAt: serverTimestamp() });
+  const mates = await getDocs(query(collection(p.db, 'participants'), where('teamNumber', '==', 3)));
+  const ins = await getDocs(query(collection(p.db, 'checkins'), where('teamNumber', '==', 3)));
+  ok(mates.size > 1 && mates.docs.every((d) => d.data().teamNumber === 3) && ins.size >= 1, `조장은 자기 조원 ${mates.size}명·입장 ${ins.size}명 조회`);
+  await rejects(getDocs(query(collection(p.db, 'participants'), where('teamNumber', '==', 5))), '조장도 다른 조 목록은 불가');
+  await rejects(getDocs(collection(p.db, 'participants')), '조장도 전체 명단은 불가');
+  await rejects(getDocs(query(collection(p.db, 'employeeIds'))), '조장도 사번 열람 불가');
+  await rejects(getDocs(query(collection(cheat.db, 'checkins'), where('teamNumber', '==', 5))), '조장이 아니면 자기 조도 불가');
+  await deleteDoc(doc(adm.db, 'leaders', p.pid));
+  await rejects(getDocs(query(collection(p.db, 'participants'), where('teamNumber', '==', 3))), '조장 해제 후 다시 불가');
+}
+// 전체 초기화: 점수 기록은 owner만 지울 수 있음
+{
+  const aw = await getDocs(collection(adm.db, 'awards'));
+  if (aw.size) await rejects(deleteDoc(aw.docs[0].ref), '일반 관리자는 점수 기록 삭제 불가');
+  for (const d of (await getDocs(collection(o.db, 'reversals'))).docs) await deleteDoc(d.ref);
+  for (const d of aw.docs) await deleteDoc(doc(o.db, 'awards', d.id));
+  ok((await getDocs(collection(o.db, 'awards'))).size === 0, 'owner는 점수 기록 전체 삭제 가능');
+}
 // 초기화(owner)
 const reset = async () => {
   const ops = [];

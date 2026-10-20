@@ -27,7 +27,7 @@ export function Owner() {
       <h1 className="h-title">명단·권한 (owner)</h1>
       <p className="xs muted" style={{ marginBottom: 16 }}>명단과 관리자 권한 변경은 모두 감사 기록에 남습니다. 행운권·점수 기록은 명단 재업로드로 초기화되지 않습니다.</p>
       <div className="grid-2">
-        <div className="stack"><RosterUpload /><ResetTickets /><CancelPassword /><Exports /></div>
+        <div className="stack"><RosterUpload /><ResetAll /><ResetTickets /><CancelPassword /><Exports /></div>
         <div className="stack"><People /><Audit /></div>
       </div>
     </div>
@@ -200,6 +200,61 @@ function Audit() {
 }
 
 /** 테스트용: 행운권 정보 전체 초기화 (owner) */
+const RESET_PARTS = [
+  ['scores', '점수', '모든 점수 부여·취소 기록'],
+  ['tickets', '행운권', '번호·입장 기록 삭제, 1~300 새로 섞기'],
+  ['coupons', '스크래치 쿠폰', '배포·당첨·긁은·수령 기록'],
+  ['chat', '채팅', '전체·조 채팅방의 지난 메시지와 신고'],
+  ['help', '도움 요청', '참가자가 보낸 요청'],
+] as const;
+
+/** 행사 시작 전 전체 초기화 — 명단·권한·공지·일정·조장·당첨 제외 명단은 그대로 둔다 */
+function ResetAll() {
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [parts, setParts] = useState<Record<string, boolean>>(() => Object.fromEntries(RESET_PARTS.map(([k]) => [k, true])));
+  const [confirm, setConfirm] = useState('');
+  const [pw, setPw] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const picked = RESET_PARTS.filter(([k]) => parts[k]);
+  const run = async () => {
+    setBusy(true); setErr(null);
+    try {
+      await api('POST', '/api/owner/reset-all', { confirm, password: pw, parts });
+      toast(`초기화 완료: ${picked.map(([, l]) => l).join('·')}`);
+      setOpen(false); setConfirm(''); setPw('');
+    } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); }
+  };
+  return (
+    <section className="panel">
+      <h2 className="h-sec">행사 시작 전 전체 초기화</h2>
+      <p className="xs muted" style={{ marginTop: 4 }}>리허설·테스트 기록을 한 번에 지웁니다. <b>명단·권한·공지·일정·조장 지정·쿠폰 당첨 제외 명단은 그대로</b>입니다. 이미 입장한 사람은 앱을 다시 열면 새 행운권 번호를 받습니다.</p>
+      <button className="btn btn-danger btn-s" style={{ marginTop: 10 }} onClick={() => setOpen(true)}>전체 초기화…</button>
+      {open && (
+        <Sheet title="행사 시작 전 전체 초기화" onClose={() => setOpen(false)} closeDisabled={busy}
+          footer={<button className="btn btn-danger btn-block" disabled={busy || confirm !== '초기화' || !pw || !picked.length} onClick={() => void run()}>{busy ? '초기화 중…' : `${picked.length}개 항목 초기화`}</button>}>
+          <div className="warn-card"><b>되돌릴 수 없습니다.</b> 실제 입장이 시작되기 <b>전에만</b> 사용하세요.</div>
+          <fieldset style={{ border: 0, padding: 0, margin: '14px 0 0' }}>
+            <legend className="label" style={{ marginBottom: 6 }}>지울 항목</legend>
+            {RESET_PARTS.map(([k, l, d]) => (
+              <label key={k} className="list-row" style={{ gap: 10, justifyContent: 'flex-start', cursor: 'pointer' }}>
+                <input type="checkbox" checked={parts[k]} onChange={(e) => setParts((p) => ({ ...p, [k]: e.target.checked }))} aria-label={`${l} 초기화`} />
+                <span><b>{l}</b> <span className="xs muted">{d}</span></span>
+              </label>
+            ))}
+          </fieldset>
+          <label className="field" style={{ marginTop: 14 }}><span className="label">확인 문구: <b>초기화</b> 라고 입력</span>
+            <input className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} /></label>
+          <label className="field" style={{ marginTop: 12 }}><span className="label">점수 취소 비밀번호</span>
+            <input className="input" type="password" inputMode="numeric" autoComplete="off" value={pw} onChange={(e) => setPw(e.target.value)} /></label>
+          {err && <div className="form-error" role="alert" style={{ marginTop: 12 }}>{err}</div>}
+        </Sheet>
+      )}
+    </section>
+  );
+}
+
 function ResetTickets() {
   const toast = useToast();
   const [open, setOpen] = useState(false);
