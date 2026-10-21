@@ -751,6 +751,46 @@ async function route(method: string, url: string, b: any): Promise<unknown> {
     void auditLog(me, 'tickets_reset', null, { removed });
     return { removed };
   }
+  if (is('GET', /^\/owner\/result$/)) {
+    // 행사 결과 모으기 — 초기화로 지워졌어도 남는 기록(접속 연결·감사 로그·명단)까지 함께 본다
+    await staffOnly(true);
+    const all = (c: string) => getDocs(collection(db, c)).catch(() => null);
+    const [ps, emps, cis, bds, aud, cps, tks] = await Promise.all([
+      getDocs(collection(db, 'participants')), all('employeeIds'), all('checkins'), all('bindings'),
+      getDocs(query(collection(db, 'audit'), orderBy('createdAt', 'asc'))), all('coupons'), all('tickets'),
+    ]);
+    const ms = (v: unknown) => (v instanceof Timestamp ? v.toMillis() : typeof v === 'number' ? v : null);
+    const emp = new Map(emps?.docs.map((d) => [d.id, d.data().employeeId as string]) ?? []);
+    const ci = new Map(cis?.docs.map((d) => [d.id, d.data(est)]) ?? []);
+    const seen = new Map<string, number>();                       // 이 기기로 입장(로그인)한 기록
+    bds?.docs.forEach((d) => { const x = d.data(est); const t = ms(x.createdAt); if (x.pid && t) seen.set(x.pid, Math.min(seen.get(x.pid) ?? t, t)); });
+    const audits = aud.docs.map((d) => { const x = d.data(est); return { at: ms(x.createdAt) ?? 0, action: x.action as string, target: (x.target ?? null) as string | null, actor: x.actorName as string, detail: x.detail }; });
+    const owners = new Map<number, string>();                     // 행운권 번호 → pid
+    tks?.docs.forEach((d) => owners.set(Number(d.id), d.data().pid));
+    cis?.docs.forEach((d) => { if (!owners.has(d.data().ticket)) owners.set(d.data().ticket, d.id); });
+    const lookups = audits.filter((a) => a.action === 'ticket_lookup').map((a) => ({ n: Number(a.target), at: a.at }));
+    const drawn = new Map<string, { n: number; at: number }>();
+    const unmatched: { n: number; at: number }[] = [];
+    for (const l of lookups) { const pid = owners.get(l.n); if (pid) { if (!drawn.has(pid)) drawn.set(pid, l); } else unmatched.push(l); }
+    const couponWin = new Map<string, { claimed: boolean }>();
+    cps?.docs.forEach((d) => { const x = d.data(); if (x.win) couponWin.set(x.pid, { claimed: !!x.claimedAt || couponWin.get(x.pid)?.claimed === true }); });
+    audits.filter((a) => a.action === 'coupon_claim' && a.target).forEach((a) => couponWin.set(a.target!, { claimed: true }));
+    const rows = ps.docs.map((d) => {
+      const x = d.data(); const c = ci.get(d.id);
+      const first = Math.min(ms(c?.at) ?? Infinity, seen.get(d.id) ?? Infinity);
+      return {
+        id: d.id, employeeId: emp.get(d.id) ?? '', name: x.name as string, teamNumber: x.teamNumber as number, role: x.role as string, active: !!x.active,
+        attended: Number.isFinite(first), firstAt: Number.isFinite(first) ? new Date(first).toISOString() : null,
+        ticket: (c?.ticket as number | undefined) ?? null, drawnAt: drawn.get(d.id) ? new Date(drawn.get(d.id)!.at).toISOString() : null,
+        couponWin: couponWin.has(d.id), couponClaimed: couponWin.get(d.id)?.claimed ?? false,
+      };
+    }).sort((a, b) => (a.teamNumber || 9) - (b.teamNumber || 9) || a.name.localeCompare(b.name));
+    const resets = audits.filter((a) => ['reset_all', 'tickets_reset', 'coupon_reset'].includes(a.action)).map((a) => ({ at: new Date(a.at).toISOString(), action: a.action, actor: a.actor, detail: a.detail }));
+    return {
+      rows, resets, unmatched: unmatched.map((u) => ({ n: u.n, at: new Date(u.at).toISOString() })),
+      counts: { checkins: cis?.size ?? 0, bindings: bds?.size ?? 0, lookups: lookups.length, coupons: cps?.size ?? 0, audit: audits.length },
+    };
+  }
   if (is('POST', /^\/owner\/reset-all$/)) {
     // 행사 시작 전 전체 초기화 — 명단·권한·공지·일정·당첨 제외·조장 지정은 그대로
     const me = await staffOnly(true);

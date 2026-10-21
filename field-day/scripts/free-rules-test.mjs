@@ -264,6 +264,10 @@ await deleteDoc(doc(adm.db, 'couponExclude', cheat.pid));
   for (const d of aw.docs) await deleteDoc(doc(o.db, 'awards', d.id));
   ok((await getDocs(collection(o.db, 'awards'))).size === 0, 'owner는 점수 기록 전체 삭제 가능');
 }
+// 행사 결과용 접속 기록 목록 — owner만
+await rejects(getDocs(collection(adm.db, 'bindings')), '관리자도 접속 기록 목록 불가');
+await rejects(getDocs(collection(p.db, 'bindings')), '참가자 접속 기록 목록 불가');
+ok((await getDocs(collection(o.db, 'bindings'))).size > 3, 'owner는 접속 기록 목록 조회(참가 여부 확인용)');
 // 초기화(owner)
 const reset = async () => {
   const ops = [];

@@ -213,6 +213,16 @@ try {
   ok(await n.locator('.ticket-team .big').innerText() === '운영진', '관리자 화면에서 추가한 사람이 바로 입장 (운영진)');
   await o.screenshot({ path: `${out}/free-addperson.png`, fullPage: true });
 
+  // 7-1. 행사 결과 받기(초기화 전): 행운권 조회 기록 → 이름
+  await o.bringToFront(); await o.goto(BASE + '/#/admin/owner');
+  await o.getByRole('button', { name: '결과 불러오기' }).click();
+  await o.getByText(/참가 \d+명/).first().waitFor({ timeout: 20000 });
+  const res1 = await o.locator('section:has-text("행사 결과 받기")').innerText();
+  ok(res1.includes(`No.${Number(ticket)}`) && res1.includes('참가일'), `행사 결과: 행운권 조회 ${Number(ticket)}번 → 참가일`);
+  const dl = o.waitForEvent('download');
+  await o.getByRole('button', { name: /전체 명단 CSV/ }).click();
+  const dlf = await dl; const csvText = (await import('node:fs')).readFileSync(await dlf.path(), 'utf8');
+  ok(csvText.includes('참가일') && csvText.includes('사번,이름,조'), `전체 명단 CSV 다운로드 (${dlf.suggestedFilename()})`);
   // 8. 행운권 초기화 → 다시 열면 새 번호
   await o.goto(BASE + '/#/admin/owner');
   await o.getByRole('button', { name: '행운권 초기화…' }).click();
@@ -242,6 +252,14 @@ try {
   await p.goto(BASE + '/#/pass');
   await p.getByText('쿠폰이 잠겨 있어요').first().waitFor({ timeout: 15000 });
   ok(true, '전체 초기화 → 쿠폰 잠김');
+  // 10. 초기화 뒤에도 결과 받기: 초기화 기록 경고 + 접속 기록으로 참가 판정
+  await o.bringToFront(); await o.goto(BASE + '/#/admin/owner');
+  await o.getByRole('button', { name: '결과 불러오기' }).click();
+  await o.getByText('초기화 기록이 있습니다').first().waitFor({ timeout: 20000 });
+  const res2 = await o.locator('section:has-text("행사 결과 받기")').innerText();
+  const att = Number(/참가 (\d+)명/.exec(res2)?.[1] ?? 0);
+  ok(att >= 4, `초기화 후에도 접속 기록으로 참가 ${att}명 확인 + 초기화 경고`);
+  await o.locator('section:has-text("행사 결과 받기")').screenshot({ path: `${out}/free-result.png` });
 } catch (e) {
   failed++; console.log('  ✗ 예외:', e.message.split('\n')[0]);
 }

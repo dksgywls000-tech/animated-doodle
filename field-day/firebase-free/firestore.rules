@@ -66,6 +66,7 @@ service cloud.firestore {
     }
     match /bindings/{uid} {
       allow get: if signedIn() && uid == request.auth.uid;
+      allow list: if owner();                   // 행사 결과(누가 입장했는지) 확인용
       allow create, update: if signedIn() && uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['pid', 'key', 'createdAt'])
         && (exists(d('loginIndex', request.resource.data.key)) || existsAfter(d('loginIndex', request.resource.data.key)))

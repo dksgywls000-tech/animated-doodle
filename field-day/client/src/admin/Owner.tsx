@@ -5,6 +5,7 @@ import { useMe } from '../session';
 import { fmtFull, teamLabel } from '../util';
 import { Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
+import { EventResult } from './EventResult';
 
 interface Preview {
   inserts: number; updates: { line: number; name: string; teamNumber: number; changes: string[] }[];
@@ -27,7 +28,7 @@ export function Owner() {
       <h1 className="h-title">명단·권한 (owner)</h1>
       <p className="xs muted" style={{ marginBottom: 16 }}>명단과 관리자 권한 변경은 모두 감사 기록에 남습니다. 행운권·점수 기록은 명단 재업로드로 초기화되지 않습니다.</p>
       <div className="grid-2">
-        <div className="stack"><RosterUpload /><ResetAll /><ResetTickets /><CancelPassword /><Exports /></div>
+        <div className="stack"><EventResult /><RosterUpload /><ResetAll /><ResetTickets /><CancelPassword /><Exports /></div>
         <div className="stack"><People /><Audit /></div>
       </div>
     </div>
