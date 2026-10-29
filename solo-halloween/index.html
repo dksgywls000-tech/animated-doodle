@@ -552,6 +552,37 @@
   .rstep{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0}
   .rstep button{width:42px;height:42px;border-radius:50%;border:1px solid rgba(246,208,138,.35);background:transparent;font-size:18px;cursor:pointer}
   .rstep b{font-family:var(--serif);font-size:20px;color:var(--gold);min-width:110px;text-align:center}
+  .letter .lt{flex:1;min-width:0;line-height:1.5}
+  .letter .lt small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .letter.sent{background:rgba(63,184,168,.07)}
+  .ig{color:var(--gold);font-weight:700;text-decoration:none}
+  .ig.none{color:var(--muted);font-weight:400}
+  .mini{flex:0 0 auto;min-height:34px;padding:0 11px;border-radius:99px;border:1px solid rgba(246,208,138,.4);background:transparent;color:var(--bone);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .mini.gold{background:linear-gradient(180deg,#f3d08c,#b47a2c);color:#2a1204;border-color:#ffe2a8}
+  .mini:disabled{opacity:.5}
+  .qbtn.rules{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;min-height:64px;background:linear-gradient(120deg,rgba(123,79,176,.2),rgba(20,9,6,.6))}
+  .ubadge{min-width:24px;height:24px;padding:0 7px;border-radius:99px;background:#d6304a;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .srow[data-open]{cursor:pointer}
+  .room-h{position:sticky;top:calc(56px + env(safe-area-inset-top));z-index:6;display:flex;align-items:center;gap:10px;padding:10px 0;background:linear-gradient(180deg,rgba(11,6,5,.96) 75%,rgba(11,6,5,0))}
+  .room-h .back{margin:0;width:38px;padding:0;justify-content:center}
+  .room-h .e{font-size:30px}
+  .room-h .rw b{display:block;font-family:var(--round);font-weight:600;font-size:18px}
+  .room-h .rw i{font-style:normal;font-size:11.5px;color:var(--muted)}
+  .msgs{display:flex;flex-direction:column;gap:8px;padding:6px 0 16px;min-height:50vh}
+  .msg{display:flex;align-items:flex-end;gap:6px;max-width:82%}
+  .msg span{padding:10px 13px;border-radius:16px 16px 16px 4px;background:rgba(255,246,234,.1);font-family:var(--story);font-size:15px;line-height:1.55;word-break:break-word;white-space:pre-wrap}
+  .msg time{font-size:10px;color:var(--muted);flex:0 0 auto}
+  .msg.me{align-self:flex-end;flex-direction:row-reverse}
+  .msg.me span{border-radius:16px 16px 4px 16px;background:linear-gradient(180deg,#6a0c16,#3a060c);border:1px solid rgba(246,208,138,.3)}
+  .sendbar{position:sticky;bottom:calc(78px + env(safe-area-inset-bottom));display:flex;gap:8px;padding:10px 0;background:linear-gradient(0deg,rgba(11,6,5,.98) 70%,rgba(11,6,5,0))}
+  .sendbar .inp{flex:1;min-height:46px}
+  .sendbar .btn{width:auto;padding:0 16px;min-height:46px}
+  .cdbig{font-family:var(--serif);font-size:54px;letter-spacing:.04em;margin:8px 0 4px;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+  .vbig{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:2px 0 8px}
+  .vbig small{font-family:var(--story);font-size:13px;color:var(--muted)}
+  .vbig b{font-family:var(--serif);font-size:58px;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .vbig span{font-family:var(--round);color:var(--gold);font-size:16px}
+  nav.tabs button{font-size:10.5px}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
 </head>
@@ -623,7 +654,8 @@
   <nav class="tabs" role="tablist">
     <button role="tab" data-t="home" aria-selected="true"><span class="g">🏰</span>로비</button>
     <button role="tab" data-t="souls" aria-selected="false"><span class="g">👻</span>영혼들</button>
-    <button role="tab" data-t="vote" aria-selected="false"><span class="g">👑</span>베스트드레서</button>
+    <button role="tab" data-t="chat" aria-selected="false"><span class="g">💬</span>밀담</button>
+    <button role="tab" data-t="vote" aria-selected="false"><span class="g">👑</span>드레서</button>
     <button role="tab" data-t="match" aria-selected="false"><span class="g">🩸</span>운명의 실</button>
     <button role="tab" data-t="rooms" aria-selected="false"><span class="g">🔮</span>방들</button>
   </nav>
@@ -652,7 +684,8 @@ const CONFIG={
   MOVE_SEC:120,    // 테이블 이동 시간
   PICKS_MAX:3,     // 운명의 실: 최대 지망 수
   CANDY_MAX:5,     // 호박사탕: 1인당 보낼 수 있는 개수
-  LETTER_MAX:5     // 박쥐편지: 1인당 보낼 수 있는 통수
+  LETTER_MAX:5,    // 박쥐편지: 1인당 보낼 수 있는 통수
+  REVEAL_DELAY_MIN:30  // 운명의 실: '종료'를 누르고 몇 분 뒤에 결과 공개
 };
 /* 참가자 명단 — 실명·생년월일은 해시로만 저장됩니다.
    관리자 화면 › "명단 만들기"에 "이름 생년월일 성별"을 붙여넣으면 이 배열이 생성됩니다. */
@@ -737,8 +770,30 @@ const Store={
         if(!r.ok) throw new Error(r.status);
       }catch(e){ toast('🦇 연결이 불안정해요. 잠시 후 다시 시도해 주세요'); throw e; }
     }else LS.set(K('db'),this.data);
+    this.notify();
   },
-  start(){ clearInterval(this.timer); this.timer=setInterval(()=>{ if(!document.hidden) this.pull(); },this.remote?5000:2500); }
+  // 원격: Firebase 실시간 스트림(EventSource)으로 바뀐 부분만 받음. 로컬: 2.5초마다 읽기
+  start(){
+    clearInterval(this.timer);
+    if(this.remote&&window.EventSource){
+      if(!this.es){
+        const es=new EventSource(this.base()+'.json'); this.es=es;
+        const on=(e,patch)=>{ try{ const m=JSON.parse(e.data); if(m) this.apply(m.path,m.data,patch); }catch(_){} this.notify(); };
+        es.addEventListener('put',e=>on(e,false)); es.addEventListener('patch',e=>on(e,true));
+      }
+      this.timer=setInterval(()=>{ if(!document.hidden&&this.es.readyState!==1) this.pull(); },20000);
+    }else this.timer=setInterval(()=>{ if(!document.hidden) this.pull(); },this.remote?5000:2500);
+  },
+  apply(path,data,patch){
+    const ks=path.split('/').filter(Boolean);
+    if(!ks.length){ if(patch) Object.entries(data||{}).forEach(([k,v])=>{ if(v==null) delete this.data[k]; else this.data[k]=v; }); else this.data=data||{}; return; }
+    let o=this.data;
+    for(let i=0;i<ks.length-1;i++){ o[ks[i]]=o[ks[i]]&&typeof o[ks[i]]==='object'?o[ks[i]]:{}; o=o[ks[i]]; }
+    const last=ks[ks.length-1];
+    if(patch){ o[last]=o[last]&&typeof o[last]==='object'?o[last]:{}; Object.entries(data||{}).forEach(([k,v])=>{ if(v==null) delete o[last][k]; else o[last][k]=v; }); }
+    else if(data==null) delete o[last]; else o[last]=data;
+  },
+  notify(){ clearTimeout(this.nt); this.nt=setTimeout(()=>this.listeners.forEach(f=>f()),120); }
 };
 window.addEventListener('storage',e=>{ if(e.key===K('db')) Store.pull(); });
 
@@ -888,7 +943,9 @@ function playIntro(){
     if(srcs.length){
       v.innerHTML=srcs.map(u=>'<source src="'+esc(u)+'" type="video/mp4">').join(''); v.load(); v.muted=false;
       // 영상을 못 불러오면 play()가 끝나지 않을 수 있어 3초 제한을 둠
-      const tryPlay=()=>Promise.race([v.play().then(()=>true),sleep(3000).then(()=>{ throw new Error('timeout'); })]);
+      // 마지막 소스까지 실패하면 바로 넘어감
+      const allFail=new Promise(res=>{ const last=v.querySelector('source:last-of-type'); if(last) last.addEventListener('error',()=>res(false),{once:true}); });
+      const tryPlay=()=>Promise.race([v.play().then(()=>true),allFail,sleep(3000).then(()=>{ throw new Error('timeout'); })]);
       try{ ok=await tryPlay(); }catch(e){ if(e.message!=='timeout'){ try{ v.muted=true; ok=await tryPlay(); }catch(_){} } }
       if(ok) v.classList.add('on'); else { try{ v.pause(); }catch(_){} }
     }
@@ -914,6 +971,23 @@ function batBurst(){
 }
 
 /* ════════════════ 캐릭터 대화 (게임식) ════════════════ */
+const RULE_LINES=[
+  {c:'jack',t:'먼저 오늘의 진행! 운영진이 라운드를 시작하면 로비의 <b>시계</b>가 흐르고, 대화가 끝나면 <b>🔔 종</b>이 울려. 그럼 다음 테이블로 이동!'},
+  {c:'jack',t:'이동할 때마다 방금 테이블에서 기억하고 싶은 영혼에 <b>★</b>를 남겨둬. 나만 보이고, 마지막에 고를 때 맨 위에 나와.'},
+  {c:'pipi',t:'삐익! 삐이익! 난 박쥐 우체부 <b>피피</b>야! 내가 배달하는 건 두 가지야.'},
+  {c:'pipi',t:'첫째, <b>🍬 호박사탕</b>! 사탕엔 <em>네 닉네임이 적혀서</em> 가. 받은 사람은 누가 줬는지 바로 알 수 있어.'},
+  {c:'pipi',t:'받은 사탕에 <b>사탕을 돌려주면</b>… 짜잔! 두 사람만 들어갈 수 있는 <b>💬 밀담의 방</b>이 열려. 파티 한가운데서도 둘만 몰래 대화할 수 있지!'},
+  {c:'pipi',t:'둘째, <b>🦇 박쥐편지</b>! 편지는 <em>익명</em>이야. 대신 도착하는 순간 <b>서로의 인스타 아이디</b>가 공유돼. 누군지는… 인스타를 보고 맞혀봐!'},
+  {c:'pipi',t:'사탕은 <b>'+CONFIG.CANDY_MAX+'개</b>, 편지는 <b>'+CONFIG.LETTER_MAX+'통</b>까지! 받은 사탕을 돌려주는 건 개수랑 상관없이 언제든 OK. 삐익!'},
+  {c:'lucian',t:'…반갑군, {nick}. 나는 이 저택의 주인, <b>루시안</b>이다.'},
+  {c:'lucian',t:'오늘 밤 가장 매혹적인 차림의 영혼에게 <b>👑 베스트 드레서</b>의 영광을 내리지. 투표가 열리면 <b>남녀 한 명씩</b> 한 표를 바쳐라.'},
+  {c:'boo',t:'아… 안녕… 나는 <b>🩸 운명의 실</b>을 지키는 유령, <b>부</b>야…',mood:'shy'},
+  {c:'boo',t:'마지막엔 마음에 드는 이성을 <b>'+CONFIG.PICKS_MAX+'명</b>골라줘. <b>순위는 없어</b>. 셋 다 똑같이 소중하니까…'},
+  {c:'boo',t:'서로를 고르면 <b>매칭</b>! 여러 명과 서로 골랐다면 <b>모두와 매칭</b>될 수도 있어.'},
+  {c:'boo',t:'결과는 바로 안 열려… 파티가 끝나고 <b>'+CONFIG.REVEAL_DELAY_MIN+'분 뒤</b>에 공개돼. <b>몇 표를 받았는지</b>, <b>누구와 이어졌는지</b> 그때 알 수 있어.',mood:'shy'},
+  {c:'boo',t:'이어진 영혼과는 <b>💬 밀담의 방</b>도 열려. 이어진 커플에겐 루시안의 <b>선물 티켓</b>도…!'},
+  {c:'hazel',t:'히히, 마녀 <b>헤이즐</b>이야~! <b>🔮 방들</b> 탭엔 타로, 대화 카드, 빙고, 몬스터 테스트가 있어. 대화가 막히면 꺼내 써!'}
+];
 const SCRIPT=[
   {c:'jack',t:'끼야호~! 드디어 왔구나, <b>새 영혼</b>!'},
   {c:'jack',t:'난 오늘 밤 진행을 맡은 호박 MC, <b>잭</b>이야. 모자 멋있지? 마녀한테 빌렸어.'},
@@ -921,34 +995,28 @@ const SCRIPT=[
   {c:'jack',t:'가면을 쓰고 만나서, <b>크리스마스까지</b> 이어질 인연을 찾는 밤이지.'},
   {c:'jack',t:'그 전에! 저택에선 본명 대신 <b>밤의 이름</b>을 써. 너의 닉네임을 정해줘!'},
   {form:'profile'},
-  {c:'jack',t:'<b>{nick}</b>… 좋은 이름이다! 이제 저택 식구들을 소개할게. 다들 나와~!'},
-  {c:'pipi',t:'삐익! 삐이익! 난 박쥐 우체부 <b>피피</b>야!'},
-  {c:'pipi',t:'마음에 드는 영혼이 있으면 <b>🍬 호박사탕</b>이나 <b>🦇 박쥐편지</b>를 보내. 내가 몰래 배달해줄게!'},
-  {c:'pipi',t:'누가 보냈는지는 <em>절대 비밀</em>. 받은 사람은 “누군가”가 보냈다는 것만 알아. 삐익!'},
-  {c:'lucian',t:'…반갑군, {nick}. 나는 이 저택의 주인, <b>루시안</b>이다.'},
-  {c:'lucian',t:'오늘 밤 가장 매혹적인 차림의 영혼에게 <b>👑 베스트 드레서</b>의 영광을 내리지.'},
-  {c:'lucian',t:'투표가 열리면 <b>남녀 한 명씩</b>, 너의 한 표를 바쳐라. 결과는 내가 직접 발표하겠다.'},
-  {c:'boo',t:'아… 안녕… 나, 나는 <b>부</b>야…',mood:'shy'},
-  {c:'boo',t:'나는 <b>🩸 운명의 실</b>을 지키는 유령이야. 마음에 드는 이성을 <b>최대 3명</b>까지 몰래 적어줘.'},
-  {c:'boo',t:'서로를 고른 영혼끼리만 실로 이어줄게. 상대가 안 골랐으면? 아무도 몰라… <em>유령처럼 사라지니까</em>.'},
-  {c:'boo',t:'결과는 파티 끝무렵에 다 같이 공개돼. 이어진 커플에겐 루시안의 <b>선물 티켓</b>이…!',mood:'shy'},
-  {c:'hazel',t:'히히, 마녀 <b>헤이즐</b> 등장~! 빗자루 주차 좀 하고.'},
-  {c:'hazel',t:'<b>🔮 방들</b> 탭에 놀거리를 차려놨어. <b>미래의 방 타로</b>, <b>영원의 방 대화 카드</b>, <b>할로윈 빙고</b>, <b>몬스터 연애유형 테스트</b>!'},
-  {c:'hazel',t:'대화가 막히면 카드 한 장 뒤집어봐. 어색함이 사르르 녹을걸?'},
-  {c:'jack',t:'자, 준비 끝! 내 <b>영혼 명찰</b>은 로비에 있어. 친구들 도감은 <b>👻 영혼들</b> 탭!'},
+  {c:'jack',t:'<b>{nick}</b>… 좋은 이름이다! 이제 저택 식구들이 오늘 밤의 규칙을 알려줄 거야. 다들 나와~!'},
+  ...RULE_LINES,
+  {c:'jack',t:'규칙이 헷갈리면 로비의 <b>📜 저택의 규칙</b>을 눌러. 우리가 다시 설명해줄게!'},
   {c:'jack',t:'오늘 밤의 주인공은 바로 너야, <b>{nick}</b>. 들어가자~!',end:true}
 ];
-let vnI=0, vnCur=null, vnTyping=null, vnFull='';
-function startVN(){
-  paintMute();
+const RULES=[
+  {c:'jack',t:'규칙이 궁금하구나? 저택 식구들이 차례로 다시 설명해줄게!'},
+  ...RULE_LINES,
+  {c:'jack',t:'이게 전부야! 궁금하면 언제든 <b>📜 저택의 규칙</b>을 다시 눌러~'}
+];
+let vnI=0, vnCur=null, vnTyping=null, vnFull='', VS=SCRIPT, VMODE='intro';
+function startVN(script,mode){
+  VS=script||SCRIPT; VMODE=mode||'intro';
+  paintMute(); closeSheet();
   show('vn'); vnI=0; vnCur=null;
   $('vnStage').querySelectorAll('.ch').forEach(x=>x.remove());
-  const prog=$('vnProg'); prog.innerHTML=SCRIPT.map(()=>'<i></i>').join('');
+  const prog=$('vnProg'); prog.innerHTML=VS.map(()=>'<i></i>').join('');
   vnStep();
 }
 function vnFill(t){ return t.replace(/\{nick\}/g,esc(prof(ME).nick||'영혼')); }
 async function vnStep(){
-  const s=SCRIPT[vnI]; if(!s){ return endVN(); }
+  const s=VS[vnI]; if(!s){ return endVN(); }
   [...$('vnProg').children].forEach((x,i)=>x.classList.toggle('on',i<=vnI));
   if(s.form){ return vnForm(); }
   if(!vnCur||vnCur.key!==s.c){
@@ -986,7 +1054,7 @@ function sliceHTML(html,n){
   return out+open.reverse().map(t=>'</'+t+'>').join('');
 }
 function vnAdvance(){
-  if(SCRIPT[vnI]&&SCRIPT[vnI].form) return;
+  if(VS[vnI]&&VS[vnI].form) return;
   if(vnTyping){ vnDoneType(); return; }
   vnI++; vnStep();
 }
@@ -1025,7 +1093,7 @@ const Voice={
 };
 $('vnBox').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ if(e.target.closest('.vnform')) return; e.preventDefault(); vnAdvance(); } });
 $('vnSkip').onclick=()=>{
-  if(!prof(ME).nick){ vnI=SCRIPT.findIndex(s=>s.form); vnStep(); toast('닉네임만 정하고 들어가요 🎃'); return; }
+  if(VMODE==='intro'&&!prof(ME).nick){ vnI=VS.findIndex(s=>s.form); vnStep(); toast('닉네임만 정하고 들어가요 🎃'); return; }
   endVN();
 };
 function vnForm(){
@@ -1040,6 +1108,7 @@ function vnForm(){
 }
 async function endVN(){
   clearInterval(vnTyping);
+  if(VMODE==='rules'){ $('vn').animate([{opacity:1},{opacity:0}],{duration:400}).onfinish=()=>{ show('app'); renderTab(); }; return; }
   await saveProfile({seen:true});
   $('vn').animate([{opacity:1},{opacity:0}],{duration:450}).onfinish=()=>{ enterApp(); confetti(['🎃','🦇','🍬','✨'],28); };
 }
@@ -1059,7 +1128,7 @@ function profileFormHTML(p){
     '<label class="fld"><span>닉네임 <i>최대 10자</i></span><input class="inp" name="nick" maxlength="10" placeholder="예: 새벽의뱀파이어" value="'+esc(p.nick||'')+'"></label>'+
     '<div class="fld"><span>내 영혼 아바타</span><div class="avs">'+AV.map(a=>'<button type="button" class="av" data-av="'+a+'" aria-pressed="'+((p.av||AV[0])===a)+'">'+a+'</button>').join('')+'</div></div>'+
     '<label class="fld"><span>오늘의 코스튬 한 줄 <i>선택</i></span><input class="inp" name="cos" maxlength="24" placeholder="예: 피 묻은 셔츠 입은 신부" value="'+esc(p.cos||'')+'"></label>'+
-    '<label class="fld"><span>인스타 아이디 <i>선택 · 매칭된 상대에게만 공개</i></span><input class="inp" name="insta" maxlength="30" placeholder="@ 없이" autocapitalize="none" autocorrect="off" spellcheck="false" value="'+esc(p.insta||'')+'"></label>'+
+    '<label class="fld"><span>인스타 아이디 <i>편지를 주고받거나 매칭되면 상대에게 공유돼요</i></span><input class="inp" name="insta" maxlength="30" placeholder="@ 없이" autocapitalize="none" autocorrect="off" spellcheck="false" value="'+esc(p.insta||'')+'"></label>'+
     '<label class="fld" style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)"><input type="checkbox" name="tagok" '+(p.tagok?'checked':'')+' style="width:18px;height:18px;accent-color:#b3121f"> 행사 사진에 인스타 태그해도 좋아요</label>'+
     '<button type="button" class="btn" data-save>이 이름으로 할게 🎃</button><p class="err" data-err></p></div>';
 }
@@ -1089,14 +1158,16 @@ let lastSeen={candy:null,letters:null};
 function enterApp(){
   show('app'); $('demoTag').hidden=Store.remote;
   paintMe(); renderTab(); Store.start();
-  Store.listeners=[()=>{ if($('app').hidden) return; paintMe(); checkInbox(); softRender(); }];
+  Store.listeners=[()=>{ if($('app').hidden) return; paintMe(); checkInbox(); if(TAB==='chat'&&CHAT&&chatOpen(CHAT)) paintChat(); else softRender(); }];
   checkInbox(true);
   startTick();
 }
 function paintMe(){ $('meE').textContent=avat(ME); $('meN').textContent=nick(ME); paintDots(); }
 function paintDots(){
-  const dots={vote:phase('vote')==='open'&&!myVote().done, match:phase('match')==='open'&&!myPicks().length, };
-  dots.match=dots.match||(phase('match')==='reveal'&&!LS.get(K('seenMatch:'+ME)));
+  const mp=mphase();
+  const dots={vote:phase('vote')==='open'&&!myVote().done, match:mp==='open'&&!myPicks().length,
+    chat:chatPartners().some(id=>unread(id)>0)||candyTo(ME).some(id=>!candySent(ME,id))};
+  dots.match=dots.match||(mp==='reveal'&&!LS.get(K('seenMatch:'+ME)));
   dots.vote=dots.vote||(phase('vote')==='reveal'&&!LS.get(K('seenVote:'+ME)));
   document.querySelectorAll('nav.tabs button').forEach(b=>{
     let d=b.querySelector('.dotn'); const on=!!dots[b.dataset.t];
@@ -1124,7 +1195,7 @@ function renderTab(soft){
   lastSig=JSON.stringify(Store.data);
   const y=window.scrollY;
   const v=$('view');
-  ({home:renderHome,souls:renderSouls,vote:renderVote,match:renderMatch,rooms:renderRooms})[TAB](v,soft);
+  ({home:renderHome,souls:renderSouls,chat:renderChat,vote:renderVote,match:renderMatch,rooms:renderRooms})[TAB](v,soft);
   if(soft) window.scrollTo(0,y);
   paintDots();
 }
@@ -1134,29 +1205,59 @@ function guide(key,html,name){
 function mountGuides(root){ root.querySelectorAll('[data-ch]').forEach(h=>{ if(!h.firstChild) h.appendChild(charEl(h.dataset.ch)); }); }
 function head(script,kr,en){ return '<div class="tab-h"><span class="script">'+script+'</span><h2>'+kr+'</h2><div class="orn">◆</div><p>'+en+'</p></div>'; }
 
-/* 받은 사탕/편지 */
+/* ── 사탕 · 편지 · 밀담방 ──
+   🍬 사탕: 내 닉네임이 보이게 감. 받은 사람이 돌려주면(서로 주고받으면) 둘만의 밀담방이 열림
+   🦇 편지: 익명. 도착하는 순간 받는 사람은 보낸 이의 인스타를, 보낸 사람은 받는 이의 인스타를 보게 됨 */
 const LETTERS=['🦇 코스튬 진짜 찰떡이에요','🦇 아까부터 눈이 자꾸 가요','🦇 웃는 모습이 예뻐요','🦇 대화 한번 해보고 싶어요','🦇 같이 사진 찍어요!','🦇 2차도 가시나요?','🦇 오늘 분위기 최고예요','🦇 타로 결과 궁금해요'];
-function candyTo(id){ const c=Store.get('candy')||{}; let n=0; Object.keys(c).forEach(f=>{ if(c[f]&&c[f][id]) n++; }); return n; }
-function candyFrom(id){ return Object.keys((Store.get('candy')||{})[id]||{}); }
-function lettersTo(id){ const L=Store.get('letters')||{}; const out=[]; Object.keys(L).forEach(f=>{ const x=L[f]&&L[f][id]; if(x) out.push(x); }); return out.sort((a,b)=>b.at-a.at); }
+const candyMap=()=>Store.get('candy')||{};
+const candyAt=v=>typeof v==='number'?v:(v&&v.at)||0;
+function candySent(a,b){ const c=candyMap(); return !!(c[a]&&c[a][b]); }
+function candyFrom(id){ return Object.keys(candyMap()[id]||{}); }                                  // id가 사탕을 준 사람들
+function candyTo(id){ const c=candyMap(); return Object.keys(c).filter(f=>c[f]&&c[f][id]).sort((a,b)=>candyAt(c[b][id])-candyAt(c[a][id])); } // id에게 사탕을 준 사람들
+function candyLeft(){ const c=candyMap()[ME]||{}; return CONFIG.CANDY_MAX-Object.values(c).filter(v=>!(v&&v.back)).length; }
+async function sendCandy(id){
+  if(candySent(ME,id)) return;
+  const back=candySent(id,ME);
+  if(!back&&candyLeft()<=0){ toast('사탕을 모두 썼어요. 받은 사탕에 돌려주는 건 언제든 가능해요'); return; }
+  await Store.put('candy/'+ME+'/'+id,{at:Date.now(),back});
+  pipiFly();
+  if(back){ toast('💬 '+nick(id)+'님과 둘만의 밀담방이 열렸어요!'); confetti(['🍬','💬','✨'],24); }
+  else toast('🍬 '+nick(id)+'님에게 사탕을 건넸어요 · 내 닉네임이 보여요');
+}
+function lettersTo(id){ const L=Store.get('letters')||{}; return Object.keys(L).filter(f=>L[f]&&L[f][id]).map(f=>Object.assign({from:f},L[f][id])).sort((a,b)=>b.at-a.at); }
 function lettersFrom(id){ return Object.keys((Store.get('letters')||{})[id]||{}); }
+const instaLink=id=>{ const i=prof(id).insta; return i?'<a class="ig" href="https://instagram.com/'+encodeURIComponent(i)+'" target="_blank" rel="noopener">@'+esc(i)+'</a>':'<span class="ig none">인스타 미등록</span>'; };
+const pairKey=(a,b)=>[a,b].sort().join('_');
+function chatOpen(id){ return (candySent(ME,id)&&candySent(id,ME))||(mphase()==='reveal'&&myMatches().includes(id)); }
+function chatPartners(){ const set=new Set(candyFrom(ME).filter(id=>candySent(id,ME))); if(mphase()==='reveal') myMatches().forEach(id=>set.add(id)); return [...set]; }
+function msgs(id){ const m=Store.get('chats/'+pairKey(ME,id))||{}; return Object.values(m).filter(x=>x&&x.at).sort((a,b)=>a.at-b.at); }
+function unread(id){ if(TAB==='chat'&&CHAT===id&&!document.hidden) return 0; const r=LS.get(K('read:'+ME+':'+id),0); return msgs(id).filter(x=>x.f!==ME&&x.at>r).length; }
+function markRead(id){ const m=msgs(id); LS.set(K('read:'+ME+':'+id),m.length?m[m.length-1].at:Date.now()); }
+let inboxSeen=null;
 function checkInbox(first){
-  const c=candyTo(ME), l=lettersTo(ME).length;
-  if(!first&&lastSeen.candy!=null&&(c>lastSeen.candy||l>lastSeen.letters)){
-    pipiFly(); toast(c>lastSeen.candy?'🍬 누군가 당신에게 호박사탕을 보냈어요!':'🦇 박쥐편지가 도착했어요!');
+  const cs=candyTo(ME), ls=lettersTo(ME).length, ps=chatPartners(), un=ps.reduce((n,id)=>n+unread(id),0);
+  if(!first&&inboxSeen){
+    const newC=cs.filter(x=>!inboxSeen.cs.includes(x));
+    if(ps.length>inboxSeen.pc){ pipiFly(); toast('💬 둘만의 밀담방이 열렸어요! 밀담 탭을 확인하세요'); }
+    else if(newC.length){ pipiFly(); toast('🍬 '+nick(newC[0])+'님이 사탕을 보냈어요! 돌려주면 둘만의 방이 열려요'); }
+    else if(ls>inboxSeen.ls){ pipiFly(); toast('🦇 익명의 편지가 도착했어요! 보낸 이의 인스타가 함께 왔어요'); }
+    else if(un>inboxSeen.un){ const id=ps.find(x=>unread(x)>0); if(id) toast('💬 '+nick(id)+' · '+String((msgs(id).slice(-1)[0]||{}).x||'').slice(0,30)); }
   }
-  lastSeen={candy:c,letters:l};
+  inboxSeen={cs,ls,pc:ps.length,un};
 }
 
 /* ── 로비 ── */
 function renderHome(v){
   const p=prof(ME), mt=MONSTER[p.type];
-  const c=candyTo(ME), L=lettersTo(ME), num=String(roster().findIndex(x=>x.id===ME)+1).padStart(2,'0');
-  const notes=[];
+  const cs=candyTo(ME), L=lettersTo(ME), sentL=lettersFrom(ME), ps=chatPartners(), num=String(roster().findIndex(x=>x.id===ME)+1).padStart(2,'0');
+  const notes=[], mp=mphase(), pend=cs.filter(id=>!candySent(ME,id));
+  if(pend.length) notes.push(['🍬',pend.length+'명이 사탕을 보냈어요','돌려주면 둘만의 밀담방이 열려요','chat']);
+  const un=ps.reduce((n,id)=>n+unread(id),0); if(un) notes.push(['💬','읽지 않은 속삭임 '+un+'개','밀담 탭에서 확인하세요','chat']);
   if(phase('vote')==='open') notes.push(['👑','베스트 드레서 투표 진행 중',myVote().done?'투표 완료! 마감 전까지 바꿀 수 있어요':'남녀 한 명씩 투표해 주세요','vote']);
   if(phase('vote')==='reveal') notes.push(['👑','베스트 드레서 발표!','루시안이 왕관을 들고 기다려요','vote']);
-  if(phase('match')==='open') notes.push(['🩸','운명의 실이 열렸어요',myPicks().length?myPicks().length+'명 선택함 · 마감 전까지 수정 가능':'마음에 드는 이성을 몰래 골라주세요','match']);
-  if(phase('match')==='reveal') notes.push(['⚰️','운명의 실 결과 공개!','관을 열어 확인해 보세요','match']);
+  if(mp==='open') notes.push(['🩸','운명의 실이 열렸어요',myPicks().length?myPicks().length+'명 선택함 · 마감 전까지 수정 가능':'마음에 드는 이성 3명을 몰래 골라주세요','match']);
+  if(mp==='countdown') notes.push(['⏳','운명의 실 결과 공개까지 <span id="revealCdHome">--:--</span>','파티가 끝나고 30분 뒤에 열려요','match']);
+  if(mp==='reveal') notes.push(['⚰️','운명의 실 결과 공개!','받은 표와 이어진 영혼을 확인하세요','match']);
   v.innerHTML=
     clockHTML()+themeHTML()+
     guide('jack',greet())+
@@ -1164,15 +1265,19 @@ function renderHome(v){
     '<div class="tag"><span class="hole">No.'+num+'</span><div class="lab">Soul Name Tag</div>'+
       '<div class="row"><div class="big">'+esc(avat(ME))+'</div><div style="min-width:0"><div class="nk">'+esc(nick(ME))+'</div><div class="cs">'+(p.cos?'🎭 '+esc(p.cos):'코스튬 한 줄을 적어보세요')+'</div></div></div>'+
       '<div class="badges">'+(mt?'<span class="pill red">'+mt.e+' '+mt.n+'</span>':'<span class="pill" data-go-room="quiz" style="cursor:pointer">❔ 몬스터 유형 미정 · 테스트하기</span>')+
-      (p.insta?'<span class="pill teal">📷 인스타 등록됨</span>':'')+'</div>'+
-      '<div class="stats"><div class="stat"><b>'+c+'</b><span>받은 🍬</span></div><div class="stat"><b>'+L.length+'</b><span>받은 🦇편지</span></div><div class="stat"><b>'+souls().length+'</b><span>입장한 영혼</span></div></div>'+
+      (p.insta?'<span class="pill teal">📷 @'+esc(p.insta)+'</span>':'<span class="pill red" id="noIg" style="cursor:pointer">📷 인스타 미등록 · 편지 교환용</span>')+'</div>'+
+      '<div class="stats"><div class="stat"><b>'+cs.length+'</b><span>받은 🍬</span></div><div class="stat"><b>'+L.length+'</b><span>받은 🦇편지</span></div><div class="stat"><b>'+ps.length+'</b><span>💬 밀담방</span></div></div>'+
       '<div class="btnrow"><button class="btn ghost small" id="editMe">✏️ 명찰 수정</button></div>'+
     '</div>'+
-    '<div class="panel" style="margin-top:14px"><h3>피피의 우편함 <small>보낸 사람은 비밀</small></h3>'+
-      (L.length||c?'<div class="inbox">'+(c?'<div class="letter"><span class="ic">🍬</span>누군가 호박사탕을 <b style="color:var(--gold)">&nbsp;'+c+'개&nbsp;</b> 보냈어요</div>':'')+
-        L.slice(0,8).map(x=>'<div class="letter"><span class="ic">✉️</span>'+esc((LETTERS[x.k]||'').replace('🦇 ',''))+'</div>').join('')+'</div>'
-      :'<p class="muted">아직 도착한 게 없어요. 먼저 사탕을 보내보면 돌아올지도? 🦇</p>')+
+    '<div class="panel" style="margin-top:14px"><h3>피피의 우편함 <small>🍬 이름 공개 · 🦇 익명</small></h3>'+
+      (cs.length||L.length||sentL.length?'<div class="inbox">'+
+        cs.slice(0,10).map(id=>'<div class="letter"><span class="ic">'+esc(avat(id))+'</span><div class="lt"><b>'+esc(nick(id))+'</b>님이 🍬 사탕을 보냈어요'+(chatOpen(id)?'<small>서로 주고받았어요 · 밀담방 열림</small>':'<small>돌려주면 둘만의 밀담방이 열려요</small>')+'</div>'+
+          (chatOpen(id)?'<button class="mini" data-chat="'+id+'">💬 입장</button>':'<button class="mini gold" data-back="'+id+'">🍬 돌려주기</button>')+'</div>').join('')+
+        L.slice(0,10).map(x=>'<div class="letter"><span class="ic">✉️</span><div class="lt">“'+esc((LETTERS[x.k]||'').replace('🦇 ',''))+'”<small>익명의 편지 · 보낸 이의 인스타 '+instaLink(x.from)+'</small></div></div>').join('')+
+        sentL.map(id=>'<div class="letter sent"><span class="ic">📮</span><div class="lt">'+esc(nick(id))+'님에게 보낸 편지<small>상대의 인스타 '+instaLink(id)+'</small></div></div>').join('')+'</div>'
+      :'<p class="muted">아직 도착한 게 없어요. 먼저 🍬 사탕을 건네보세요. 돌아오면 둘만의 방이 열려요!</p>')+
     '</div>'+
+    '<button class="qbtn rules" id="rulesBtn"><div class="g">📜</div><div><div class="n">저택의 규칙</div><div class="d">캐릭터들이 사탕 · 편지 · 밀담방 · 운명의 실을 다시 설명해줘요</div></div></button>'+
     '<div class="quick">'+
       '<button class="qbtn" data-go="souls"><div class="g">👻</div><div class="n">영혼 도감</div><div class="d">사탕 · 편지 보내기</div></button>'+
       '<button class="qbtn" data-go-room="tarot"><div class="g">🔮</div><div class="n">미래의 방</div><div class="d">오늘 밤의 연애 타로</div></button>'+
@@ -1182,14 +1287,17 @@ function renderHome(v){
   mountGuides(v);
   v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   v.querySelectorAll('[data-go-room]').forEach(b=>b.onclick=()=>go('rooms',b.dataset.goRoom));
-  $('editMe').onclick=openEdit;
+  v.querySelectorAll('[data-back]').forEach(b=>b.onclick=async()=>{ b.disabled=true; await sendCandy(b.dataset.back); renderTab(); });
+  v.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>openChat(b.dataset.chat));
+  $('editMe').onclick=openEdit; const ni=$('noIg'); if(ni) ni.onclick=openEdit;
+  $('rulesBtn').onclick=()=>startVN(RULES,'rules');
   const sb=$('starBtn'); if(sb) sb.onclick=openStars;
   tick();
 }
 function greet(){
   const lines=[
     '어서 와, <b>'+esc(nick(ME))+'</b>! 오늘 밤 저택은 네 거야.',
-    '팁 하나! 마음에 드는 영혼한테 <b>🍬 사탕</b>부터 보내봐. 익명이라 부담 없어.',
+    '팁 하나! 마음에 드는 영혼한테 <b>🍬 사탕</b>을 건네봐. 돌려받으면 <b>둘만의 밀담방</b>이 열려!',
     '대화가 막히면 <b>🍷 영원의 방</b> 카드를 꺼내. 마법처럼 풀려!',
     '<b>빙고</b> 한 줄 완성하면 운영진한테 보여줘. 뭔가 있을지도~?'
   ];
@@ -1214,7 +1322,7 @@ function renderSouls(v){
     .sort((a,b)=>(!!prof(b.id).nick)-(!!prof(a.id).nick)||(prof(b.id).at||0)-(prof(a.id).at||0));
   const sentC=candyFrom(ME), sentL=lettersFrom(ME);
   v.innerHTML=head('Halloween','영혼 도감','Who\'s Here')+
-    guide('pipi','오늘 저택에 온 영혼들이야! 카드를 누르면 <b>🍬 사탕</b>이나 <b>🦇 편지</b>를 익명으로 배달해줄게. 남은 사탕 <b>'+(CONFIG.CANDY_MAX-sentC.length)+'</b>개, 편지 <b>'+(CONFIG.LETTER_MAX-sentL.length)+'</b>통!')+
+    guide('pipi','카드를 누르면 배달해줄게! <b>🍬 사탕</b>은 네 닉네임이 보이고, <b>🦇 편지</b>는 익명이지만 서로의 인스타가 공유돼. 남은 사탕 <b>'+Math.max(0,candyLeft())+'</b>개, 편지 <b>'+(CONFIG.LETTER_MAX-sentL.length)+'</b>통!')+
     '<div class="panel"><div class="tally-bar" role="img" aria-label="입장 남 '+inM+'명 여 '+inF+'명"><i class="t-m" style="width:'+(all.length?m/all.length*100:50)+'%"></i><i class="t-f" style="width:'+(all.length?f/all.length*100:50)+'%"></i></div>'+
     '<div class="tally-key"><span><i class="dot t-m"></i>남 '+inM+'/'+m+'</span><span><i class="dot t-f"></i>여 '+inF+'/'+f+'</span><span>입장 '+souls().length+' / 명단 '+all.length+'</span></div>'+
     '<div class="seg" role="group"><button data-f="all" aria-pressed="'+(soulFilter==='all')+'">전체</button><button data-f="m" aria-pressed="'+(soulFilter==='m')+'">남</button><button data-f="f" aria-pressed="'+(soulFilter==='f')+'">여</button></div>'+
@@ -1223,7 +1331,7 @@ function renderSouls(v){
       const pr=prof(p.id), on=!!pr.nick, mt=MONSTER[pr.type];
       return '<button class="soul'+(p.id===ME?' me':'')+(on?'':' ghosty')+'" data-id="'+p.id+'" style="animation-delay:'+Math.min(i*30,400)+'ms" '+(on?'':'disabled')+'>'+
         '<i class="sx" style="background:'+(p.g==='m'?'#e0483f':'var(--teal)')+'"></i>'+
-        (sentC.includes(p.id)?'<span class="mk">🍬</span>':'')+
+        (p.id!==ME&&chatOpen(p.id)?'<span class="mk">💬</span>':sentC.includes(p.id)?'<span class="mk">🍬</span>':candySent(p.id,ME)?'<span class="mk">🎁</span>':'')+
         '<div class="e">'+(on?esc(pr.av||'🎃'):'🕯️')+'</div><div class="n">'+(on?esc(pr.nick):'아직 오는 중…')+'</div>'+
         '<div class="c">'+(on?(pr.cos?esc(pr.cos):(mt?mt.e+' '+mt.n:'&nbsp;')):'&nbsp;')+'</div></button>';
     }).join('')+'</div>';
@@ -1234,21 +1342,72 @@ function renderSouls(v){
 }
 function openSoul(id){
   const p=prof(id), mt=MONSTER[p.type], mine=id===ME;
-  const sentC=candyFrom(ME), sentL=lettersFrom(ME);
+  const sentL=lettersFrom(ME), left=candyLeft();
+  let candyBtn;
+  if(chatOpen(id)) candyBtn='<button class="btn gold" id="sChat">💬 둘만의 밀담방 들어가기</button>';
+  else if(candySent(ME,id)) candyBtn='<button class="btn gold" disabled>🍬 사탕 보냄 · 상대가 돌려주면 방이 열려요</button>';
+  else if(candySent(id,ME)) candyBtn='<button class="btn gold" id="sCandy">🍬 사탕 돌려주기 → 둘만의 방 열기</button><p class="muted" style="text-align:center;font-size:12px">이 영혼이 먼저 사탕을 보냈어요!</p>';
+  else candyBtn='<button class="btn gold" id="sCandy" '+(left<=0?'disabled':'')+'>🍬 사탕 건네기 · '+Math.max(0,left)+'개 남음</button><p class="muted" style="text-align:center;font-size:12px">사탕엔 내 닉네임이 적혀 가요. 상대가 돌려주면 밀담방이 열려요.</p>';
   openSheet('<div class="prof-top"><div class="e">'+esc(p.av||'🎃')+'</div><div class="n">'+esc(p.nick)+'</div><div class="c">'+(p.cos?'🎭 '+esc(p.cos):'')+'</div>'+
     (mt?'<p style="margin:10px 0 0"><span class="pill red">'+mt.e+' '+mt.n+'</span></p><p class="muted" style="margin-top:6px;font-size:12.5px">'+mt.d+'</p>':'')+'</div>'+
     (mine?'<p class="muted" style="text-align:center;margin-top:14px">나야 나! 🎃</p>':
-    '<div class="acts">'+
-      (sentC.includes(id)?'<button class="btn gold" disabled>🍬 사탕 보냄</button>':'<button class="btn gold" id="sCandy" '+(sentC.length>=CONFIG.CANDY_MAX?'disabled':'')+'>🍬 호박사탕 보내기 ('+(CONFIG.CANDY_MAX-sentC.length)+'개 남음)</button>')+
-      (sentL.includes(id)?'<p class="muted" style="text-align:center">🦇 이미 편지를 보냈어요</p>':
-        (sentL.length>=CONFIG.LETTER_MAX?'<p class="muted" style="text-align:center">편지를 모두 보냈어요</p>':'<p class="muted" style="margin-top:6px">🦇 박쥐편지 고르기 ('+(CONFIG.LETTER_MAX-sentL.length)+'통 남음)</p><div class="phr">'+LETTERS.map((t,i)=>'<button data-k="'+i+'">'+t+'</button>').join('')+'</div>'))+
+    '<div class="acts">'+candyBtn+
+      (sentL.includes(id)?'<p class="muted" style="text-align:center">🦇 편지를 보냈어요 · 상대의 인스타 '+instaLink(id)+'</p>':
+        (sentL.length>=CONFIG.LETTER_MAX?'<p class="muted" style="text-align:center">편지를 모두 보냈어요</p>':
+        '<p class="muted" style="margin-top:6px">🦇 익명 편지 고르기 ('+(CONFIG.LETTER_MAX-sentL.length)+'통 남음)<br><span style="font-size:12px">이름은 비밀이지만, 도착하는 순간 <b style="color:var(--gold)">서로의 인스타 아이디</b>가 공유돼요.'+(prof(ME).insta?'':' 내 인스타를 아직 등록하지 않았어요.')+'</span></p><div class="phr">'+LETTERS.map((t,i)=>'<button data-k="'+i+'">'+t+'</button>').join('')+'</div>'))+
       (gOf(id)!==gOf(ME)?'<button class="btn ghost" id="sStar">'+(stars()[id]!=null?'★ 기억해둔 영혼 (해제)':'☆ 이 영혼 기억해두기')+'</button>':'')+
-      (phase('match')==='open'&&gOf(id)!==gOf(ME)?'<button class="btn" id="sPick">🩸 운명의 실에 '+(myPicks().includes(id)?'담김 ✓':'담기')+'</button>':'')+
+      (mphase()==='open'&&gOf(id)!==gOf(ME)?'<button class="btn" id="sPick">🩸 운명의 실에 '+(myPicks().includes(id)?'담김 ✓':'담기')+'</button>':'')+
     '</div>'));
-  const sc=$('sCandy'); if(sc) sc.onclick=async()=>{ await Store.put('candy/'+ME+'/'+id,Date.now()); closeSheet(); pipiFly(); toast('🍬 피피가 몰래 배달했어요!'); renderTab(); };
-  $('sheetIn').querySelectorAll('.phr button').forEach(b=>b.onclick=async()=>{ await Store.put('letters/'+ME+'/'+id,{k:+b.dataset.k,at:Date.now()}); closeSheet(); pipiFly(); toast('🦇 편지 배달 완료! 보낸 사람은 비밀'); renderTab(); });
+  const sc=$('sCandy'); if(sc) sc.onclick=async()=>{ sc.disabled=true; await sendCandy(id); closeSheet(); renderTab(); };
+  const sh=$('sChat'); if(sh) sh.onclick=()=>{ closeSheet(); openChat(id); };
+  $('sheetIn').querySelectorAll('.phr button').forEach(b=>b.onclick=async()=>{ await Store.put('letters/'+ME+'/'+id,{k:+b.dataset.k,at:Date.now()}); closeSheet(); pipiFly(); toast('🦇 익명 편지 배달 완료! 서로의 인스타가 공유됐어요'); renderTab(); });
   const ss=$('sStar'); if(ss) ss.onclick=()=>{ toggleStar(id); closeSheet(); toast(stars()[id]!=null?'★ 기억해뒀어요. 운명의 실에서 위에 보여요':'기억에서 지웠어요'); renderTab(); };
   const sp=$('sPick'); if(sp) sp.onclick=async()=>{ await togglePick(id); closeSheet(); go('match'); };
+}
+
+/* ── 밀담 (둘만의 방) ── */
+let CHAT=null;
+function openChat(id){ CHAT=id; go('chat'); }
+const lastAt=id=>{ const m=msgs(id); return m.length?m[m.length-1].at:0; };
+function renderChat(v){
+  if(CHAT&&chatOpen(CHAT)) return renderRoom(v);
+  CHAT=null;
+  const ps=chatPartners().sort((a,b)=>lastAt(b)-lastAt(a)), back=candyTo(ME).filter(id=>!candySent(ME,id)), wait=candyFrom(ME).filter(id=>!candySent(id,ME));
+  const row=(id,right,sub)=>'<div class="srow" data-open="'+id+'"><span class="e">'+esc(avat(id))+'</span><span class="w"><b>'+esc(nick(id))+'</b><i>'+sub+'</i></span>'+right+'</div>';
+  v.innerHTML=head('Halloween','밀담의 방','Whisper Rooms')+
+    guide('pipi','<b>🍬 사탕을 서로 주고받은</b> 영혼끼리만 들어올 수 있는 <b>둘만의 방</b>이야. 파티 한가운데서도 둘이서만 몰래 속삭일 수 있지! 운명의 실로 이어져도 방이 열려. 삐익!')+
+    '<div class="panel"><h3>💬 열린 방 <small>'+ps.length+'개</small></h3>'+(ps.length?'<div style="display:grid;gap:6px">'+ps.map(id=>{ const u=unread(id), last=msgs(id).slice(-1)[0];
+        return row(id,u?'<span class="ubadge">'+u+'</span>':'<span class="pill">입장</span>',last?esc((last.f===ME?'나: ':'')+last.x).slice(0,40):(myMatches().includes(id)&&mphase()==='reveal'?'🩸 운명의 실로 이어졌어요':'🍬 사탕을 주고받았어요 · 첫 마디를 건네보세요')); }).join('')+'</div>'
+      :'<p class="muted">아직 열린 방이 없어요. 마음에 드는 영혼에게 사탕을 건네보세요!</p>')+'</div>'+
+    (back.length?'<div class="panel"><h3>🍬 나에게 사탕을 준 영혼 <small>돌려주면 방이 열려요</small></h3><div style="display:grid;gap:6px">'+back.map(id=>row(id,'<button class="mini gold" data-back="'+id+'">🍬 돌려주기</button>','먼저 사탕을 보냈어요')).join('')+'</div></div>':'')+
+    (wait.length?'<div class="panel"><h3>⏳ 사탕을 기다리는 중 <small>상대가 돌려주면 열려요</small></h3><div style="display:grid;gap:6px">'+wait.map(id=>row(id,'<span class="pill">🍬 보냄</span>','내 닉네임이 적힌 사탕을 받았어요')).join('')+'</div></div>':'');
+  mountGuides(v);
+  v.querySelectorAll('[data-back]').forEach(b=>b.onclick=async e=>{ e.stopPropagation(); b.disabled=true; await sendCandy(b.dataset.back); renderTab(); });
+  v.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>{ const id=r.dataset.open; if(chatOpen(id)) openChat(id); else openSoul(id); });
+}
+function renderRoom(v){
+  const id=CHAT, pr=prof(id);
+  v.innerHTML='<div class="room-h"><button class="back" id="chBack">←</button><span class="e">'+esc(pr.av)+'</span><div class="rw"><b>'+esc(pr.nick)+'</b><i>둘만의 밀담방 · 다른 참가자에겐 보이지 않아요</i></div></div>'+
+    '<div class="msgs" id="msgs"></div>'+
+    '<form class="sendbar" id="sendF" autocomplete="off"><input class="inp" id="msgIn" maxlength="300" placeholder="속삭이기…" enterkeyhint="send"><button class="btn small" type="submit">보내기</button></form>';
+  $('chBack').onclick=()=>{ CHAT=null; renderTab(); };
+  $('sendF').onsubmit=async e=>{
+    e.preventDefault(); const inp=$('msgIn'), x=inp.value.trim(); if(!x) return;
+    inp.value=''; inp.focus();
+    await Store.put('chats/'+pairKey(ME,id)+'/'+Date.now()+'_'+ME,{f:ME,x,at:Date.now()});
+    paintChat(true);
+  };
+  paintChat(true);
+}
+function paintChat(force){
+  const box=$('msgs'); if(!box||!CHAT) return;
+  const m=msgs(CHAT), sig=m.length+':'+(m.length?m[m.length-1].at:0);
+  if(!force&&box.dataset.sig===sig) return; box.dataset.sig=sig;
+  const hm=t=>{ const d=new Date(t); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
+  box.innerHTML=m.length?m.map(x=>'<div class="msg'+(x.f===ME?' me':'')+'"><span>'+esc(x.x)+'</span><time>'+hm(x.at)+'</time></div>').join('')
+    :'<p class="muted" style="text-align:center;padding:36px 0;line-height:1.9">🕯️<br>둘만의 방이 열렸어요.<br>첫 마디를 속삭여 보세요.</p>';
+  markRead(CHAT); paintDots();
+  requestAnimationFrame(()=>window.scrollTo(0,document.documentElement.scrollHeight));
 }
 
 /* ── 베스트 드레서 ── */
@@ -1304,7 +1463,9 @@ function podium(list){
     return '<div class="pod '+cls+'">'+(cls==='p1'?'<span class="crown">👑</span>':'')+'<div class="e">'+esc(avat(x.id))+'</div><div class="n">'+esc(nick(x.id))+'</div><div class="blk">'+(cls==='p1'?1:cls==='p2'?2:3)+'</div><div class="votes">'+x.n+'표</div></div>'; }).join('')+'</div>';
 }
 
-/* ── 운명의 실 (매칭) ── */
+/* ── 운명의 실 (매칭) ──
+   마음에 드는 이성 3명을 순위 없이 고름. 서로 고르면 매칭이고, 한 사람이 여러 명과 매칭될 수 있음.
+   운영진이 '종료'를 누르면 REVEAL_DELAY_MIN분 뒤 자동 공개: 받은 표 수 + 매칭된 상대 */
 function myPicks(){ const p=Store.get('picks/'+ME); return Array.isArray(p)?p.filter(Boolean):[]; }
 async function togglePick(id){
   let p=myPicks();
@@ -1312,21 +1473,28 @@ async function togglePick(id){
   else{ if(p.length>=CONFIG.PICKS_MAX){ toast('최대 '+CONFIG.PICKS_MAX+'명까지예요. 하나를 빼고 담아주세요'); return; } p.push(id); }
   await Store.put('picks/'+ME,p.length?p:null);
 }
+function mphase(){ const st=phase('match'); if(st==='ended') return Date.now()>=(Store.get('state/revealAt')||0)?'reveal':'countdown'; return st; }
+const revealLeft=()=>Math.max(0,((Store.get('state/revealAt')||0)-Date.now())/1000);
 let revealing=false;
 function renderMatch(v){
-  const ph=phase('match');
+  const ph=mphase();
   let html=head('Halloween','운명의 실','Red String of Fate');
+  const rules='<div class="panel"><h3>🩸 이렇게 이어져요</h3><p class="muted">① 마음에 드는 이성을 <b>'+CONFIG.PICKS_MAX+'명</b>까지 고르세요. <b>순위는 없어요.</b><br>② <b>서로가 서로를 고르면</b> 매칭! 여러 명과 동시에 매칭될 수도 있어요.<br>③ 결과는 바로 나오지 않고 <b>파티 종료 '+CONFIG.REVEAL_DELAY_MIN+'분 뒤</b> 공개돼요.<br>④ 공개되면 <b>내가 받은 표 수</b>와 <b>매칭된 상대</b>를 볼 수 있어요.<br>⑤ 매칭된 상대와는 <b>💬 밀담방</b>이 열려요.</p></div>';
   if(ph==='wait'){
-    html+=guide('boo','아직 실이 엉켜 있어… 운영진이 <b>운명의 실</b>을 풀면 여기서 마음에 드는 이성을 최대 '+CONFIG.PICKS_MAX+'명 고를 수 있어. 그동안 많이 얘기해봐…')+
-      '<div class="panel"><h3>🩸 어떻게 이어지나요?</h3><p class="muted">① 마음에 드는 이성을 <b>1~'+CONFIG.PICKS_MAX+'지망</b>으로 몰래 고르면<br>② <b>서로가 서로를 고른</b> 영혼끼리만 실로 이어져요.<br>③ 여러 명과 겹치면 지망 순위가 더 높은 쪽이 우선이에요.<br>④ 이어지지 않은 선택은 <b>아무도 알 수 없어요</b>.</p></div>';
+    html+=guide('boo','아직 실이 엉켜 있어… 운영진이 <b>운명의 실</b>을 풀면 여기서 마음에 드는 이성을 '+CONFIG.PICKS_MAX+'명 고를 수 있어. 그동안 ★ 기억 노트를 채워둬…')+rules;
   }else if(ph==='open'||ph==='closed'){
     const picks=myPicks(), lock=ph==='closed';
     const st=stars(); const cand=souls().filter(p=>p.g&&p.g!==gOf(ME)).sort((a,b)=>(st[b.id]!=null)-(st[a.id]!=null));
-    html+=guide('boo',lock?'실은 이제 <b>봉인</b>됐어… 곧 결과가 공개될 거야. 두근두근…':'누를 때마다 <b>1지망 → 2지망 → 3지망</b> 순으로 담겨. 다시 누르면 빠져. 아무한테도 안 보여…',null)+
+    html+=guide('boo',lock?'실은 이제 <b>봉인</b>됐어… 파티가 끝나고 '+CONFIG.REVEAL_DELAY_MIN+'분 뒤에 결과가 열려.':'마음에 드는 이성을 <b>'+CONFIG.PICKS_MAX+'명</b>까지 눌러줘. <b>순위는 없어</b>. 서로 고르면 이어지고, 여러 명과 이어질 수도 있어…',null)+
       '<div class="phase"><span class="pill red">🩸 '+picks.length+' / '+CONFIG.PICKS_MAX+' 선택</span>'+(lock?'<span class="pill">🔒 마감</span>':'<span class="pill gold">마감 전까지 수정 가능</span>')+'</div>'+
-      '<div class="pick-list">'+(cand.length?cand.map(p=>{ const i=picks.indexOf(p.id), pr=prof(p.id);
-        return '<button class="pk" data-id="'+p.id+'" aria-pressed="'+(i>=0)+'" '+(lock?'disabled':'')+'><span class="e">'+esc(pr.av)+'</span><span class="who"><b>'+esc(pr.nick)+(st[p.id]!=null?'<span class="stm">★ '+(st[p.id]?roman(st[p.id]):'')+'</span>':'')+'</b><i>'+(pr.cos?'🎭 '+esc(pr.cos):'&nbsp;')+'</i></span><span class="rk">'+(i>=0?(i+1)+'지망':'')+'</span></button>'; }).join('')
+      '<div class="pick-list">'+(cand.length?cand.map(p=>{ const on=picks.includes(p.id), pr=prof(p.id);
+        return '<button class="pk" data-id="'+p.id+'" aria-pressed="'+on+'" '+(lock?'disabled':'')+'><span class="e">'+esc(pr.av)+'</span><span class="who"><b>'+esc(pr.nick)+(st[p.id]!=null?'<span class="stm">★ '+(st[p.id]?roman(st[p.id]):'')+'</span>':'')+'</b><i>'+(pr.cos?'🎭 '+esc(pr.cos):'&nbsp;')+'</i></span><span class="rk">'+(on?'✓ 선택':'')+'</span></button>'; }).join('')
         :'<p class="muted">아직 고를 수 있는 이성 영혼이 없어요.</p>')+'</div>';
+  }else if(ph==='countdown'){
+    const picks=myPicks();
+    html+=guide('boo','파티는 끝났어… 지금 실이 천천히 엮이는 중이야. 조금만 기다려줘…',null)+
+      '<div class="panel" style="text-align:center"><div class="ck-ey">THE STRINGS ARE BEING WOVEN</div><div class="cdbig" id="revealCd">'+fmt(revealLeft())+'</div><p class="muted">뒤에 <b style="color:var(--gold)">받은 표 수</b>와 <b style="color:var(--gold)">매칭된 상대</b>가 공개돼요</p>'+
+      (picks.length?'<p class="muted" style="margin-top:12px">내가 고른 영혼 · '+picks.map(id=>esc(avat(id)+' '+nick(id))).join(', ')+'</p>':'')+'</div>';
   }else{
     LS.set(K('seenMatch:'+ME),1);
     const opened=LS.get(K('opened:'+ME),false);
@@ -1336,7 +1504,7 @@ function renderMatch(v){
   v.innerHTML=html; mountGuides(v);
   v.querySelectorAll('.pk[data-id]').forEach(b=>b.onclick=async()=>{ await togglePick(b.dataset.id); renderMatch(v); });
   const cf=v.querySelector('.coffin'); if(cf) cf.onclick=openCoffin;
-  if(ph==='reveal'&&LS.get(K('opened:'+ME))) postResultFx();
+  bindResult(v);
 }
 function coffinHTML(){
   return '<div class="coffin" role="button" aria-label="결과 열기"><svg viewBox="0 0 150 200">'+
@@ -1352,39 +1520,37 @@ async function openCoffin(){
   miniBats(document.body);
   await sleep(1100);
   LS.set(K('opened:'+ME),true);
-  $('rv').innerHTML=matchResultHTML(); revealing=false; postResultFx(true);
+  $('rv').innerHTML=matchResultHTML(); bindResult($('rv')); revealing=false;
+  if(myMatches().length) confetti(['❤️','🌹','🦇','✨'],40); else confetti(['👻','🎃'],14);
 }
-function matchResults(){ return Store.get('results/match')||computeMatches(); }
+function bindResult(root){ root.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>openChat(b.dataset.chat)); }
 function computeMatches(){
-  const P=Store.get('picks')||{}, pairs=[];
-  Object.keys(P).forEach(a=>{ (P[a]||[]).forEach((b,ia)=>{
-    if(a<b&&Array.isArray(P[b])){ const ib=P[b].indexOf(a); if(ib>=0&&gOf(a)!==gOf(b)) pairs.push({a,b,s:ia+ib,t:Math.min(ia,ib)}); } }); });
-  pairs.sort((x,y)=>x.s-y.s||x.t-y.t||(x.a+x.b).localeCompare(y.a+y.b));
-  const used=new Set(), out=[];
-  pairs.forEach(p=>{ if(!used.has(p.a)&&!used.has(p.b)){ used.add(p.a); used.add(p.b); out.push([p.a,p.b]); } });
-  return out;
+  const P=Store.get('picks')||{}, out=[];
+  Object.keys(P).forEach(a=>(P[a]||[]).forEach(b=>{ if(a<b&&Array.isArray(P[b])&&P[b].includes(a)&&gOf(a)!==gOf(b)) out.push([a,b]); }));
+  return out.sort((x,y)=>(x[0]+x[1]).localeCompare(y[0]+y[1]));
 }
-function myMatch(){ const m=matchResults().find(x=>x[0]===ME||x[1]===ME); return m?(m[0]===ME?m[1]:m[0]):null; }
-function pickedMeCount(){ const P=Store.get('picks')||{}; return Object.keys(P).filter(k=>(P[k]||[]).includes(ME)).length; }
+function computeReceived(){ const P=Store.get('picks')||{}, v={}; Object.values(P).forEach(l=>(l||[]).forEach(id=>{ if(id) v[id]=(v[id]||0)+1; })); return v; }
+function matchSnap(){ const r=Store.get('results/match'); return r&&r.pairs?{pairs:r.pairs||[],votes:r.votes||{}}:{pairs:computeMatches(),votes:computeReceived()}; }
+function matchResults(){ return matchSnap().pairs; }
+function myMatches(){ return matchResults().filter(x=>x[0]===ME||x[1]===ME).map(x=>x[0]===ME?x[1]:x[0]); }
 function matchResultHTML(){
-  const mm=myMatch();
-  if(mm){
-    const pr=prof(mm), code=(sha256(ME+mm+'gift').slice(0,6)).toUpperCase();
-    return '<div class="redtxt" style="font-size:28px">운명의 실이 이어졌어요</div>'+
-      '<div class="thread-wrap"><div class="pp"><span class="e">'+esc(avat(ME))+'</span><b>'+esc(nick(ME))+'</b></div>'+
-      '<svg viewBox="0 0 200 70" preserveAspectRatio="none"><path d="M0 40C40 0 60 70 100 34S160 0 200 40"/></svg><span class="heart">❤️</span>'+
-      '<div class="pp"><span class="e">'+esc(pr.av)+'</span><b>'+esc(pr.nick)+'</b></div></div>'+
-      (pr.insta?'<p class="muted">상대의 인스타 · <a style="color:var(--gold)" href="https://instagram.com/'+encodeURIComponent(pr.insta)+'" target="_blank" rel="noopener">@'+esc(pr.insta)+'</a></p>':'<p class="muted">서로를 찾아가 인사해보세요 🍷</p>')+
+  const ms=myMatches(), n=matchSnap().votes[ME]||0;
+  let h='<div class="vbig"><small>나를 고른 영혼</small><b>'+n+'</b><span>표</span></div>';
+  if(ms.length){
+    const code=(sha256(ME+ms.join('')+'gift').slice(0,6)).toUpperCase();
+    h+='<div class="redtxt" style="font-size:24px;margin-top:4px">운명의 실 '+(ms.length>1?ms.length+'가닥이':'이')+' 이어졌어요</div>'+
+      ms.map(id=>{ const pr=prof(id);
+        return '<div class="thread-wrap"><div class="pp"><span class="e">'+esc(avat(ME))+'</span><b>'+esc(nick(ME))+'</b></div>'+
+          '<svg viewBox="0 0 200 70" preserveAspectRatio="none"><path d="M0 40C40 0 60 70 100 34S160 0 200 40"/></svg><span class="heart">❤️</span>'+
+          '<div class="pp"><span class="e">'+esc(pr.av)+'</span><b>'+esc(pr.nick)+'</b></div></div>'+
+          '<p class="muted">인스타 '+instaLink(id)+'</p><button class="btn ghost small" data-chat="'+id+'" style="margin:8px auto 4px;max-width:260px">💬 '+esc(pr.nick)+'님과의 밀담방</button>'; }).join('<div class="orn" style="margin:10px 0">◆</div>')+
       '<div class="ticket"><div class="shine"></div><div class="t1">TICKET</div><div class="t2">🧛 The Vampire Gift</div><div class="muted" style="font-size:12px;margin-top:4px">운영진에게 이 화면을 보여주세요</div><div class="code">NO. '+code+'</div></div>';
+  }else{
+    h+='<div class="whitetxt" style="font-size:22px;margin-top:6px">이번 실은 엉켰지만…</div>'+
+      '<p class="muted" style="margin-top:8px">'+(n?'<b style="color:var(--gold)">'+n+'명의 영혼</b>이 당신을 골랐어요. 서로 고르지 못했을 뿐이에요.':'오늘 밤 이어진 실은 없지만, 할로윈은 아직 안 끝났어요.')+'</p>'+
+      '<div class="after"><h4>🏃 애프터 파티 원정대</h4><p class="muted">운영진과 함께 <b>이태원 메인 거리</b>에서 2차가 이어지고 있어요. 아직 인연은 거리 위에 있을지도!</p></div>';
   }
-  const n=pickedMeCount();
-  return '<div class="whitetxt" style="font-size:24px">이번 실은 엉켰지만…</div>'+
-    '<p class="muted" style="margin-top:8px">오늘 밤 이어진 실은 없지만, 할로윈은 아직 안 끝났어요.'+(n?'<br><b style="color:var(--gold)">당신을 고른 영혼이 '+n+'명</b> 있었다는 건 비밀로 해둘게요 👻':'')+'</p>'+
-    '<div class="after"><h4>🏃 애프터 파티 원정대</h4><p class="muted">운영진과 함께 <b>이태원 메인 거리</b>로 2차 원정을 떠나요! 아직 인연은 거리 위에 있을지도. 입구에서 원정대장을 찾아주세요.</p></div>';
-}
-function postResultFx(first){
-  if(!first) return;
-  if(myMatch()) confetti(['❤️','🌹','🦇','✨'],40); else confetti(['👻','🎃'],14);
+  return h;
 }
 
 /* ── 방들 ── */
@@ -1393,13 +1559,14 @@ function renderRooms(v){
   v.innerHTML=head('Halloween','비밀의 방들','Secret Rooms')+
     guide('hazel','어느 방에 들어가 볼래? 전부 <b>나만 보는 놀이</b>라 부담 없어. 결과를 들고 가서 말 걸 핑계로 써봐!')+
     '<div class="rooms">'+
+      roomBtn('rules','📜','저택의 규칙','House Rules','캐릭터들이 사탕 · 편지 · 밀담방 · 운명의 실을 설명해줘요')+
       roomBtn('tarot','🔮','미래의 방','The Tarot Room','카드 세 장으로 보는 오늘 밤의 연애운')+
       roomBtn('cards','🍷','영원의 방','The Secret Salon','뱀파이어의 ‘영원과 사랑’ 대화 카드')+
       roomBtn('bingo','🎃','할로윈 빙고','Halloween Bingo','미션을 깨고 한 줄을 완성하세요')+
       roomBtn('quiz','🧟','몬스터 연애유형','Monster Type','3문항으로 알아보는 나의 몬스터')+
     '</div>';
   mountGuides(v);
-  v.querySelectorAll('.room').forEach(b=>b.onclick=()=>go('rooms',b.dataset.r));
+  v.querySelectorAll('.room').forEach(b=>b.onclick=()=>b.dataset.r==='rules'?startVN(RULES,'rules'):go('rooms',b.dataset.r));
 }
 const roomBtn=(r,g,n,en,d)=>'<button class="room" data-r="'+r+'"><span class="g">'+g+'</span><span><b>'+n+'</b><i>'+en+'</i><span>'+d+'</span></span></button>';
 const backBtn='<button class="back" id="rback">← 방 목록</button>';
@@ -1592,7 +1759,7 @@ function themeHTML(){
     '<ol>'+R.q.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ol><div class="mis"><b>MISSION</b>'+esc(R.m)+'</div>'+
     (t.kind==='round'?'<button class="btn ghost small" id="starBtn" style="margin-top:10px">☆ 이 테이블에서 기억할 영혼 표시하기</button>':'')+'</div>';
 }
-let tickT=0, lastKey=null;
+let tickT=0, lastKey=null, lastMp=null;
 function startTick(){ clearInterval(tickT); lastKey=null; tickT=setInterval(tick,250); tick(); }
 function tick(){
   const t=tstate(), [ey,ph]=clockLabel(t);
@@ -1620,6 +1787,16 @@ function tick(){
     tp.hidden=!on; $('app').querySelector('.topbar').classList.toggle('timed',on);
     if(on){ tp.textContent=(t.kind==='break'?'☕ ':t.ph==='move'?'⇢ ':roman(t.r)+' · ')+fmt(t.rem); tp.className='tpill'+(mv?' move':'')+(hurry?' hurry':''); }
     tl.style.width=on?(frac*100)+'%':'0';
+  }
+  // 운명의 실 공개 카운트다운
+  const mp=mphase();
+  ['revealCd','revealCdHome'].forEach(i=>{ const e=$(i); if(e) e.textContent=fmt(revealLeft()); });
+  const prevMp=lastMp; lastMp=mp;
+  if(prevMp!==null&&mp!==prevMp&&!$('app').hidden){
+    if(mp==='reveal'&&$('admin').hidden){ const sc=$('stageCard');
+      sc.innerHTML='<div class="sc-ch" data-ch="boo"></div><div class="sc-rn">RED STRING OF FATE</div><div class="sc-n" style="margin-top:8px">운명의 실이 풀렸어요</div><div class="sc-d">받은 표와 이어진 영혼을 확인하세요</div><button class="btn small">확인하러 가기</button>';
+      mountGuides(sc); sc.hidden=false; sc.onclick=()=>{ sc.hidden=true; go('match'); }; try{ navigator.vibrate&&navigator.vibrate([200,100,200]); }catch(e){} }
+    if(TAB==='match'||TAB==='home'||TAB==='chat') renderTab();
   }
   // 상태가 바뀌면 연출 (처음 들어왔을 때는 생략)
   const key=t.kind+':'+t.r+':'+t.ph;
@@ -1713,6 +1890,7 @@ function bindAdminRound(){
 function admClockTick(){
   const el=$('admClock'); if(!el||$('admin').hidden) return;
   const t=tstate(), [ey,ph]=clockLabel(t);
+  const ar=$('admReveal'); if(ar&&phase('match')==='ended') ar.textContent=mphase()==='reveal'?'✅ 결과 공개됨':'⏳ 자동 공개까지 '+fmt(revealLeft());
   el.textContent=(t.paused?'⏸ ':'')+ey+(t.rem!=null&&(t.kind==='round'||t.kind==='break')?' · '+fmt(t.rem):'')+' · '+ph;
 }
 setInterval(admClockTick,250);
@@ -1743,14 +1921,16 @@ function openAdmin(){
 }
 function admTick(){ if(!$('admin').hidden){ const a=document.activeElement; if(a&&a.closest&&a.closest('#admin')&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT')) return; if(wheelSpinning) return; renderAdmin(); } }
 function closeAdmin(){ $('admin').hidden=true; document.body.style.overflow=''; Store.listeners=Store.listeners.filter(f=>f!==admTick); if(location.hash==='#admin') history.replaceState(null,'',location.pathname); if(!ME) show('login'); }
-const PH={wait:'대기',open:'열림',closed:'마감',reveal:'발표'};
+const PH={wait:'대기',open:'열림',closed:'마감',ended:'종료',reveal:'발표'};
 let wheelSpinning=false;
 function renderAdmin(){
   const R=roster(), S=souls(), V=Store.get('votes')||{}, P=Store.get('picks')||{};
   const vr=computeVotes(), mr=computeMatches();
-  const ctrl=k=>'<div class="ctrl">'+Object.keys(PH).map(p=>'<button data-k="'+k+'" data-p="'+p+'" aria-pressed="'+(phase(k)===p)+'">'+PH[p]+'</button>').join('')+'</div>';
+  const ctrl=k=>{ const ks=k==='match'?['wait','open','closed','ended','reveal']:['wait','open','closed','reveal']; return '<div class="ctrl" style="grid-template-columns:repeat('+ks.length+',1fr)">'+ks.map(p=>'<button data-k="'+k+'" data-p="'+p+'" aria-pressed="'+(phase(k)===p)+'">'+PH[p]+'</button>').join('')+'</div>'; };
+  const rc=computeReceived(), top=Object.entries(rc).sort((a,b)=>b[1]-a[1]).slice(0,8), inM=new Set(mr.flat());
   $('admIn').innerHTML=
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2>🧛 운영진 저택</h2><button class="btn ghost small" style="width:auto;padding:0 16px" id="admClose">닫기</button></div>'+
+    '<a class="btn ghost small" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none;margin-bottom:12px">📖 운영진 가이드 (한 장 요약 · 인쇄용)</a>'+
     (Store.remote?'':'<div class="panel" style="border-color:var(--amber)"><h3>⚠️ 로컬 데모 모드</h3><p class="muted">DB_URL이 비어 있어 이 기기에만 저장돼요. 실제 행사에선 README대로 Firebase 주소를 넣어주세요.</p></div>')+
     adminRoundHTML()+
     '<div class="panel"><h3>현황 <small>5초마다 갱신</small></h3><div class="stats"><div class="stat"><b>'+S.length+'/'+R.length+'</b><span>입장</span></div><div class="stat"><b>'+Object.keys(V).length+'</b><span>투표</span></div><div class="stat"><b>'+Object.keys(P).length+'</b><span>실 제출</span></div></div></div>'+
@@ -1758,7 +1938,10 @@ function renderAdmin(){
       '<table style="margin-top:10px"><tr><th>남</th><th></th><th>여</th><th></th></tr>'+[0,1,2,3,4].map(i=>'<tr><td>'+(vr.m[i]?esc(nick(vr.m[i].id)):'')+'</td><td>'+(vr.m[i]?vr.m[i].n:'')+'</td><td>'+(vr.f[i]?esc(nick(vr.f[i].id)):'')+'</td><td>'+(vr.f[i]?vr.f[i].n:'')+'</td></tr>').join('')+'</table>'+
       '<p class="muted" style="font-size:11.5px;margin-top:6px">“발표”를 누르면 그 순간의 집계가 고정되어 모두에게 공개돼요.</p></div>'+
     '<div class="panel"><h3>🩸 운명의 실 <small>현재 '+PH[phase('match')]+'</small></h3>'+ctrl('match')+
-      '<p class="muted" style="margin-top:10px">현재 성사 <b style="color:var(--gold)">'+mr.length+'쌍</b> · 미성사 '+(S.length-mr.length*2)+'명</p>'+
+      '<div class="admclock" id="admReveal" style="margin-top:10px">'+(phase('match')==='ended'?'':'“종료”를 누르면 '+CONFIG.REVEAL_DELAY_MIN+'분 뒤 자동 공개')+'</div>'+
+      '<div class="row2"><label class="fld" style="margin:0"><span>종료 후 공개까지(분)</span><input class="inp" id="revDelay" type="number" min="0" max="180" value="'+CONFIG.REVEAL_DELAY_MIN+'"></label></div>'+
+      '<p class="muted" style="margin-top:10px">현재 매칭 <b style="color:var(--gold)">'+mr.length+'쌍</b> · 매칭된 사람 '+inM.size+'명 · 미매칭 '+(S.length-inM.size)+'명</p>'+
+      '<p class="muted" style="font-size:12px;margin-top:4px">받은 표 TOP · '+(top.map(([id,n])=>esc(nick(id))+' '+n).join(' · ')||'아직 없음')+'</p>'+
       '<table style="margin-top:6px">'+mr.map((m,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(avat(m[0]))+' '+esc(nick(m[0]))+'</td><td>❤️</td><td>'+esc(avat(m[1]))+' '+esc(nick(m[1]))+'</td></tr>').join('')+'</table>'+
       '<div class="btnrow"><button class="btn ghost small" id="admCopyM">결과 복사</button></div></div>'+
     '<div class="panel"><h3>🎡 경품 룰렛 <small>입장한 영혼 중 추첨</small></h3><div class="seg"><button data-wf="all" aria-pressed="'+(wf==='all')+'">전체</button><button data-wf="m" aria-pressed="'+(wf==='m')+'">남</button><button data-wf="f" aria-pressed="'+(wf==='f')+'">여</button><button data-wf="none" aria-pressed="'+(wf==='none')+'">미매칭</button></div>'+
@@ -1775,8 +1958,11 @@ function renderAdmin(){
   admClockTick();
   document.querySelectorAll('#admin .ctrl button').forEach(b=>b.onclick=async()=>{
     const k=b.dataset.k, p=b.dataset.p;
-    if(p==='reveal'&&!confirm((k==='vote'?'베스트 드레서':'매칭')+' 결과를 지금 모두에게 공개할까요?')) return;
-    if(p==='reveal') await Store.put('results/'+k,k==='vote'?computeVotes():computeMatches());
+    if(p==='reveal'&&!confirm((k==='vote'?'베스트 드레서':'매칭')+' 결과를 지금 바로 모두에게 공개할까요?')) return;
+    if(p==='ended'){ const d=Math.max(0,+$('revDelay').value||0); CONFIG.REVEAL_DELAY_MIN=d;
+      if(!confirm('파티 종료 처리할까요?\n선택이 잠기고 '+d+'분 뒤 결과(받은 표 · 매칭 상대)가 자동 공개됩니다.')) return;
+      await Store.put('state/revealAt',Date.now()+d*60000); }
+    if(p==='reveal'||p==='ended') await Store.put('results/'+k,k==='vote'?computeVotes():{pairs:computeMatches(),votes:computeReceived()});
     else await Store.put('results/'+k,null);
     await Store.put('state/'+k,p); renderAdmin();
   });
@@ -1789,7 +1975,7 @@ function renderAdmin(){
   $('rUp').onclick=async()=>{ const r=parseRoster($('rIn').value); if(!r) return; if(!confirm(r.length+'명으로 서버 명단을 교체할까요? (기존 프로필 id는 순서대로 p01, p02… 로 매겨져요)')) return; await Store.put('roster',r); $('rMsg').textContent='서버 명단 '+r.length+'명 저장 완료'; renderAdmin(); };
   $('rsVote').onclick=async()=>{ if(confirm('모든 투표를 지울까요?')){ await Store.put('votes',null); await Store.put('results/vote',null); renderAdmin(); } };
   $('rsPick').onclick=async()=>{ if(confirm('모든 운명의 실 선택을 지울까요?')){ await Store.put('picks',null); await Store.put('results/match',null); renderAdmin(); } };
-  $('rsAll').onclick=async()=>{ if(prompt('정말 전체 삭제하려면 "삭제"라고 입력')==='삭제'){ for(const k of ['profiles','votes','picks','candy','letters','results','state','timer']) await Store.put(k,null); renderAdmin(); } };
+  $('rsAll').onclick=async()=>{ if(prompt('정말 전체 삭제하려면 "삭제"라고 입력')==='삭제'){ for(const k of ['profiles','votes','picks','candy','letters','chats','results','state','timer']) await Store.put(k,null); renderAdmin(); } };
 }
 function parseRoster(text){
   const out=[], bad=[];

@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>운영진 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@300..700&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#0f0806; --paper:#1a0f0a; --line:rgba(246,208,138,.24); --ink:#f6ead8; --muted:rgba(246,234,216,.66);
+    --gold:#f2c46d; --red:#d6304a; --teal:#5fcfbf;
+    --kr:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;
+    --disp:"Hahmlet","Noto Serif KR",serif; --cap:"Cinzel",serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--kr);font-size:12.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .page{max-width:1080px;margin:0 auto;padding:22px 16px 40px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}
+  .ey{font-family:var(--cap);letter-spacing:.32em;font-size:10.5px;color:var(--gold)}
+  h1{margin:2px 0 0;font-family:var(--disp);font-weight:400;font-size:28px;letter-spacing:.04em;color:var(--gold)}
+  .hd-r{font-size:11.5px;color:var(--muted);text-align:right;line-height:1.7}
+  .hd-r b{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:11px 13px;break-inside:avoid}
+  .card.span2{grid-column:span 2}
+  @media(max-width:560px){.card.span2{grid-column:auto}}
+  h2{margin:0 0 7px;font-family:var(--disp);font-weight:600;font-size:15px;color:var(--gold);display:flex;align-items:center;gap:6px}
+  h2 small{margin-left:auto;font-family:var(--kr);font-weight:500;font-size:10.5px;color:var(--muted)}
+  ul,ol{margin:0;padding-left:17px}
+  li{margin:2px 0}
+  b{color:#fff}
+  .k{display:inline-block;padding:0 6px;border-radius:4px;background:rgba(242,196,109,.16);color:var(--gold);font-weight:700;font-size:11.5px;white-space:nowrap}
+  .r{color:#ff8a98;font-weight:700}
+  .t{color:var(--teal);font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:4px 5px;border-bottom:1px solid rgba(246,208,138,.12);text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px}
+  td:first-child{white-space:nowrap;color:var(--gold);font-weight:700}
+  .flow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:4px}
+  .flow span{padding:2px 7px;border-radius:99px;border:1px solid var(--line);font-size:11px}
+  .flow i{font-style:normal;color:var(--muted)}
+  .note{margin-top:6px;font-size:11.5px;color:var(--muted)}
+  .chk li{list-style:none;margin-left:-17px}
+  .chk li::before{content:"☐ ";color:var(--gold)}
+  footer{margin-top:12px;font-size:11px;color:var(--muted);text-align:center}
+  .print{position:fixed;right:14px;bottom:14px;padding:10px 16px;border-radius:99px;border:1px solid var(--gold);background:#2a1208;color:var(--gold);font-family:var(--kr);font-weight:700;cursor:pointer}
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    :root{--bg:#fff;--paper:#fff;--line:#d8c7a8;--ink:#1d140e;--muted:#6b5a48;--gold:#8a5a12;--teal:#0f7b6c}
+    body{font-size:9.4px;line-height:1.4}
+    b{color:#000}
+    .r{color:#b0122a}
+    .page{max-width:none;padding:0}
+    h1{font-size:22px} h2{font-size:13px}
+    .grid{grid-template-columns:repeat(4,1fr);gap:5px}
+    .card{padding:6px 8px;border-radius:5px}
+    header{padding-bottom:6px;margin-bottom:7px}
+    li{margin:1px 0} .note{margin-top:4px;font-size:9px} th,td{padding:2px 4px;font-size:9.2px}
+    .card.span2{grid-column:span 2}
+    .print{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div><div class="ey">SOLO HALLOWEEN · STAFF ONLY</div><h1>솔로 할로윈 운영진 가이드</h1></div>
+    <div class="hd-r">관리자 화면: 로고 <b>5번 연속 탭</b> 또는 주소 뒤 <b>#admin</b> → PIN<br>참가자 로그인: <b>이름 + 생년월일</b>(6자리 또는 8자리) → 이후 <b>닉네임</b>으로만 활동</div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>⏱ 라운드 진행 <small>관리자 › 라운드 진행</small></h2>
+      <ol>
+        <li>테이블이 준비되면 <span class="k">▶ ROUND N 시작</span>을 누릅니다.</li>
+        <li>모든 폰에 <b>라운드 타이틀</b>이 뜨고 시계가 흐릅니다 (대화 8분).</li>
+        <li>대화 시간이 끝나면 <b>🔔 종 + 진동</b>, 이동 2분이 자동으로 흐릅니다.</li>
+        <li>이동이 끝난 걸 확인하고 다음 라운드를 시작합니다.</li>
+      </ol>
+      <div class="flow"><span>I~V</span><i>→</i><span>☕ 숨 고르기 3분</span><i>→</i><span>VI~X</span><i>→</i><span>정리</span><i>→</i><span>🕯 자유 시간</span></div>
+      <p class="note">조절: <span class="k">⏸ 일시정지</span> <span class="k">±1분</span> <span class="k">⏭ 지금 종 울리기</span>. 라운드 번호는 −/+ 로 보정합니다. 관리자 화면을 보는 동안에는 타이틀 카드가 뜨지 않습니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>🎭 라운드 테마 <small>로비에 질문 3개 + 미션</small></h2>
+      <table>
+        <tr><td>I</td><td>가면 소개 · 잭</td><td>VI</td><td>타로의 계시 · 헤이즐</td></tr>
+        <tr><td>II</td><td>밤의 취향 · 피피</td><td>VII</td><td>영원의 질문 · 루시안</td></tr>
+        <tr><td>III</td><td>공포 취향 · 헤이즐</td><td>VIII</td><td>가면 뒤의 나 · 부</td></tr>
+        <tr><td>IV</td><td>피의 맛 · 루시안</td><td>IX</td><td>크리스마스까지 · 피피</td></tr>
+        <tr><td>V</td><td>몬스터 유형 · 헤이즐</td><td>X</td><td>마지막 종 · 부</td></tr>
+      </table>
+      <p class="note">★ <b>기억 노트</b>: 이동 시간마다 참가자가 방금 만난 사람에게 ★를 표시합니다. 본인만 보이고, 운명의 실 목록 맨 위에 나옵니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>🍬 사탕 · 💬 밀담방 <small>캐릭터: 피피</small></h2>
+      <ul>
+        <li>사탕은 <b class="r">보낸 사람의 닉네임이 공개</b>됩니다.</li>
+        <li>받은 사람은 <span class="k">🍬 돌려주기</span>를 누를 수 있습니다.</li>
+        <li><b>서로 주고받으면 둘만의 밀담방</b>(1:1 채팅)이 열립니다.</li>
+        <li>1인당 <b>5개</b>를 먼저 보낼 수 있고, 돌려주기는 개수 제한이 없습니다.</li>
+        <li>운명의 실로 매칭된 상대와도 밀담방이 열립니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🦇 편지 <small>캐릭터: 피피</small></h2>
+      <ul>
+        <li>편지는 <b class="t">익명</b>이고, 정해진 문구 8개 중에서만 고릅니다(악성 메시지 방지).</li>
+        <li><b>도착하는 순간 서로의 인스타 아이디가 공유</b>됩니다. 받은 사람은 보낸 이의 인스타를, 보낸 사람은 받은 사람의 인스타를 봅니다.</li>
+        <li>1인당 <b>5통</b>까지 보낼 수 있습니다.</li>
+        <li>인스타를 등록하지 않으면 상대 화면에 "인스타 미등록"으로 나옵니다. 입장할 때 <b>등록을 권해 주세요</b>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🩸 운명의 실 (최종 선택) <small>캐릭터: 부</small></h2>
+      <ul>
+        <li>이성을 <b>최대 3명</b> 고릅니다. <b class="r">순위는 없습니다.</b></li>
+        <li><b>서로 고르면 매칭</b>입니다. 한 사람이 <b>여러 명과 매칭</b>될 수 있습니다.</li>
+        <li>공개되면 각자 <b>받은 표 수</b>와 <b>매칭된 상대</b>(인스타, 밀담방, 선물 티켓)를 봅니다.</li>
+      </ul>
+      <div class="flow"><span>대기</span><i>→</i><span>열림</span><i>→</i><span>마감 (22:50)</span><i>→</i><span class="r">종료</span><i>→ 30분 뒤 자동</i><span>발표</span></div>
+      <p class="note"><span class="k">종료</span>를 누르면 선택이 잠기고, 모든 폰에 공개 카운트다운이 뜹니다. 공개까지의 시간(기본 30분)은 관리자 화면에서 바꿀 수 있습니다. <span class="k">발표</span>를 누르면 바로 공개됩니다.</p>
+    </section>
+
+    <section class="card">
+      <h2>👑 베스트 드레서 <small>캐릭터: 루시안</small></h2>
+      <ul>
+        <li>남녀 각 1표씩, 본인은 뽑을 수 없습니다. 마감 전까지는 바꿀 수 있습니다.</li>
+        <li>단계: <span class="k">대기</span> → <span class="k">열림</span> → <span class="k">마감</span> → <span class="k">발표</span>(시상대 애니메이션).</li>
+        <li>득표 순위는 관리자 화면에서 실시간으로 볼 수 있습니다.</li>
+      </ul>
+    </section>
+
+    <section class="card span2">
+      <h2>🕰 당일 타임라인 ↔ 관리자 조작</h2>
+      <table>
+        <tr><th>시간</th><th>현장</th><th>관리자 조작</th></tr>
+        <tr><td>20:00</td><td>체크인 · 착석 · 웰컴 드링크</td><td>입장 QR 안내. 참가자가 로그인하면 인트로 영상과 캐릭터 규칙 설명이 나옵니다. 시계는 <span class="k">■ 대기 화면</span>.</td></tr>
+        <tr><td>20:25</td><td>룰 안내</td><td>로비의 <b>📜 저택의 규칙</b>을 누르면 캐릭터가 규칙을 다시 설명한다고 안내합니다.</td></tr>
+        <tr><td>20:30~22:11</td><td>로테이션 10라운드</td><td>라운드마다 <span class="k">▶ 시작</span>을 누르고, 21:20쯤 <span class="k">☕ 숨 고르기</span>를 누릅니다. 베스트 드레서는 원하는 시점에 <span class="k">열림</span>.</td></tr>
+        <tr><td>22:25</td><td>자유 시간 · 스탠딩</td><td><span class="k">🕯 자유 시간</span>을 누르고 운명의 실을 <span class="k">열림</span>으로 둡니다.</td></tr>
+        <tr><td>22:50</td><td>호감 투표 마감</td><td>운명의 실 <span class="k">마감</span>, 베스트 드레서 <span class="k">마감</span>.</td></tr>
+        <tr><td>23:10</td><td>발표</td><td>베스트 드레서 <span class="k">발표</span>. 운명의 실은 아직 공개하지 않습니다.</td></tr>
+        <tr><td>23:20~</td><td>마무리 · 퇴장 · 2차</td><td>운명의 실 <span class="r">종료</span>를 누르면 30분 뒤 자동 공개됩니다. 매칭 커플은 선물 티켓을 운영진에게 보여줍니다.</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>🧰 그 밖의 도구</h2>
+      <ul>
+        <li><b>🎡 경품 룰렛</b>: 전체, 남, 여, 미매칭 중 대상을 골라 추첨합니다.</li>
+        <li><b>🍷 테이블 나누기</b>: 남녀를 섞어 N개 테이블로 나눕니다(참고용).</li>
+        <li><b>📸 인스타 태그</b>: 태그에 동의한 사람의 @아이디를 한 번에 복사합니다.</li>
+        <li><b>📜 명단 만들기</b>: "이름 생년월일 성별"을 붙여넣고 서버에 올립니다.</li>
+        <li><b>🧹 초기화</b>: 투표, 운명의 실, 전체 데이터를 지웁니다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>✅ 행사 전 체크리스트</h2>
+      <ul class="chk">
+        <li>index.html의 <b>DB_URL</b>(Firebase)과 <b>ADMIN_PIN</b>을 바꿨다</li>
+        <li>실제 명단을 서버에 올리고, 테스트 계정이 로그인되지 않는 것을 확인했다</li>
+        <li>index.html, intro.mp4, guide.html을 넷리파이에 올렸다</li>
+        <li>폰 2대로 사탕 → 돌려주기 → 밀담방, 라운드 시작/종을 리허설했다</li>
+        <li>입장 QR 코드를 출력했다</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>🆘 이럴 땐</h2>
+      <ul>
+        <li><b>로그인이 안 됨</b>: 명단의 이름과 생년월일 표기를 확인합니다(공백은 무시됩니다).</li>
+        <li><b>인트로를 다시 보고 싶음</b>: 닉네임 → 🎬 인트로 다시 보기.</li>
+        <li><b>시계가 안 맞음</b>: 폰의 자동 시간 설정을 켜게 합니다.</li>
+        <li><b>소리가 안 남</b>: 아이폰 무음 스위치를 확인하고, 대화 화면 🔊 버튼을 켭니다.</li>
+        <li><b>행사가 끝나면</b>: Firebase 데이터를 삭제합니다(채팅 포함).</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>🔒 개인정보 · 데이터</h2>
+      <ul>
+        <li>실명과 생년월일은 <b>해시</b>로만 저장되고, 화면에는 닉네임만 보입니다.</li>
+        <li>"익명"은 <b>참가자 화면에서만</b> 익명입니다. 운영 DB에는 보낸 사람이 기록됩니다.</li>
+        <li>밀담방 대화도 DB에 남습니다. 행사가 끝나면 <b>Firebase 데이터를 삭제</b>해 주세요.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+<button class="print" onclick="print()">🖨 인쇄 / PDF</button>
+</body></html>
