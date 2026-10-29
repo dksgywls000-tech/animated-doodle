@@ -169,7 +169,8 @@
   #vnNext{position:absolute;right:16px;bottom:10px;color:var(--gold);font-size:14px;animation:nextb .8s ease-in-out infinite alternate}
   @keyframes nextb{0%{transform:translateY(0)}100%{transform:translateY(5px)}}
   #vnSkip{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:3;min-height:34px;padding:0 13px;border-radius:99px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.45);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
-  #vnProg{position:absolute;top:calc(27px + env(safe-area-inset-top));left:14px;right:120px;z-index:3;display:flex;gap:3px}
+  #vnMute{position:absolute;top:calc(12px + env(safe-area-inset-top));right:118px;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.45);color:#fff;font-size:14px;cursor:pointer}
+  #vnProg{position:absolute;top:calc(27px + env(safe-area-inset-top));left:14px;right:166px;z-index:3;display:flex;gap:3px}
   #vnProg i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.18)}
   #vnProg i.on{background:var(--gold)}
   .vnform{cursor:default}
@@ -600,6 +601,7 @@
 <section id="vn" hidden>
   <div class="vnbg"></div>
   <div id="vnProg"></div>
+  <button id="vnMute" type="button" aria-label="대사 효과음 켜기/끄기">🔊</button>
   <button id="vnSkip" type="button">건너뛰기 ▸▸</button>
   <div id="vnStage"><div class="spot"></div></div>
   <div id="vnBox" role="button" tabindex="0" aria-live="polite">
@@ -877,8 +879,9 @@ function playIntro(){
   let done=false;
   const finish=()=>{ if(done) return; done=true; try{v.pause();}catch(e){} $('skipIntro').hidden=true;
     $('intro').animate([{opacity:1},{opacity:0}],{duration:600}).onfinish=()=>{ $('intro').hidden=true; startVN(); }; };
-  $('skipIntro').onclick=finish;
+  $('skipIntro').onclick=()=>{ Voice.init(); finish(); };
   gate.onclick=async()=>{
+    Voice.init();
     gate.onclick=null; gate.classList.add('off'); await sleep(350); gate.hidden=true; $('skipIntro').hidden=false;
     let ok=false;
     const srcs=[].concat(CONFIG.INTRO_VIDEO||[]).filter(Boolean);
@@ -937,6 +940,7 @@ const SCRIPT=[
 ];
 let vnI=0, vnCur=null, vnTyping=null, vnFull='';
 function startVN(){
+  paintMute();
   show('vn'); vnI=0; vnCur=null;
   $('vnStage').querySelectorAll('.ch').forEach(x=>x.remove());
   const prog=$('vnProg'); prog.innerHTML=SCRIPT.map(()=>'<i></i>').join('');
@@ -964,6 +968,8 @@ function vnType(html){
   clearInterval(vnTyping);
   vnTyping=setInterval(()=>{
     i++;
+    // 글자가 찍힐 때마다 캐릭터 목소리 효과음 (두 글자에 한 번, 공백·문장부호는 건너뜀)
+    const c=plain[i-1]; if(c&&i%2===1&&!/[\s.,!?~…·"'()]/.test(c)&&vnCur) Voice.blip(vnCur.key,c.charCodeAt(0));
     // 태그를 깨지 않도록: 원문 HTML에서 i글자까지만 보이게 잘라냄
     box.innerHTML=sliceHTML(html,i);
     if(i>=plain.length){ vnDoneType(); }
@@ -984,7 +990,39 @@ function vnAdvance(){
   if(vnTyping){ vnDoneType(); return; }
   vnI++; vnStep();
 }
-$('vnBox').addEventListener('click',e=>{ if(e.target.closest('.vnform')) return; vnAdvance(); });
+$('vnBox').addEventListener('click',e=>{ Voice.init(); if(e.target.closest('.vnform')) return; vnAdvance(); });
+$('vnMute').onclick=()=>{ Voice.init(); Voice.on=!Voice.on; LS.set(K('voice'),Voice.on); paintMute(); if(Voice.on&&vnCur) Voice.blip(vnCur.key,44032); };
+function paintMute(){ $('vnMute').textContent=Voice.on?'🔊':'🔇'; }
+
+/* 캐릭터 목소리: 파일 없이 브라우저에서 합성하는 '삐뽀삐뽀' 대사음
+   글자 코드로 음높이를 정해서 같은 문장은 늘 같은 억양으로 들립니다 */
+const VOICES={
+  jack:  {type:'square',  lo:330,hi:520, dur:.06, gain:.035, lp:1800},           // 통통 튀는 호박
+  pipi:  {type:'sine',    lo:950,hi:1500,dur:.045,gain:.09,  slide:1.35},        // 삐익! 높은 박쥐
+  lucian:{type:'triangle',lo:110,hi:165, dur:.11, gain:.16,  lp:900},            // 낮고 느린 백작
+  boo:   {type:'sine',    lo:300,hi:420, dur:.12, gain:.08,  vib:9},             // 떨리는 유령
+  hazel: {type:'triangle',lo:520,hi:820, dur:.055,gain:.09,  slide:.85}          // 장난스러운 마녀
+};
+const Voice={
+  ctx:null, on:LS.get(K('voice'),true),
+  init(){
+    try{
+      if(!this.ctx){ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; this.ctx=new AC(); }
+      if(this.ctx.state==='suspended') this.ctx.resume();
+    }catch(e){}
+  },
+  blip(key,code){
+    const v=VOICES[key], ctx=this.ctx; if(!this.on||!v||!ctx||ctx.state!=='running') return;
+    const t=ctx.currentTime, f=v.lo+(code*7919%97)/97*(v.hi-v.lo);
+    const o=ctx.createOscillator(), g=ctx.createGain(); let out=o;
+    o.type=v.type; o.frequency.setValueAtTime(f,t);
+    if(v.slide) o.frequency.exponentialRampToValueAtTime(f*v.slide,t+v.dur);
+    if(v.vib){ const l=ctx.createOscillator(), lg=ctx.createGain(); l.frequency.value=v.vib; lg.gain.value=f*.04; l.connect(lg).connect(o.frequency); l.start(t); l.stop(t+v.dur+.02); }
+    if(v.lp){ const fl=ctx.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=v.lp; o.connect(fl); out=fl; }
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v.gain,t+.006); g.gain.exponentialRampToValueAtTime(.0001,t+v.dur);
+    out.connect(g).connect(ctx.destination); o.start(t); o.stop(t+v.dur+.02);
+  }
+};
 $('vnBox').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ if(e.target.closest('.vnform')) return; e.preventDefault(); vnAdvance(); } });
 $('vnSkip').onclick=()=>{
   if(!prof(ME).nick){ vnI=SCRIPT.findIndex(s=>s.form); vnStep(); toast('닉네임만 정하고 들어가요 🎃'); return; }
