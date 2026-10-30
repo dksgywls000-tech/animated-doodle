@@ -152,6 +152,10 @@
 
   /* ── 비주얼노벨 ── */
   #vn{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;overflow:hidden}
+  #vn.formmode{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  #vn.formmode #vnStage{flex:0 0 auto;min-height:150px;padding-top:56px}
+  #vn.formmode #vnStage .ch{width:120px;height:120px}
+  #vn.formmode #vnBox{flex:0 0 auto;margin-bottom:calc(96px + env(safe-area-inset-bottom))}
   #vn .vnbg{position:absolute;inset:0;background:rgba(5,2,2,.35)}
   #vnStage{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;min-height:0}
   #vnStage .spot{position:absolute;bottom:-40px;left:50%;width:280px;height:80px;transform:translateX(-50%);border-radius:50%;
@@ -331,7 +335,7 @@
   #sheetBack{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);animation:fadeIn .2s}
   @keyframes fadeIn{from{opacity:0}}
   #sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;max-height:88dvh;overflow-y:auto;background:linear-gradient(180deg,#2a140b,#140806);
-    border-top:2px solid #7a4a1e;border-radius:24px 24px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));animation:sheetUp .32s cubic-bezier(.2,.9,.3,1)}
+    border-top:2px solid #7a4a1e;border-radius:24px 24px 0 0;padding:10px 18px calc(90px + env(safe-area-inset-bottom));animation:sheetUp .32s cubic-bezier(.2,.9,.3,1)}
   @keyframes sheetUp{from{transform:translateY(100%)}}
   #sheet .grab{width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);margin:0 auto 14px}
   .sheet-inner{max-width:520px;margin:0 auto}
@@ -586,7 +590,7 @@
   #secretOv{position:fixed;inset:0;z-index:86;overflow-y:auto;background:radial-gradient(70% 50% at 50% 30%,rgba(120,10,24,.45),transparent 70%),rgba(6,2,2,.97);animation:fadeIn .4s}
   #svid{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .6s;background:#000}
   #svid.on{opacity:1}
-  .so-in{position:relative;z-index:2;min-height:100%;max-width:520px;margin:0 auto;padding:calc(30px + env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom));text-align:center}
+  .so-in{position:relative;z-index:2;min-height:100%;max-width:520px;margin:0 auto;padding:calc(30px + env(safe-area-inset-top)) 18px calc(96px + env(safe-area-inset-bottom));text-align:center}
   .so-in.dim{background:transparent}
   .so-skip{position:fixed;top:calc(14px + env(safe-area-inset-top));right:14px;min-height:36px;padding:0 14px;border-radius:99px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;z-index:3}
   .so-gate{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer}
@@ -1061,6 +1065,7 @@ function vnFill(t){ return t.replace(/\{nick\}/g,esc(prof(ME).nick||'영혼')); 
 async function vnStep(){
   const s=VS[vnI]; if(!s){ return endVN(); }
   [...$('vnProg').children].forEach((x,i)=>x.classList.toggle('on',i<=vnI));
+  $('vn').classList.toggle('formmode',!!s.form);
   if(s.form){ return vnForm(); }
   if(!vnCur||vnCur.key!==s.c){
     if(vnCur){ vnCur.el.classList.add('exit'); const old=vnCur.el; setTimeout(()=>old.remove(),340); await sleep(200); }
@@ -1150,7 +1155,7 @@ function vnForm(){
   });
 }
 async function endVN(){
-  clearInterval(vnTyping);
+  clearInterval(vnTyping); $('vn').classList.remove('formmode');
   if(VMODE==='rules'){ $('vn').animate([{opacity:1},{opacity:0}],{duration:400}).onfinish=()=>{ show('app'); renderTab(); }; return; }
   await saveProfile({seen:true});
   $('vn').animate([{opacity:1},{opacity:0}],{duration:450}).onfinish=()=>{ enterApp(); confetti(['🎃','🦇','🍬','✨'],28); };
