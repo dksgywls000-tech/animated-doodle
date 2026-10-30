@@ -633,8 +633,8 @@
     <span class="sigil"><svg viewBox="0 0 16 16"><circle cx="8" cy="6" r="3.2" fill="none" stroke="#f6d08a" stroke-width="1.3"/><path d="M6.6 8.6 5.6 14h4.8l-1-5.4" fill="none" stroke="#f6d08a" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
     <label class="lf"><span>NAME<i>참가 신청 때 적은 이름</i></span>
       <input id="lgName" placeholder="홍길동" autocomplete="off" required></label>
-    <label class="lf"><span>BIRTH<i>생년월일 6자리 또는 8자리</i></span>
-      <input id="lgBirth" placeholder="YYMMDD" inputmode="numeric" maxlength="10" autocomplete="off" required></label>
+    <label class="lf"><span>PHONE<i>휴대폰 번호 뒤 4자리</i></span>
+      <input id="lgPin" placeholder="● ● ● ●" inputmode="numeric" maxlength="16" autocomplete="off" required></label>
     <button class="enter" type="submit" id="lgBtn"><b>ENTER</b><small>저택에 입장하기</small></button>
     <p class="err" id="lgErr" role="alert"></p>
   </form>
@@ -703,6 +703,7 @@
 <section id="board" hidden></section>
 <section id="admin" hidden><div class="wrap adm" id="admIn"></div></section>
 
+<script src="roster.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════
    설정 — 행사 전에 여기만 채우면 됩니다 (README 참고)
@@ -726,16 +727,19 @@ const CONFIG={
   LETTER_MAX:5,    // 박쥐편지: 1인당 보낼 수 있는 통수
   REVEAL_DELAY_MIN:30  // 운명의 실: '종료'를 누르고 몇 분 뒤에 결과 공개
 };
-/* 참가자 명단 — 실명·생년월일은 해시로만 저장됩니다.
-   관리자 화면 › "명단 만들기"에 "이름 생년월일 성별"을 붙여넣으면 이 배열이 생성됩니다. */
-const ROSTER=[
+/* 참가자 명단 — 실명·휴대폰 뒤 4자리는 해시로만 저장됩니다.
+   실제 명단은 같은 폴더의 roster.js(window.ROSTER_LOCAL)에 두고 깃에는 올리지 않습니다(공개 저장소).
+   roster.js가 없으면 아래 데모 계정이 쓰입니다. 관리자 › "명단 만들기"로 새 명단을 만들 수 있어요.
+   {id, g:'m'|'f', n:성별 번호, h:해시} · 운영진은 {id, staff:1, h} */
+const ROSTER=(window.ROSTER_LOCAL&&window.ROSTER_LOCAL.length)?window.ROSTER_LOCAL:[
   /*ROSTER_START*/
-  {id:"p01",g:"m",h:"3a7cb56cf6c60b1fad7fb621e90efae2c8ee87902d8a1b7f822676a0b698f09f"}, // 데모: 테스트일 950101
-  {id:"p02",g:"f",h:"bda0fa28ff6fc7503582c144ba877bf995d4d7df6632ed37d03d3a0ff4dd7ed1"}, // 데모: 테스트이 960202
-  {id:"p03",g:"m",h:"f8b6684c1e929abe9bf20d8fff0cdb72d44e7886088cb428598dc86bc308b681"}, // 데모: 테스트삼 970303
-  {id:"p04",g:"f",h:"f58bf6f384adc3b837ecedc0ed535c34a8d3a835173b6ccffc8378b1345d53c5"}, // 데모: 테스트사 980404
-  {id:"p05",g:"m",h:"c849b932d7e5a402a6709c6534f845bbea557f76742a23033af0af1f0de1b0de"}, // 데모: 테스트오 990505
-  {id:"p06",g:"f",h:"c6561a5a2c29582520028e4388556e9e36ec3a2aac8a95bffa30ee2529175d70"}, // 데모: 테스트육 000606
+  {id:"p01",g:"m",n:1,h:"9d4213042638439fccaa0a7763d860d359c24f43e3c2b42f522430776fa22462"}, // 데모: 테스트일 0001
+  {id:"p02",g:"f",n:1,h:"6ababa69e9b69ba19606ae254e431bfd00286242ce9ee57348b71595e0754135"}, // 데모: 테스트이 0002
+  {id:"p03",g:"m",n:2,h:"c3f60b6614f226e147d00bad01436e095194d1a2f655152eef39528169ed385f"}, // 데모: 테스트삼 0003
+  {id:"p04",g:"f",n:2,h:"51c82b71fcc8c06aa322f0fbde890a6225e0cfa72a9dd1264060e494323a6070"}, // 데모: 테스트사 0004
+  {id:"p05",g:"m",n:3,h:"3eeb8c5e5e339ab9da77144391f51cc6586eff3b7ec53d541fe28cfed672ac2f"}, // 데모: 테스트오 0005
+  {id:"p06",g:"f",n:3,h:"04ac5ab18d0bf4b27f45fb7db39197b9d6209d9c852df474d0ee7ac007b3eedb"}, // 데모: 테스트육 0006
+  {id:"s01",staff:1,h:"47c896b9f98bdbc117b55029c12227a688dfa26ebba76540770626cfb5549587"}, // 데모 운영진: 테스트스탭 9999
   /*ROSTER_END*/
 ];
 
@@ -774,13 +778,9 @@ function sha256(ascii){
   return result;
 }
 const normName=s=>String(s||'').replace(/\s+/g,'').trim();
-function normBirth(s){
-  const d=String(s||'').replace(/\D/g,'');
-  if(d.length===8) return d;
-  if(d.length===6){ const yy=+d.slice(0,2); return (yy>=30?'19':'20')+d; }
-  return '';
-}
-const credHash=(name,birth)=>sha256('sh|'+normName(name)+'|'+normBirth(birth));
+// 휴대폰 번호 뒤 4자리. 전체 번호를 넣어도 뒤 4자리만 씀
+function normPin(s){ const d=String(s||'').replace(/\D/g,''); return d.length>=4?d.slice(-4):''; }
+const credHash=(name,pin)=>sha256('sh2|'+normName(name)+'|'+normPin(pin));
 
 /* ════════════════ 저장소 (Firebase REST ↔ 로컬) ════════════════ */
 const Store={
@@ -926,7 +926,9 @@ const nick=id=>prof(id).nick||'이름 없는 영혼';
 const avat=id=>prof(id).av||'🕯️';
 const gOf=id=>(person(id)||{}).g;
 const phase=k=>(Store.get('state/'+k)||'wait');
-const souls=()=>roster().filter(p=>prof(p.id).nick);
+const isStaff=id=>!!(person(id)||{}).staff;
+// 참가자(운영진 제외) 중 입장해서 닉네임을 정한 사람
+const souls=()=>roster().filter(p=>!p.staff&&prof(p.id).nick);
 
 /* ════════════════ 부트 ════════════════ */
 (function boot(){
@@ -949,15 +951,15 @@ function route(){
 /* ════════════════ 로그인 ════════════════ */
 $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const n=$('lgName').value, b=$('lgBirth').value;
+  const n=$('lgName').value, b=$('lgPin').value;
   if(!normName(n)){ $('lgErr').textContent='이름을 적어주세요.'; return; }
-  if(!normBirth(b)){ $('lgErr').textContent='생년월일은 950315 또는 19950315처럼 숫자로 적어주세요.'; return; }
+  if(!normPin(b)){ $('lgErr').textContent='휴대폰 번호 뒤 4자리를 숫자로 적어주세요.'; return; }
   $('lgBtn').disabled=true; $('lgBtn').querySelector('small').textContent='명단을 확인하는 중…';
   await Store.pull();
   const h=credHash(n,b), p=roster().find(x=>x.h===h);
   $('lgBtn').disabled=false; $('lgBtn').querySelector('small').textContent='저택에 입장하기';
   if(!p){
-    $('lgErr').innerHTML='🎃 명단에 없는 영혼이에요… 이름과 생년월일을 다시 확인해 주세요.<br>계속 안 되면 입구의 운영진에게 말해주세요.';
+    $('lgErr').innerHTML='🎃 명단에 없는 영혼이에요… 이름과 휴대폰 번호 뒤 4자리를 다시 확인해 주세요.<br>계속 안 되면 입구의 운영진에게 말해주세요.';
     $('loginForm').animate([{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'none'}],{duration:260,iterations:2});
     return;
   }
@@ -1288,7 +1290,7 @@ function checkInbox(first){
 /* ── 로비 ── */
 function renderHome(v){
   const p=prof(ME), mt=MONSTER[p.type];
-  const cs=candyTo(ME), L=lettersTo(ME), sentL=lettersFrom(ME), ps=chatPartners(), num=String(roster().findIndex(x=>x.id===ME)+1).padStart(2,'0');
+  const cs=candyTo(ME), L=lettersTo(ME), sentL=lettersFrom(ME), ps=chatPartners(), num=((person(ME)||{}).g==='f'?'W':'M')+String((person(ME)||{}).n||roster().findIndex(x=>x.id===ME)+1).padStart(2,'0');
   const notes=[], mp=mphase(), pend=cs.filter(id=>!candySent(ME,id));
   const ss=sstate(), sp=secretPartner();
   if(ss.ph==='result'&&sp) notes.push(['🚪','비밀의 방 · '+secretNo()+'번 커플',''+esc(nick(sp))+'님과 '+secretNo()+'번 자리로 · 안쪽부터 1번','secret']);
@@ -1303,7 +1305,7 @@ function renderHome(v){
     clockHTML()+themeHTML()+
     guide('jack',greet())+
     notes.map(n=>'<div class="notice" data-go="'+n[3]+'"><span class="ic">'+n[0]+'</span><div><b>'+n[1]+'</b><span>'+n[2]+'</span></div></div>').join('')+
-    '<div class="tag"><span class="hole">No.'+num+'</span><div class="lab">Soul Name Tag</div>'+
+    '<div class="tag"><span class="hole">'+(isStaff(ME)?'🛠 STAFF':'No.'+num)+'</span><div class="lab">Soul Name Tag</div>'+
       '<div class="row"><div class="big">'+esc(avat(ME))+'</div><div style="min-width:0"><div class="nk">'+esc(nick(ME))+'</div><div class="cs">'+(p.cos?'🎭 '+esc(p.cos):'코스튬 한 줄을 적어보세요')+'</div></div></div>'+
       '<div class="badges">'+(mt?'<span class="pill red">'+mt.e+' '+mt.n+'</span>':'<span class="pill" data-go-room="quiz" style="cursor:pointer">❔ 몬스터 유형 미정 · 테스트하기</span>')+
       (p.insta?'<span class="pill teal">📷 @'+esc(p.insta)+'</span>':'<span class="pill red" id="noIg" style="cursor:pointer">📷 인스타 미등록 · 편지 교환용</span>')+'</div>'+
@@ -1357,10 +1359,10 @@ $('tpill').onclick=()=>go('home');
 /* ── 영혼 도감 ── */
 let soulFilter='all', soulQ='';
 function renderSouls(v){
-  const all=roster(), m=all.filter(p=>p.g==='m').length, f=all.length-m, inM=souls().filter(p=>p.g==='m').length, inF=souls().length-inM;
-  const list=all.filter(p=>soulFilter==='all'||p.g===soulFilter)
+  const all=roster().filter(p=>!p.staff), m=all.filter(p=>p.g==='m').length, f=all.length-m, inM=souls().filter(p=>p.g==='m').length, inF=souls().length-inM;
+  const list=roster().filter(p=>soulFilter==='all'||p.g===soulFilter)
     .filter(p=>!soulQ||nick(p.id).toLowerCase().includes(soulQ.toLowerCase())||(prof(p.id).cos||'').includes(soulQ))
-    .sort((a,b)=>(!!prof(b.id).nick)-(!!prof(a.id).nick)||(prof(b.id).at||0)-(prof(a.id).at||0));
+    .sort((a,b)=>(!!a.staff)-(!!b.staff)||(!!prof(b.id).nick)-(!!prof(a.id).nick)||(prof(b.id).at||0)-(prof(a.id).at||0));
   const sentC=candyFrom(ME), sentL=lettersFrom(ME);
   v.innerHTML=head('Halloween','영혼 도감','Who\'s Here')+
     guide('pipi','카드를 누르면 배달해줄게! <b>🍬 사탕</b>은 네 닉네임이 보이고, <b>🦇 편지</b>는 익명이지만 서로의 인스타가 공유돼. 남은 사탕 <b>'+Math.max(0,candyLeft())+'</b>개, 편지 <b>'+(CONFIG.LETTER_MAX-sentL.length)+'</b>통!')+
@@ -1371,7 +1373,7 @@ function renderSouls(v){
     '<div class="grid">'+list.map((p,i)=>{
       const pr=prof(p.id), on=!!pr.nick, mt=MONSTER[pr.type];
       return '<button class="soul'+(p.id===ME?' me':'')+(on?'':' ghosty')+'" data-id="'+p.id+'" style="animation-delay:'+Math.min(i*30,400)+'ms" '+(on?'':'disabled')+'>'+
-        '<i class="sx" style="background:'+(p.g==='m'?'#e0483f':'var(--teal)')+'"></i>'+
+        (p.staff?'<span class="mk" style="left:8px;right:auto">🛠</span>':'<i class="sx" style="background:'+(p.g==='m'?'#e0483f':'var(--teal)')+'"></i>')+
         (p.id!==ME&&chatOpen(p.id)?'<span class="mk">💬</span>':sentC.includes(p.id)?'<span class="mk">🍬</span>':candySent(p.id,ME)?'<span class="mk">🎁</span>':'')+
         '<div class="e">'+(on?esc(pr.av||'🎃'):'🕯️')+'</div><div class="n">'+(on?esc(pr.nick):'아직 오는 중…')+'</div>'+
         '<div class="c">'+(on?(pr.cos?esc(pr.cos):(mt?mt.e+' '+mt.n:'&nbsp;')):'&nbsp;')+'</div></button>';
@@ -1391,7 +1393,7 @@ function openSoul(id){
   else candyBtn='<button class="btn gold" id="sCandy" '+(left<=0?'disabled':'')+'>🍬 사탕 건네기 · '+Math.max(0,left)+'개 남음</button><p class="muted" style="text-align:center;font-size:12px">사탕엔 내 닉네임이 적혀 가요. 상대가 돌려주면 밀담방이 열려요.</p>';
   openSheet('<div class="prof-top"><div class="e">'+esc(p.av||'🎃')+'</div><div class="n">'+esc(p.nick)+'</div><div class="c">'+(p.cos?'🎭 '+esc(p.cos):'')+'</div>'+
     (mt?'<p style="margin:10px 0 0"><span class="pill red">'+mt.e+' '+mt.n+'</span></p><p class="muted" style="margin-top:6px;font-size:12.5px">'+mt.d+'</p>':'')+'</div>'+
-    (mine?'<p class="muted" style="text-align:center;margin-top:14px">나야 나! 🎃</p>':
+    (mine?'<p class="muted" style="text-align:center;margin-top:14px">나야 나! 🎃</p>':(isStaff(id)||isStaff(ME))?'<p class="muted" style="text-align:center;margin-top:14px">'+(isStaff(id)?'🛠 저택 운영진이에요. 궁금한 건 언제든 물어보세요!':'🛠 운영진 계정은 사탕 · 편지 · 지목에 참여하지 않아요.')+'</p>':
     '<div class="acts">'+candyBtn+
       (sentL.includes(id)?'<p class="muted" style="text-align:center">🦇 편지를 보냈어요 · 상대의 인스타 '+instaLink(id)+'</p>':
         (sentL.length>=CONFIG.LETTER_MAX?'<p class="muted" style="text-align:center">편지를 모두 보냈어요</p>':
@@ -1455,6 +1457,7 @@ function paintChat(force){
 function myVote(){ const v=Store.get('votes/'+ME)||{}; return {m:v.m,f:v.f,done:!!(v.m&&v.f)}; }
 let voteG='m';
 function renderVote(v){
+  if(isStaff(ME)) return staffNote(v,'베스트 드레서','The Vampire Gift','lucian');
   const ph=phase('vote');
   let html=head('Halloween','베스트 드레서','The Vampire Gift');
   if(ph==='wait'){
@@ -1504,6 +1507,7 @@ function podium(list){
     return '<div class="pod '+cls+'">'+(cls==='p1'?'<span class="crown">👑</span>':'')+'<div class="e">'+esc(avat(x.id))+'</div><div class="n">'+esc(nick(x.id))+'</div><div class="blk">'+(cls==='p1'?1:cls==='p2'?2:3)+'</div><div class="votes">'+x.n+'표</div></div>'; }).join('')+'</div>';
 }
 
+function staffNote(v,kr,en,c){ v.innerHTML=head('Halloween',kr,en)+guide(c,'🛠 <b>운영진 계정</b>은 투표와 지목에 참여하지 않아요. 진행은 로고를 5번 눌러 <b>관리자 화면</b>에서 하세요. (운영진은 PIN 없이 열려요)'); mountGuides(v); }
 /* ── 운명의 실 (매칭) ──
    마음에 드는 이성 3명을 순위 없이 고름. 서로 고르면 매칭이고, 한 사람이 여러 명과 매칭될 수 있음.
    운영진이 '종료'를 누르면 REVEAL_DELAY_MIN분 뒤 자동 공개: 받은 표 수 + 매칭된 상대 */
@@ -1518,6 +1522,7 @@ function mphase(){ const st=phase('match'); if(st==='ended') return Date.now()>=
 const revealLeft=()=>Math.max(0,((Store.get('state/revealAt')||0)-Date.now())/1000);
 let revealing=false;
 function renderMatch(v){
+  if(isStaff(ME)) return staffNote(v,'운명의 실','Red String of Fate','boo');
   const ph=mphase();
   let html=head('Halloween','운명의 실','Red String of Fate');
   const rules='<div class="panel"><h3>🩸 이렇게 이어져요</h3><p class="muted">① 마음에 드는 이성을 <b>'+CONFIG.PICKS_MAX+'명</b>까지 고르세요. <b>순위는 없어요.</b><br>② <b>서로가 서로를 고르면</b> 매칭! 여러 명과 동시에 매칭될 수도 있어요.<br>③ 결과는 바로 나오지 않고 <b>파티 종료 '+CONFIG.REVEAL_DELAY_MIN+'분 뒤</b> 공개돼요.<br>④ 공개되면 <b>내가 받은 표 수</b>와 <b>매칭된 상대</b>를 볼 수 있어요.<br>⑤ 매칭된 상대와는 <b>💬 밀담방</b>이 열려요.</p></div>';
@@ -1971,7 +1976,7 @@ function secretTick(){
     if(st.ph!=='none'&&prev!==null){ try{ navigator.vibrate&&navigator.vibrate([250,120,250]); }catch(e){} }
     if(st.ph==='none'){ ov.hidden=true; stopSvid(); }
     else if(st.ph==='result'&&LS.get(K('sclose:'+st.S.id+':'+ME))){ ov.hidden=true; }
-    else if($('admin').hidden&&(prev!==null||st.ph!=='result')) openSecret();
+    else if($('admin').hidden&&!isStaff(ME)&&(prev!==null||st.ph!=='result')) openSecret();
     if(TAB==='home') renderTab();
   }
   if(!ov.hidden){
@@ -2103,6 +2108,7 @@ let brandTaps=0, brandT=0;
 $('brand').onclick=()=>{ brandTaps++; clearTimeout(brandT); brandT=setTimeout(()=>brandTaps=0,1500); if(brandTaps>=5){ brandTaps=0; openAdmin(); } };
 let admOK=false;
 function openAdmin(){
+  if(ME&&isStaff(ME)) admOK=true;   // 운영진 계정은 PIN 없이
   if(!admOK){ const pin=prompt('🔒 운영진 PIN'); if(pin!==CONFIG.ADMIN_PIN){ if(pin!=null) alert('PIN이 달라요'); return; } admOK=true; }
   $('admin').hidden=false; document.body.style.overflow='hidden'; renderAdmin();
   Store.listeners.push(admTick);
@@ -2136,7 +2142,7 @@ function renderAdmin(){
       '<div class="wheel-wrap"><span class="pin">🔻</span><canvas id="wheel" width="600" height="600"></canvas></div><button class="btn gold" id="spin">🎡 돌리기</button><p class="muted" id="wres" style="text-align:center;margin-top:8px"></p></div>'+
     '<div class="panel"><h3>🍷 테이블 나누기 <small>남녀 섞어서</small></h3><div class="row2"><input class="inp" id="tN" type="number" min="2" max="20" value="4"><button class="btn small" id="tGo">나누기</button></div><div id="tOut" style="margin-top:10px"></div></div>'+
     '<div class="panel"><h3>📸 인스타 태그 <small>태그 동의한 영혼</small></h3><textarea readonly id="tagList">'+esc(S.filter(p=>prof(p.id).tagok&&prof(p.id).insta).map(p=>'@'+prof(p.id).insta).join(' '))+'</textarea><div class="btnrow"><button class="btn ghost small" id="cpTag">@아이디 복사</button></div></div>'+
-    '<div class="panel"><h3>📜 명단 만들기</h3><p class="muted">한 줄에 한 명: <code>이름 생년월일 성별</code> (예: <code>홍길동 950315 남</code>)<br>실명·생년월일은 이 기기에서 해시로만 변환돼요.</p>'+
+    '<div class="panel"><h3>📜 명단 만들기</h3><p class="muted">한 줄에 한 명: <code>이름 휴대폰번호 성별</code> (예: <code>홍길동 010-1234-5678 남</code>, 뒤 4자리만 써도 돼요) · 운영진은 <code>이름 운영진</code> (비밀번호 9999)<br>실명·생년월일은 이 기기에서 해시로만 변환돼요.</p>'+
       '<textarea id="rIn" placeholder="홍길동 950315 남&#10;김영희 19970822 여"></textarea>'+
       '<div class="btnrow"><button class="btn small" id="rGen">변환하기</button><button class="btn gold small" id="rUp" '+(Store.remote?'':'')+'>서버 명단으로 올리기</button></div><textarea id="rOut" readonly style="margin-top:8px;min-height:80px" placeholder="index.html의 ROSTER에 붙여넣을 코드"></textarea><p class="muted" id="rMsg"></p>'+
       '<p class="muted" style="font-size:11.5px">현재 명단: '+R.length+'명 ('+(Store.get('roster')?'서버 명단':'파일 내장 명단')+')</p></div>'+
@@ -2159,23 +2165,25 @@ function renderAdmin(){
   document.querySelectorAll('[data-wf]').forEach(b=>b.onclick=()=>{ wf=b.dataset.wf; renderAdmin(); });
   drawWheel(0); $('spin').onclick=spinWheel;
   $('tGo').onclick=()=>splitTables(+$('tN').value||4);
-  $('rGen').onclick=()=>{ const r=parseRoster($('rIn').value); if(!r) return; $('rOut').value=r.map(x=>'  {id:"'+x.id+'",g:"'+x.g+'",h:"'+x.h+'"},').join('\n'); $('rMsg').textContent=r.length+'명 변환 완료'; };
+  $('rGen').onclick=()=>{ const r=parseRoster($('rIn').value); if(!r) return; $('rOut').value='window.ROSTER_LOCAL=[\n'+r.map(x=>'  '+JSON.stringify(x)+',').join('\n')+'\n];'; $('rMsg').textContent=r.length+'명 변환 완료'; };
   $('rUp').onclick=async()=>{ const r=parseRoster($('rIn').value); if(!r) return; if(!confirm(r.length+'명으로 서버 명단을 교체할까요? (기존 프로필 id는 순서대로 p01, p02… 로 매겨져요)')) return; await Store.put('roster',r); $('rMsg').textContent='서버 명단 '+r.length+'명 저장 완료'; renderAdmin(); };
   $('rsVote').onclick=async()=>{ if(confirm('모든 투표를 지울까요?')){ await Store.put('votes',null); await Store.put('results/vote',null); renderAdmin(); } };
   $('rsPick').onclick=async()=>{ if(confirm('모든 운명의 실 선택을 지울까요?')){ await Store.put('picks',null); await Store.put('results/match',null); renderAdmin(); } };
   $('rsAll').onclick=async()=>{ if(prompt('정말 전체 삭제하려면 "삭제"라고 입력')==='삭제'){ for(const k of ['profiles','votes','picks','candy','letters','chats','results','state','timer','secret','spicks','shist']) await Store.put(k,null); renderAdmin(); } };
 }
 function parseRoster(text){
-  const out=[], bad=[];
-  text.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach((line,i)=>{
+  const out=[], bad=[]; let nm=0, nf=0, ns=0;
+  text.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
     const parts=line.split(/[\s,\t\/]+/).filter(Boolean);
+    const si=parts.findIndex(x=>/^(운영진|스탭|스태프|staff)$/i.test(x));
+    if(si>=0){ const name=parts.filter((_,k)=>k!==si).join(''); if(!name){ bad.push(line); return; }
+      out.push({id:'s'+String(++ns).padStart(2,'0'),staff:1,h:credHash(name,'9999')}); return; }
     const gi=parts.findIndex(x=>/^(남|여|남자|여자|m|f|M|F)$/.test(x));
-    const bi=parts.findIndex(x=>/^\d{6}$|^\d{8}$|^\d{4}[.\-]\d{1,2}[.\-]\d{1,2}$/.test(x));
-    if(gi<0||bi<0){ bad.push(line); return; }
-    let b=parts[bi]; if(/[.\-]/.test(b)){ const [y,m,d]=b.split(/[.\-]/); b=y+m.padStart(2,'0')+d.padStart(2,'0'); }
-    const name=parts.filter((_,k)=>k!==gi&&k!==bi).join('');
+    const pi=parts.findIndex(x=>/\d{4}/.test(x)&&x.replace(/\D/g,'').length>=4);
+    if(gi<0||pi<0){ bad.push(line); return; }
+    const name=parts.filter((_,k)=>k!==gi&&k!==pi).join('');
     const g=/^(남|남자|m|M)$/.test(parts[gi])?'m':'f';
-    out.push({id:'p'+String(out.length+1).padStart(2,'0'),g,h:credHash(name,b)});
+    out.push({id:'p'+String(out.filter(x=>!x.staff).length+1).padStart(2,'0'),g,n:g==='m'?++nm:++nf,h:credHash(name,parts[pi])});
   });
   if(bad.length){ $('rMsg').textContent='형식 확인 필요: '+bad.join(' / '); if(!out.length) return null; }
   return out;
