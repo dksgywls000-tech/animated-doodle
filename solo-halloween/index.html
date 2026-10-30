@@ -583,6 +583,39 @@
   .vbig b{font-family:var(--serif);font-size:58px;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
   .vbig span{font-family:var(--round);color:var(--gold);font-size:16px}
   nav.tabs button{font-size:10.5px}
+  #secretOv{position:fixed;inset:0;z-index:86;overflow-y:auto;background:radial-gradient(70% 50% at 50% 30%,rgba(120,10,24,.45),transparent 70%),rgba(6,2,2,.97);animation:fadeIn .4s}
+  #svid{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .6s;background:#000}
+  #svid.on{opacity:1}
+  .so-in{position:relative;z-index:2;min-height:100%;max-width:520px;margin:0 auto;padding:calc(30px + env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom));text-align:center}
+  .so-in.dim{background:transparent}
+  .so-skip{position:fixed;top:calc(14px + env(safe-area-inset-top));right:14px;min-height:36px;padding:0 14px;border-radius:99px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;z-index:3}
+  .so-gate{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+  .door{position:relative;width:120px;height:170px;border-radius:60px 60px 6px 6px;border:2px solid rgba(246,208,138,.6);background:linear-gradient(180deg,#3a0a12,#120406);box-shadow:0 0 40px rgba(255,60,70,.35),inset 0 0 30px rgba(0,0,0,.8);margin-bottom:14px;overflow:hidden}
+  .door span{position:absolute;inset:auto 0 0;height:100%;background:linear-gradient(90deg,transparent,rgba(255,90,100,.55),transparent);animation:doorGlow 2.2s ease-in-out infinite}
+  .door::after{content:"";position:absolute;right:20px;top:50%;width:10px;height:10px;border-radius:50%;background:#f6d08a;box-shadow:0 0 8px #f6d08a}
+  @keyframes doorGlow{0%,100%{opacity:.25;transform:scaleX(.3)}50%{opacity:1;transform:scaleX(1)}}
+  .so-h{margin:8px 0 6px;font-family:var(--round);font-weight:400;font-size:clamp(26px,7.5vw,34px);letter-spacing:.06em;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .so-p{font-family:var(--story);font-size:15px;line-height:1.75;color:#efdcc4;margin:6px 0 14px}
+  .so-line{font-family:var(--story);font-size:15px;line-height:1.8;color:#f3e2c8;background:rgba(255,246,234,.06);border-left:3px solid #b3121f;border-radius:8px;padding:12px 14px;text-align:left;margin:10px 0}
+  .so-wrap .sc-ch{width:110px;height:110px}.so-wrap .sc-ch .ch{width:110px;height:110px}
+  .so-ring{width:170px;height:170px}
+  .so-in.hurry .ck-t{animation:hb 1s ease-in-out infinite;background:linear-gradient(180deg,#ffe1e3,#ff5b66 55%,#a3101c);-webkit-background-clip:text;background-clip:text}
+  .so-wrap .pick-list{text-align:left}
+  .so-count{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:8px 0 4px}
+  .so-count small{font-family:var(--story);font-size:13px;color:var(--muted)}
+  .so-count b{font-family:var(--serif);font-size:56px;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .so-count span{font-family:var(--round);color:var(--gold);font-size:18px}
+  .so-no{margin:14px auto 6px;width:150px;height:150px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(246,208,138,.6);
+    background:radial-gradient(circle,rgba(179,18,31,.55),rgba(40,6,10,.9));box-shadow:0 0 40px rgba(255,60,70,.4);animation:scBig 1s cubic-bezier(.2,.8,.2,1) both}
+  .so-no small{font-family:var(--story);font-size:12px;color:#f3dcb0}
+  .so-no b{font-family:var(--serif);font-size:64px;line-height:1;color:#fff4dc;text-shadow:0 0 20px rgba(246,208,138,.7)}
+  .so-no span{font-family:var(--round);font-size:14px;color:var(--gold)}
+  #board{position:fixed;inset:0;z-index:95;background:radial-gradient(60% 50% at 50% 20%,rgba(120,10,24,.5),transparent 70%),#070203;overflow-y:auto;cursor:pointer}
+  .bd-in{max-width:900px;margin:0 auto;padding:40px 20px;text-align:center}
+  .bd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin:20px 0}
+  .bd-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;border:1px solid rgba(246,208,138,.3);background:rgba(255,246,234,.05);font-family:var(--round);font-size:clamp(16px,2.4vw,22px);text-align:left}
+  .bd-row i{font-style:normal}
+  .bd-no{flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#f3d08c,#b47a2c);color:#2a1204;font-family:var(--serif);font-weight:600;font-size:20px}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
 </head>
@@ -666,6 +699,8 @@
 <div id="sheet" hidden><div class="grab"></div><div class="sheet-inner" id="sheetIn"></div></div>
 <div id="toast" hidden></div>
 <div id="stageCard" hidden></div>
+<section id="secretOv" hidden><video id="svid" playsinline webkit-playsinline preload="auto"></video><div class="so-in" id="soIn"></div></section>
+<section id="board" hidden></section>
 <section id="admin" hidden><div class="wrap adm" id="admIn"></div></section>
 
 <script>
@@ -678,6 +713,10 @@ const CONFIG={
   EVENT:'solo-halloween-2026',
   ADMIN_PIN:'1031',
   // 앞에서부터 차례로 시도합니다. index.html 옆에 intro.mp4를 두면 그 파일을 먼저 씁니다.
+  // 비밀의 방 이벤트 영상(캐릭터가 말하는 영상). secret.mp4를 같은 폴더에 두면 그 파일을 먼저 씀
+  SECRET_VIDEO:['secret.mp4','https://d8j0ntlcm91z4.cloudfront.net/user_37s7yogeDHIHJ5nwAS5DFZlXC1T/hf_20261030_010506_c06800c5-2c33-421c-82e2-255ecb6a862c.mp4'],
+  SECRET_VIDEO_SEC:17,   // 영상 길이(초) + 여유. 이 시간이 지나면 지목이 시작됨
+  SECRET_PICK_SEC:180,   // 지목 제한 시간(초)
   INTRO_VIDEO:['intro.mp4','https://d8j0ntlcm91z4.cloudfront.net/user_37s7yogeDHIHJ5nwAS5DFZlXC1T/hf_20261028_231141_6864d007-359f-41ea-bfe3-cd85a51a953e.mp4'],
   BG_IMAGE:'https://d8j0ntlcm91z4.cloudfront.net/user_37s7yogeDHIHJ5nwAS5DFZlXC1T/hf_20261028_231233_06775988-4054-4be9-9148-2bd93ecdc55f.png',
   TALK_SEC:480,    // 라운드 대화 시간 (관리자 화면에서 바꿀 수 있음)
@@ -1228,8 +1267,8 @@ function lettersTo(id){ const L=Store.get('letters')||{}; return Object.keys(L).
 function lettersFrom(id){ return Object.keys((Store.get('letters')||{})[id]||{}); }
 const instaLink=id=>{ const i=prof(id).insta; return i?'<a class="ig" href="https://instagram.com/'+encodeURIComponent(i)+'" target="_blank" rel="noopener">@'+esc(i)+'</a>':'<span class="ig none">인스타 미등록</span>'; };
 const pairKey=(a,b)=>[a,b].sort().join('_');
-function chatOpen(id){ return (candySent(ME,id)&&candySent(id,ME))||(mphase()==='reveal'&&myMatches().includes(id)); }
-function chatPartners(){ const set=new Set(candyFrom(ME).filter(id=>candySent(id,ME))); if(mphase()==='reveal') myMatches().forEach(id=>set.add(id)); return [...set]; }
+function chatOpen(id){ return (candySent(ME,id)&&candySent(id,ME))||(mphase()==='reveal'&&myMatches().includes(id))||secretPartner()===id||secretPast().includes(id); }
+function chatPartners(){ const set=new Set(candyFrom(ME).filter(id=>candySent(id,ME))); if(mphase()==='reveal') myMatches().forEach(id=>set.add(id)); const sp=secretPartner(); if(sp) set.add(sp); secretPast().forEach(id=>set.add(id)); return [...set]; }
 function msgs(id){ const m=Store.get('chats/'+pairKey(ME,id))||{}; return Object.values(m).filter(x=>x&&x.at).sort((a,b)=>a.at-b.at); }
 function unread(id){ if(TAB==='chat'&&CHAT===id&&!document.hidden) return 0; const r=LS.get(K('read:'+ME+':'+id),0); return msgs(id).filter(x=>x.f!==ME&&x.at>r).length; }
 function markRead(id){ const m=msgs(id); LS.set(K('read:'+ME+':'+id),m.length?m[m.length-1].at:Date.now()); }
@@ -1251,6 +1290,8 @@ function renderHome(v){
   const p=prof(ME), mt=MONSTER[p.type];
   const cs=candyTo(ME), L=lettersTo(ME), sentL=lettersFrom(ME), ps=chatPartners(), num=String(roster().findIndex(x=>x.id===ME)+1).padStart(2,'0');
   const notes=[], mp=mphase(), pend=cs.filter(id=>!candySent(ME,id));
+  const ss=sstate(), sp=secretPartner();
+  if(ss.ph==='result'&&sp) notes.push(['🚪','비밀의 방 · '+secretNo()+'번 커플',''+esc(nick(sp))+'님과 '+secretNo()+'번 자리로 · 안쪽부터 1번','secret']);
   if(pend.length) notes.push(['🍬',pend.length+'명이 사탕을 보냈어요','돌려주면 둘만의 밀담방이 열려요','chat']);
   const un=ps.reduce((n,id)=>n+unread(id),0); if(un) notes.push(['💬','읽지 않은 속삭임 '+un+'개','밀담 탭에서 확인하세요','chat']);
   if(phase('vote')==='open') notes.push(['👑','베스트 드레서 투표 진행 중',myVote().done?'투표 완료! 마감 전까지 바꿀 수 있어요':'남녀 한 명씩 투표해 주세요','vote']);
@@ -1285,7 +1326,7 @@ function renderHome(v){
       '<button class="qbtn" data-go-room="bingo"><div class="g">🎃</div><div class="n">할로윈 빙고</div><div class="d">미션 깨고 빙고!</div></button>'+
     '</div>';
   mountGuides(v);
-  v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>b.dataset.go==='secret'?openSecret(true):go(b.dataset.go));
   v.querySelectorAll('[data-go-room]').forEach(b=>b.onclick=()=>go('rooms',b.dataset.goRoom));
   v.querySelectorAll('[data-back]').forEach(b=>b.onclick=async()=>{ b.disabled=true; await sendCandy(b.dataset.back); renderTab(); });
   v.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>openChat(b.dataset.chat));
@@ -1788,6 +1829,7 @@ function tick(){
     if(on){ tp.textContent=(t.kind==='break'?'☕ ':t.ph==='move'?'⇢ ':roman(t.r)+' · ')+fmt(t.rem); tp.className='tpill'+(mv?' move':'')+(hurry?' hurry':''); }
     tl.style.width=on?(frac*100)+'%':'0';
   }
+  secretTick();
   // 운명의 실 공개 카운트다운
   const mp=mphase();
   ['revealCd','revealCdHome'].forEach(i=>{ const e=$(i); if(e) e.textContent=fmt(revealLeft()); });
@@ -1891,9 +1933,155 @@ function admClockTick(){
   const el=$('admClock'); if(!el||$('admin').hidden) return;
   const t=tstate(), [ey,ph]=clockLabel(t);
   const ar=$('admReveal'); if(ar&&phase('match')==='ended') ar.textContent=mphase()==='reveal'?'✅ 결과 공개됨':'⏳ 자동 공개까지 '+fmt(revealLeft());
+  admSecretTick();
   el.textContent=(t.paused?'⏸ ':'')+ey+(t.rem!=null&&(t.kind==='round'||t.kind==='break')?' · '+fmt(t.rem):'')+' · '+ph;
 }
 setInterval(admClockTick,250);
+
+/* ════════════════ 🚪 비밀의 방 이벤트 ════════════════
+   운영진이 시작하면 모든 폰이 이벤트 화면으로 바뀜:
+   ① 캐릭터 영상(루시안이 안내) → ② 3분 안에 이성 한 명 지목 → ③ 서로 지목한 쌍에 랜덤 번호(1번부터 안쪽 자리)
+   번호는 이벤트 id를 씨앗으로 섞어서 모든 폰에서 똑같이 나오고, 관리자 화면이 결과를 서버에 고정함 */
+function sstate(){
+  const S=Store.get('secret'); if(!S||!S.id||S.closed) return {ph:'none'};
+  const now=Date.now(), t1=S.start+S.vsec*1000, t2=t1+S.psec*1000;
+  if(now<t1) return {ph:'video',S,left:(t1-now)/1000,t1,t2};
+  if(now<t2) return {ph:'pick',S,left:(t2-now)/1000,t1,t2};
+  return {ph:'result',S,t1,t2};
+}
+function seeded(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function computeSecret(S){
+  const P=Store.get('spicks/'+S.id)||{}, t2=S.start+(S.vsec+S.psec)*1000+3000, ok=id=>P[id]&&P[id].at<=t2;
+  const pairs=[]; Object.keys(P).forEach(a=>{ if(!ok(a)) return; const b=P[a].to; if(a<b&&ok(b)&&P[b].to===a&&gOf(a)!==gOf(b)) pairs.push([a,b]); });
+  pairs.sort((x,y)=>(x[0]+x[1]).localeCompare(y[0]+y[1]));
+  const r=seeded(S.id%2147483647); for(let i=pairs.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [pairs[i],pairs[j]]=[pairs[j],pairs[i]]; }
+  return pairs;
+}
+function secretPairs(){ const st=sstate(); if(st.ph!=='result') return []; return (st.S.result&&st.S.result.pairs)||computeSecret(st.S); }
+// 지난 비밀의 방에서 이어진 상대들 (이벤트를 닫거나 다시 열어도 밀담방은 유지)
+function secretPast(){ const H=Store.get('shist')||{}, out=[]; Object.values(H).forEach(ps=>(ps||[]).forEach(p=>{ if(p[0]===ME) out.push(p[1]); else if(p[1]===ME) out.push(p[0]); })); return out; }
+function secretPartner(){ const p=secretPairs().find(x=>x[0]===ME||x[1]===ME); return p?(p[0]===ME?p[1]:p[0]):null; }
+function secretNo(){ return secretPairs().findIndex(x=>x[0]===ME||x[1]===ME)+1; }
+const myTarget=()=>{ const st=sstate(); return st.S?((Store.get('spicks/'+st.S.id+'/'+ME)||{}).to||null):null; };
+let lastSph=null, soKey='';
+function secretTick(){
+  const st=sstate(), ov=$('secretOv');
+  if(!$('app').hidden&&st.ph!==lastSph){
+    const prev=lastSph; lastSph=st.ph;
+    if(st.ph!=='none'&&prev!==null){ try{ navigator.vibrate&&navigator.vibrate([250,120,250]); }catch(e){} }
+    if(st.ph==='none'){ ov.hidden=true; stopSvid(); }
+    else if(st.ph==='result'&&LS.get(K('sclose:'+st.S.id+':'+ME))){ ov.hidden=true; }
+    else if($('admin').hidden&&(prev!==null||st.ph!=='result')) openSecret();
+    if(TAB==='home') renderTab();
+  }
+  if(!ov.hidden){
+    const c=$('soCd'); if(c&&st.left!=null) c.textContent=fmt(st.left);
+    const r=$('soRing'); if(r&&st.ph==='pick'){ r.setAttribute('stroke-dashoffset',String(452.4*(1-st.left/st.S.psec))); $('soIn').classList.toggle('hurry',st.left<=30); }
+    // 결과가 바뀌면(관리자가 고정 등) 다시 그림
+    const key=st.ph+':'+(st.ph==='result'?JSON.stringify(secretPairs()):'')+(st.ph==='pick'?myTarget()+':'+souls().length:'');
+    if(key!==soKey&&!$('svid').classList.contains('on')) renderSecret();
+  }
+}
+function openSecret(force){ const st=sstate(); if(st.ph==='none') return; if(force) LS.del(K('sclose:'+st.S.id+':'+ME)); $('secretOv').hidden=false; renderSecret(); }
+function stopSvid(){ const v=$('svid'); try{ v.pause(); }catch(e){} v.classList.remove('on'); }
+async function playSecretVideo(){
+  const st=sstate(); if(st.ph==='none') return;
+  Voice.init(); const v=$('svid');
+  const srcs=[].concat(CONFIG.SECRET_VIDEO||[]).filter(u=>u&&!/SECRET_CDN_URL/.test(u));
+  v.innerHTML=srcs.map(u=>'<source src="'+esc(u)+'" type="video/mp4">').join(''); v.load(); v.muted=false;
+  const allFail=new Promise(res=>{ const last=v.querySelector('source:last-of-type'); if(last) last.addEventListener('error',()=>res(false),{once:true}); else res(false); });
+  let ok=false; try{ ok=await Promise.race([v.play().then(()=>true),allFail,sleep(4000).then(()=>false)]); }catch(e){ ok=false; }
+  LS.set(K('swatch:'+st.S.id+':'+ME),1);
+  if(!ok){ toast('영상을 불러오지 못했어요. 루시안의 말씀을 글로 전할게요'); renderSecret(); return; }
+  v.classList.add('on'); $('soIn').classList.add('dim');
+  $('soIn').innerHTML='<button class="so-skip" id="soSkip">건너뛰기 ▸▸</button>';
+  const end=()=>{ stopSvid(); $('soIn').classList.remove('dim'); renderSecret(); };
+  v.onended=end; $('soSkip').onclick=end;
+}
+const SECRET_LINE='“잘들 즐기고 있나, 영혼들이여? 지금부터 <b>단 한 명</b>을 지목하라. 마음에 드는 이든, 더 이야기해 보고 싶은 이든 좋다. <b>서로의 마음이 같다면</b>… 비밀의 방으로 안내하지. 시간은 단 <b>3분</b>이다!”';
+function renderSecret(){
+  const st=sstate(), box=$('soIn'); if(st.ph==='none'){ $('secretOv').hidden=true; return; }
+  box.classList.remove('hurry');
+  const watched=LS.get(K('swatch:'+st.S.id+':'+ME));
+  soKey=st.ph+':'+(st.ph==='result'?JSON.stringify(secretPairs()):'')+(st.ph==='pick'?myTarget()+':'+souls().length:'');
+  let h='';
+  if(st.ph==='video'&&!watched){
+    h='<div class="so-gate" id="soGate"><div class="door"><span></span></div><div class="ck-ey">THE SECRET ROOM</div><h2 class="so-h">비밀의 방이 열립니다</h2><p class="so-p">루시안이 모두를 부르고 있어요<br><b>화면을 눌러 영상을 보세요</b> 🔊</p></div>';
+  }else if(st.ph==='video'){
+    h='<div class="so-wrap"><div class="sc-ch" data-ch="lucian" style="margin:0 auto"></div><div class="ck-ey">THE SECRET ROOM</div><h2 class="so-h">곧 지목이 시작된다</h2><p class="so-line">'+SECRET_LINE+'</p><div class="cdbig" id="soCd">'+fmt(st.left)+'</div></div>';
+  }else if(st.ph==='pick'){
+    const tg=myTarget(), stars_=stars();
+    const cand=souls().filter(p=>p.g&&p.g!==gOf(ME)).sort((a,b)=>(stars_[b.id]!=null)-(stars_[a.id]!=null));
+    h='<div class="so-wrap"><div class="ck-ey">THE SECRET ROOM · 단 한 명을 지목하라</div>'+
+      '<div class="ck-ring so-ring"><svg viewBox="0 0 180 180"><circle class="trk" cx="90" cy="90" r="72"/><circle class="bar" id="soRing" cx="90" cy="90" r="72" stroke-dasharray="452.4" stroke-dashoffset="0" style="stroke:#ff5b66"/></svg><div class="ck-mid"><div class="ck-rn">남은 시간</div><div class="ck-t" id="soCd">'+fmt(st.left)+'</div></div></div>'+
+      '<p class="so-p">'+(tg?'<b style="color:var(--gold)">'+esc(nick(tg))+'</b>님을 지목했어요. 시간 안에는 바꿀 수 있어요.':'마음에 드는 이, 더 이야기해 보고 싶은 이. <b>단 한 명</b>을 눌러 지목하세요.')+'</p>'+
+      (watched?'':'<button class="mini" id="soWatch" style="margin:0 auto 10px;display:block">▶ 루시안의 영상 보기</button>')+
+      '<div class="pick-list">'+(cand.length?cand.map(p=>{ const on=tg===p.id, pr=prof(p.id);
+        return '<button class="pk" data-sp="'+p.id+'" aria-pressed="'+on+'"><span class="e">'+esc(pr.av)+'</span><span class="who"><b>'+esc(pr.nick)+(stars_[p.id]!=null?'<span class="stm">★</span>':'')+'</b><i>'+(pr.cos?'🎭 '+esc(pr.cos):'&nbsp;')+'</i></span><span class="rk">'+(on?'🩸 지목':'')+'</span></button>'; }).join(''):'<p class="muted">지목할 수 있는 이성이 아직 없어요.</p>')+'</div></div>';
+  }else{
+    const pairs=secretPairs(), sp=secretPartner(), no=secretNo();
+    h='<div class="so-wrap"><div class="ck-ey">THE SECRET ROOM</div>'+
+      '<div class="so-count"><small>서로를 지목한 영혼</small><b>'+pairs.length+'</b><span>쌍</span></div>'+
+      (sp?'<h2 class="so-h">비밀의 방으로 안내합니다</h2><div class="so-no"><small>당신의 번호</small><b>'+no+'</b><span>번</span></div>'+
+        '<div class="thread-wrap"><div class="pp"><span class="e">'+esc(avat(ME))+'</span><b>'+esc(nick(ME))+'</b></div><svg viewBox="0 0 200 70" preserveAspectRatio="none"><path d="M0 40C40 0 60 70 100 34S160 0 200 40"/></svg><span class="heart">🚪</span><div class="pp"><span class="e">'+esc(avat(sp))+'</span><b>'+esc(nick(sp))+'</b></div></div>'+
+        '<p class="so-p">안쪽 자리부터 <b>1번</b>입니다. 운영진 안내에 따라 <b style="color:var(--gold)">'+no+'번 자리</b>로 함께 이동해 주세요.<br>둘만의 💬 밀담방도 열렸어요.</p>'+
+        '<button class="btn small" id="soChat">💬 '+esc(nick(sp))+'님과 밀담방</button>'
+      :'<div class="sc-ch" data-ch="boo" style="margin:4px auto 0"></div><h2 class="so-h">이번엔 실이 엇갈렸어요</h2><p class="so-p">'+(pairs.length?pairs.length+'쌍이 비밀의 방으로 향했어요. ':'')+'지목이 엇갈렸을 뿐, 아직 운명의 실이 남아 있어요.<br>사탕을 건네거나 자유 시간에 다시 말을 걸어보세요.</p>')+
+      '<button class="btn ghost small" id="soClose" style="margin-top:10px">닫기</button></div>';
+  }
+  box.innerHTML=h; mountGuides(box);
+  const g=$('soGate'); if(g) g.onclick=playSecretVideo;
+  const w=$('soWatch'); if(w) w.onclick=playSecretVideo;
+  box.querySelectorAll('[data-sp]').forEach(b=>b.onclick=async()=>{
+    const s2=sstate(); if(s2.ph!=='pick') return;
+    const id=b.dataset.sp, cur=myTarget();
+    await Store.put('spicks/'+s2.S.id+'/'+ME,cur===id?null:{to:id,at:Date.now()});
+    renderSecret();
+  });
+  const cl=$('soClose'); if(cl) cl.onclick=()=>{ LS.set(K('sclose:'+st.S.id+':'+ME),1); $('secretOv').hidden=true; renderTab(); };
+  const ch=$('soChat'); if(ch) ch.onclick=()=>{ LS.set(K('sclose:'+st.S.id+':'+ME),1); $('secretOv').hidden=true; openChat(secretPartner()); };
+  if(st.ph==='result'&&!LS.get(K('sfx:'+st.S.id+':'+ME))){ LS.set(K('sfx:'+st.S.id+':'+ME),1); confetti(secretPartner()?['🚪','❤️','🕯️','✨']:['👻','🕯️'],secretPartner()?34:12); }
+}
+/* 관리자: 비밀의 방 */
+function adminSecretHTML(){
+  const st=sstate(), S=Store.get('secret')||{}, n=st.S?Object.keys(Store.get('spicks/'+st.S.id)||{}).length:0, pairs=secretPairs();
+  return '<div class="panel"><h3>🚪 비밀의 방 이벤트 <small>영상 → 3분 지목 → 번호 배정</small></h3>'+
+    '<div class="admclock" id="admSecret">-</div>'+
+    (st.ph==='none'?
+      '<button class="btn gold" id="sStart">🎬 비밀의 방 시작</button>'+
+      '<div class="row2" style="margin-top:10px"><label class="fld" style="margin:0"><span>영상 길이(초)</span><input class="inp" id="sVsec" type="number" min="0" max="60" value="'+CONFIG.SECRET_VIDEO_SEC+'"></label><label class="fld" style="margin:0"><span>지목 시간(분)</span><input class="inp" id="sPmin" type="number" min="1" max="10" step="0.5" value="'+CONFIG.SECRET_PICK_SEC/60+'"></label></div>'+
+      '<p class="muted" style="font-size:11.5px;margin-top:8px">누르는 순간 모든 참가자 폰이 이벤트 화면으로 바뀌어요. 영상이 끝나면 지목 시간이 흐르고, 시간이 끝나면 서로 지목한 쌍에 1번부터 랜덤 번호가 붙어요.</p>'
+    :'<p class="muted">지목 제출 <b style="color:var(--gold)">'+n+'명</b>'+(st.ph==='result'?' · 매칭 <b style="color:var(--gold)">'+pairs.length+'쌍</b>'+(S.result?' · ✅ 결과 고정됨':' · 고정 중…'):'')+'</p>'+
+      (st.ph==='result'?'<table style="margin-top:8px">'+pairs.map((p,i)=>'<tr><td><b style="color:var(--gold)">'+(i+1)+'번</b></td><td>'+esc(avat(p[0])+' '+nick(p[0]))+'</td><td>🚪</td><td>'+esc(avat(p[1])+' '+nick(p[1]))+'</td></tr>').join('')+'</table>'+
+        '<div class="btnrow"><button class="btn gold small" id="sBoard">📺 발표 화면 띄우기</button><button class="btn ghost small" id="sCopy">번호표 복사</button></div>':'')+
+      '<div class="btnrow"><button class="btn ghost small" id="sPreview">▶ 영상 미리보기</button>'+(st.ph==='pick'?'<button class="btn ghost small" id="sEndNow">⏭ 지금 지목 마감</button>':'')+'<button class="btn ghost small" id="sClose">■ 이벤트 닫기</button></div>')+
+  '</div>';
+}
+function bindAdminSecret(){
+  const b=$('sStart'); if(b) b.onclick=async()=>{
+    const vs=Math.max(0,+$('sVsec').value||0), pm=Math.max(.5,+$('sPmin').value||3);
+    if(!confirm('비밀의 방 이벤트를 시작할까요?\n모든 참가자 화면이 바뀌고, 영상 '+vs+'초 → 지목 '+pm+'분이 진행됩니다.')) return;
+    await Store.put('secret',{id:Date.now(),start:Date.now(),vsec:vs,psec:Math.round(pm*60),closed:false}); renderAdmin(); };
+  const pv=$('sPreview'); if(pv) pv.onclick=()=>{ const u=[].concat(CONFIG.SECRET_VIDEO).filter(x=>!/SECRET_CDN_URL/.test(x)); window.open(u[u.length-1],'_blank'); };
+  const en=$('sEndNow'); if(en) en.onclick=async()=>{ if(!confirm('지금 바로 지목을 마감하고 결과를 낼까요?')) return; const S=Object.assign({},Store.get('secret')); S.psec=Math.max(0,Math.floor((Date.now()-S.start)/1000)-S.vsec); await Store.put('secret',S); renderAdmin(); };
+  const cl=$('sClose'); if(cl) cl.onclick=async()=>{ if(!confirm('이벤트를 닫고 참가자 화면을 원래대로 돌릴까요?\n(번호 결과와 밀담방은 사라지지 않아요)')) return; const S=Object.assign({},Store.get('secret')); S.closed=true; await Store.put('secret',S); renderAdmin(); };
+  const bd=$('sBoard'); if(bd) bd.onclick=showBoard;
+  const cp=$('sCopy'); if(cp) cp.onclick=()=>copy(secretPairs().map((p,i)=>(i+1)+'번  '+nick(p[0])+' 🚪 '+nick(p[1])).join('\n')||'매칭 없음');
+}
+function admSecretTick(){
+  const el=$('admSecret'); if(!el) return; const st=sstate();
+  el.textContent=st.ph==='none'?'대기 중':st.ph==='video'?'🎬 영상 재생 중 · 지목 시작까지 '+fmt(st.left):st.ph==='pick'?'🩸 지목 중 · 남은 시간 '+fmt(st.left):'🚪 결과 · '+secretPairs().length+'쌍';
+  // 시간이 끝나면 관리자 화면이 결과를 서버에 고정 (모든 폰이 같은 번호를 보게)
+  if(st.ph==='result'&&!st.S.result&&Date.now()>st.t2+3000&&!admSecretTick.busy){ admSecretTick.busy=true; (()=>{ const pairs=computeSecret(st.S); return Store.put('secret/result',{pairs,at:Date.now()}).then(()=>Store.put('shist/'+st.S.id,pairs.length?pairs:null)); })().then(()=>{ admSecretTick.busy=false; renderAdmin(); },()=>admSecretTick.busy=false); }
+  if(st.ph!==admSecretTick.ph){ admSecretTick.ph=st.ph; renderAdmin(); }
+}
+function showBoard(){
+  const pairs=secretPairs(), b=$('board');
+  b.innerHTML='<div class="bd-in"><div class="ck-ey">THE SECRET ROOM</div><h2 class="so-h">비밀의 방으로 안내합니다</h2><div class="so-count"><b>'+pairs.length+'</b><span>쌍</span></div>'+
+    '<div class="bd-grid">'+pairs.map((p,i)=>'<div class="bd-row"><span class="bd-no">'+(i+1)+'</span><span>'+esc(avat(p[0])+' '+nick(p[0]))+'</span><i>🚪</i><span>'+esc(avat(p[1])+' '+nick(p[1]))+'</span></div>').join('')+'</div>'+
+    '<p class="so-p">안쪽 자리부터 1번입니다 · 화면을 누르면 닫혀요</p></div>';
+  b.hidden=false; b.onclick=()=>b.hidden=true;
+}
 
 /* ════════════════ 시트 · 토스트 · 연출 ════════════════ */
 function openSheet(html){ $('sheetIn').innerHTML=html; $('sheet').hidden=false; $('sheetBack').hidden=false; document.body.style.overflow='hidden'; }
@@ -1932,7 +2120,7 @@ function renderAdmin(){
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2>🧛 운영진 저택</h2><button class="btn ghost small" style="width:auto;padding:0 16px" id="admClose">닫기</button></div>'+
     '<div class="btnrow" style="margin:0 0 12px"><a class="btn ghost small" href="guidebook.html" target="_blank" rel="noopener" style="text-decoration:none">📖 운영 가이드북</a><a class="btn ghost small" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none">📄 한 장 요약</a></div>'+
     (Store.remote?'':'<div class="panel" style="border-color:var(--amber)"><h3>⚠️ 로컬 데모 모드</h3><p class="muted">DB_URL이 비어 있어 이 기기에만 저장돼요. 실제 행사에선 README대로 Firebase 주소를 넣어주세요.</p></div>')+
-    adminRoundHTML()+
+    adminRoundHTML()+adminSecretHTML()+
     '<div class="panel"><h3>현황 <small>5초마다 갱신</small></h3><div class="stats"><div class="stat"><b>'+S.length+'/'+R.length+'</b><span>입장</span></div><div class="stat"><b>'+Object.keys(V).length+'</b><span>투표</span></div><div class="stat"><b>'+Object.keys(P).length+'</b><span>실 제출</span></div></div></div>'+
     '<div class="panel"><h3>👑 베스트 드레서 <small>현재 '+PH[phase('vote')]+'</small></h3>'+ctrl('vote')+
       '<table style="margin-top:10px"><tr><th>남</th><th></th><th>여</th><th></th></tr>'+[0,1,2,3,4].map(i=>'<tr><td>'+(vr.m[i]?esc(nick(vr.m[i].id)):'')+'</td><td>'+(vr.m[i]?vr.m[i].n:'')+'</td><td>'+(vr.f[i]?esc(nick(vr.f[i].id)):'')+'</td><td>'+(vr.f[i]?vr.f[i].n:'')+'</td></tr>').join('')+'</table>'+
@@ -1954,7 +2142,7 @@ function renderAdmin(){
       '<p class="muted" style="font-size:11.5px">현재 명단: '+R.length+'명 ('+(Store.get('roster')?'서버 명단':'파일 내장 명단')+')</p></div>'+
     '<div class="panel"><h3>🧹 초기화</h3><div class="btnrow"><button class="btn ghost small" id="rsVote">투표 지우기</button><button class="btn ghost small" id="rsPick">실 지우기</button><button class="btn ghost small" id="rsAll">전체 데이터 삭제</button></div></div>';
   $('admClose').onclick=closeAdmin;
-  bindAdminRound();
+  bindAdminRound(); bindAdminSecret();
   admClockTick();
   document.querySelectorAll('#admin .ctrl button').forEach(b=>b.onclick=async()=>{
     const k=b.dataset.k, p=b.dataset.p;
@@ -1975,7 +2163,7 @@ function renderAdmin(){
   $('rUp').onclick=async()=>{ const r=parseRoster($('rIn').value); if(!r) return; if(!confirm(r.length+'명으로 서버 명단을 교체할까요? (기존 프로필 id는 순서대로 p01, p02… 로 매겨져요)')) return; await Store.put('roster',r); $('rMsg').textContent='서버 명단 '+r.length+'명 저장 완료'; renderAdmin(); };
   $('rsVote').onclick=async()=>{ if(confirm('모든 투표를 지울까요?')){ await Store.put('votes',null); await Store.put('results/vote',null); renderAdmin(); } };
   $('rsPick').onclick=async()=>{ if(confirm('모든 운명의 실 선택을 지울까요?')){ await Store.put('picks',null); await Store.put('results/match',null); renderAdmin(); } };
-  $('rsAll').onclick=async()=>{ if(prompt('정말 전체 삭제하려면 "삭제"라고 입력')==='삭제'){ for(const k of ['profiles','votes','picks','candy','letters','chats','results','state','timer']) await Store.put(k,null); renderAdmin(); } };
+  $('rsAll').onclick=async()=>{ if(prompt('정말 전체 삭제하려면 "삭제"라고 입력')==='삭제'){ for(const k of ['profiles','votes','picks','candy','letters','chats','results','state','timer','secret','spicks','shist']) await Store.put(k,null); renderAdmin(); } };
 }
 function parseRoster(text){
   const out=[], bad=[];

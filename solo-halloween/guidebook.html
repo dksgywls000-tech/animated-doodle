@@ -40,8 +40,8 @@
   nav.toc a:hover,nav.toc a.on{background:var(--gold);color:#2a1204;border-color:var(--gold)}
 
   /* 한눈에 보기 */
-  .glance{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0 0}
-  @media(max-width:820px){.glance{grid-template-columns:1fr 1fr}}
+  .glance{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:28px 0 0}
+  @media(max-width:900px){.glance{grid-template-columns:1fr 1fr}}
   .gl{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px}
   .gl .e{font-size:28px}
   .gl h3{margin:6px 0 4px;font-family:var(--disp);font-weight:600;font-size:17px;color:var(--gold)}
@@ -163,7 +163,8 @@ const GLANCE=[
   ['⏱','라운드 시계','운영진이 라운드를 시작하면 모든 폰의 시계가 흐르고, 대화가 끝나면 종이 울려요.'],
   ['🍬','사탕 → 밀담방','사탕엔 보낸 사람 이름이 보여요. 서로 주고받으면 둘만의 1:1 채팅방이 열려요.'],
   ['🦇','익명 편지','이름은 비밀이지만, 도착하는 순간 서로의 인스타 아이디가 공유돼요.'],
-  ['🩸','운명의 실','3명을 순위 없이 고르고, 서로 고르면 매칭이에요. 종료 30분 뒤에 받은 표와 매칭 상대가 공개돼요.']
+  ['🩸','운명의 실','3명을 순위 없이 고르고, 서로 고르면 매칭이에요. 종료 30분 뒤에 받은 표와 매칭 상대가 공개돼요.'],
+  ['🚪','비밀의 방','중간 이벤트예요. 루시안 영상 → 3분 안에 한 명 지목 → 서로 지목하면 번호를 받고 1번부터 안쪽 자리로.']
 ];
 const BOOK=[
  {id:'prep',no:'00',title:'행사 전 준비',host:['🎃','잭'],lead:'행사 전날까지 딱 네 가지만 해두면 됩니다. 사이트 주소를 정하고, 실시간 저장소를 연결하고, 명단을 넣고, 리허설을 하는 것입니다.',
@@ -272,13 +273,29 @@ const BOOK=[
     tip:'티켓 번호는 사람마다 달라요. 선물을 줄 때 번호를 메모해두면 중복으로 받는 걸 막을 수 있어요.'}
   ]},
 
- {id:'rooms',no:'07',title:'놀거리 방들',host:['🧙','헤이즐'],lead:'혼자서도, 테이블에서 같이도 즐기는 놀거리예요. 라운드 테마(타로의 계시, 몬스터 유형 등)와 이어져요.',
+ {id:'secret',no:'07',title:'🚪 비밀의 방 이벤트',host:['🧛','루시안'],lead:'파티 중간에 운영진이 버튼을 누르면 <b>모든 참가자 폰이 이벤트 화면으로 바뀌어요</b>. 루시안이 영상으로 등장해 안내하고, <b>3분 안에 이성 한 명을 지목</b>해요. 서로 지목한 쌍에는 <b>랜덤 번호</b>가 붙고, 1번부터 안쪽 자리에 앉아요.',
+  steps:[
+   {img:'A0-secret-admin',who:'staff',sub:'STEP 1',title:'이벤트 시작',desc:'관리자 화면의 <b>🚪 비밀의 방 이벤트</b>에서 <span class="k">🎬 비밀의 방 시작</span>을 누르면 바로 시작돼요.',
+    marks:[],tip:'영상 길이(기본 17초)가 지나면 지목 시간 <b>3분</b>이 자동으로 흘러요. 두 시간 모두 버튼 아래에서 바꿀 수 있어요. 큰 화면에 영상을 틀고 싶으면 <span class="k">▶ 영상 미리보기</span>로 같은 영상을 열 수 있어요.'},
+   {img:'A1-secret-gate',who:'guest',flip:1,sub:'STEP 2',title:'모든 폰에 비밀의 문이 열려요',desc:'진동과 함께 붉게 빛나는 문이 나타나요. 화면을 누르면 <b>루시안이 말하는 영상</b>이 소리와 함께 재생돼요(힉스필드 Seedance 2.5로 만든 영상).',
+    say:'“잘들 즐기고 있나, 영혼들이여? 지금부터 단 한 명을 지목하라. 마음에 드는 이든, 더 이야기해 보고 싶은 이든 좋다. 서로의 마음이 같다면… 비밀의 방으로 안내하지. 시간은 단 3분이다!” (영상 속 루시안의 대사)'},
+   {img:'A2-secret-pick',who:'guest',sub:'STEP 3',title:'3분 안에 단 한 명 지목',desc:'붉은 링이 3분을 세요. 마지막 30초에는 숫자가 두근거려요. 이성 한 명을 누르면 <b>🩸 지목</b>이 되고, 시간 안에는 바꿀 수 있어요. ★ 기억 노트에 표시한 사람이 맨 위에 나와요.',
+    say:'“3분 드립니다! 지금 딱 한 분만 지목해 주세요. 서로 지목하면 비밀의 방으로 모십니다!”'},
+   {img:'A3-secret-result',who:'guest',flip:1,sub:'STEP 4',title:'서로 지목했다면: 번호 발표',desc:'시간이 끝나면 전체 <b>매칭 수</b>와 함께, 이어진 사람에게는 <b>내 번호</b>와 상대가 크게 나와요. 둘만의 <b>💬 밀담방</b>도 바로 열려요.',
+    tip:'번호는 이벤트마다 랜덤으로 섞이지만 <b>모든 폰에서 똑같이</b> 나와요. 이벤트를 닫아도 밀담방은 유지돼요.'},
+   {img:'A4-secret-miss',who:'guest',sub:'STEP 5',title:'엇갈렸다면',desc:'부가 위로하며 사탕이나 자유 시간으로 다시 다가가 보라고 안내해요. 몇 쌍이 이어졌는지도 함께 보여줘요.'},
+   {img:'A5-secret-admin-result',who:'staff',flip:1,sub:'STEP 6',title:'운영진: 번호표 확인',desc:'관리자 화면에 <b>1번 ○○ 🚪 ○○</b> 형식의 번호표가 나와요. 결과는 서버에 고정돼서 모든 폰이 같은 번호를 봐요.',
+    tip:'<span class="k">번호표 복사</span>로 단톡방에 바로 공유할 수 있어요. 이벤트가 끝나면 <span class="k">■ 이벤트 닫기</span>를 누르세요. 참가자 화면이 원래대로 돌아가요.'},
+   {img:'A6-secret-board',who:'staff',sub:'STEP 7',title:'📺 발표 화면',desc:'<span class="k">📺 발표 화면 띄우기</span>를 누르면 큰 글씨 번호표가 전체 화면으로 떠요. 태블릿이나 노트북을 무대 화면에 연결해 보여주면 좋아요.',
+    say:'“오늘 비밀의 방으로 향할 커플은 모두 ○쌍입니다! 1번 커플부터 안쪽 자리로 이동해 주세요!”'}
+  ]},
+ {id:'rooms',no:'08',title:'놀거리 방들',host:['🧙','헤이즐'],lead:'혼자서도, 테이블에서 같이도 즐기는 놀거리예요. 라운드 테마(타로의 계시, 몬스터 유형 등)와 이어져요.',
   gallery:{items:[['80-rooms','📜 방 목록','저택의 규칙도 여기서 다시 들을 수 있어요'],['81-tarot','🔮 미래의 방','카드 3장 연애 타로 (밤새 고정)'],['82-cards','🍷 영원의 방','뱀파이어 대화 카드 16장'],['83-bingo','🎃 할로윈 빙고','한 줄 완성하면 운영진에게 보여줘요'],['84-quiz','🧟 몬스터 연애유형','결과가 명찰 배지로 붙어요']]}},
 
- {id:'tools',no:'08',title:'운영진 도구',host:['🧛','루시안'],lead:'관리자 화면 아래쪽에 있는 보조 도구들이에요.',
+ {id:'tools',no:'09',title:'운영진 도구',host:['🧛','루시안'],lead:'관리자 화면 아래쪽에 있는 보조 도구들이에요.',
   gallery:{items:[['90-wheel','🎡 경품 룰렛','전체, 남, 여, 미매칭 중 대상을 골라 추첨해요'],['91-tables','🍷 테이블 나누기','남녀를 섞어 N개 테이블로 나눠요 (참고용)'],['93-tag','📸 인스타 태그','태그에 동의한 사람의 @아이디를 한 번에 복사해요']]}},
 
- {id:'timeline',no:'09',title:'당일 타임라인',host:['🎃','잭'],lead:'시간대별로 관리자 화면에서 무엇을 누르면 되는지 정리했어요.',
+ {id:'timeline',no:'10',title:'당일 타임라인',host:['🎃','잭'],lead:'시간대별로 관리자 화면에서 무엇을 누르면 되는지 정리했어요.',
   table:{head:['시간','현장','관리자 화면에서'],rows:[
    ['20:00','체크인 · 착석 · 웰컴 드링크','입장 QR을 안내해요. 시계는 <span class="k">■ 대기 화면</span>.'],
    ['20:25','파티 룰 안내','“📜 저택의 규칙을 누르면 캐릭터가 설명해줘요” 안내'],
@@ -286,11 +303,12 @@ const BOOK=[
    ['21:20','숨 고르기','5라운드 뒤 <span class="k">☕ 숨 고르기 3분</span>'],
    ['21:23~22:11','6~10라운드','<span class="k">▶ 시작</span>을 반복해요. 베스트 드레서는 원하는 때 <span class="k">열림</span>'],
    ['22:25','자유 시간','<span class="k">🕯 자유 시간</span> + 운명의 실 <span class="k">열림</span>'],
+   ['22:30 무렵','🚪 비밀의 방 (추천 시점)','<span class="k">🎬 비밀의 방 시작</span> → 영상 → 3분 지목 → 📺 번호 발표 → 1번부터 안쪽 자리로'],
    ['22:50','투표 마감','운명의 실 <span class="k">마감</span>, 베스트 드레서 <span class="k">마감</span>'],
    ['23:10','발표','베스트 드레서 <span class="k">발표</span> (운명의 실은 아직 공개하지 않아요)'],
    ['23:20~','마무리 · 2차','운명의 실 <span class="k">종료</span> → 30분 뒤 자동 공개']]}},
 ];
-const CHECK=['Firebase 주소(DB_URL)와 운영진 PIN을 넣었다','실제 명단을 서버에 올렸고, 테스트 계정으로는 로그인되지 않는다','넷리파이에 모든 파일(index.html, guide-img 폴더, intro.mp4 포함)을 올렸다','폰 2대로 사탕 → 돌려주기 → 밀담 대화를 해봤다','라운드 시작 → 종 → 이동 → 다음 라운드를 한 번 돌려봤다','입장 QR 코드와 이 가이드북(또는 한 장 요약본)을 출력했다','행사가 끝나면 Firebase 데이터를 지우기로 했다'];
+const CHECK=['Firebase 주소(DB_URL)와 운영진 PIN을 넣었다','실제 명단을 서버에 올렸고, 테스트 계정으로는 로그인되지 않는다','넷리파이에 모든 파일(index.html, guide-img 폴더, intro.mp4, secret.mp4 포함)을 올렸다','폰 2대로 사탕 → 돌려주기 → 밀담 대화를 해봤다','라운드 시작 → 종 → 이동 → 다음 라운드를 한 번 돌려봤다','입장 QR 코드와 이 가이드북(또는 한 장 요약본)을 출력했다','행사가 끝나면 Firebase 데이터를 지우기로 했다'];
 const FAQ=[
  ['참가자가 로그인이 안 된대요.','명단의 이름 표기와 생년월일을 확인해 주세요. 띄어쓰기는 무시돼요. 고친 명단은 관리자 › 📜 명단 만들기에서 다시 올리면 바로 반영돼요.'],
  ['인트로 영상을 다시 보고 싶대요.','오른쪽 위 닉네임 → 🎬 인트로 다시 보기를 누르면 돼요. 규칙 설명만 다시 들으려면 로비의 📜 저택의 규칙을 누르세요.'],
@@ -298,6 +316,8 @@ const FAQ=[
  ['시계가 사람마다 조금 달라요.','폰의 날짜·시간 자동 설정이 꺼져 있으면 몇 초 차이가 날 수 있어요. 자동 설정을 켜게 안내해 주세요.'],
  ['사탕을 실수로 보냈대요.','보낸 사탕은 취소할 수 없어요. 상대가 돌려주지 않으면 밀담방은 열리지 않으니 안심시켜 주세요.'],
  ['익명 편지인데 누가 보냈는지 알 수 있나요?','이름은 보이지 않지만 인스타가 공유되기 때문에 짐작할 수는 있어요. 이게 이 기능의 재미예요.'],
+ ['비밀의 방 영상이 안 나와요.','영상을 불러오지 못하면 루시안의 대사가 글로 나오고, 지목은 그대로 진행돼요. 행사 전에 secret.mp4를 사이트 폴더에 넣어두면 가장 확실해요.'],
+ ['비밀의 방 지목 시간을 늘리고 싶어요.','시작하기 전에 관리자 화면에서 지목 시간(분)을 바꾸세요. 진행 중이라면 ⏭ 지금 지목 마감으로 일찍 끝낼 수만 있어요.'],
  ['매칭 결과를 지금 바로 보여주고 싶어요.','관리자 › 운명의 실에서 <b>발표</b>를 누르면 카운트다운 없이 바로 공개돼요.'],
  ['데이터는 어떻게 지우나요?','관리자 › 🧹 초기화 › 전체 데이터 삭제, 또는 Firebase 콘솔에서 데이터베이스를 삭제하면 돼요. 밀담방 대화도 함께 지워져요.']
 ];
@@ -326,12 +346,12 @@ BOOK.forEach(p=>{
     '<p class="lead">'+p.lead+'</p>'+
     (p.steps||[]).map(stepHTML).join('')+(p.gallery?galleryHTML(p.gallery):'')+(p.steps2||[]).map(stepHTML).join('')+(p.table?tableHTML(p.table):'')+'</section>';
 });
-html+='<section class="part" id="check"><div class="ph"><span class="no">10</span><h2>행사 전 체크리스트</h2></div><p class="lead">하나씩 체크해 보세요. 체크 상태는 이 폰에만 저장돼요.</p><ul class="chk">'+
+html+='<section class="part" id="check"><div class="ph"><span class="no">11</span><h2>행사 전 체크리스트</h2></div><p class="lead">하나씩 체크해 보세요. 체크 상태는 이 폰에만 저장돼요.</p><ul class="chk">'+
   CHECK.map((c,i)=>'<li><input type="checkbox" data-i="'+i+'" id="c'+i+'"><label for="c'+i+'">'+c+'</label></li>').join('')+'</ul></section>';
-html+='<section class="part" id="faq"><div class="ph"><span class="no">11</span><h2>자주 묻는 질문</h2></div>'+FAQ.map(f=>'<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>').join('')+'</section>';
+html+='<section class="part" id="faq"><div class="ph"><span class="no">12</span><h2>자주 묻는 질문</h2></div>'+FAQ.map(f=>'<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>').join('')+'</section>';
 document.getElementById('book').innerHTML=html;
 
-const NAV=[['prep','준비'],['enter','입장'],['round','라운드'],['candy','사탕·밀담'],['letter','편지'],['vote','베스트드레서'],['match','운명의 실'],['rooms','방들'],['tools','도구'],['timeline','타임라인'],['check','체크리스트'],['faq','FAQ']];
+const NAV=[['prep','준비'],['enter','입장'],['round','라운드'],['candy','사탕·밀담'],['letter','편지'],['vote','베스트드레서'],['match','운명의 실'],['secret','비밀의 방'],['rooms','방들'],['tools','도구'],['timeline','타임라인'],['check','체크리스트'],['faq','FAQ']];
 document.getElementById('toc').innerHTML=NAV.map(([id,t])=>'<a href="#'+id+'" data-id="'+id+'">'+t+'</a>').join('');
 // 지금 보고 있는 파트를 목차에 표시
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) document.querySelectorAll('nav.toc a').forEach(a=>{ const on=a.dataset.id===e.target.id; a.classList.toggle('on',on); if(on) a.scrollIntoView({inline:'center',block:'nearest'}); }); }),{rootMargin:'-40% 0px -55% 0px'});
