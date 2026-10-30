@@ -662,7 +662,13 @@
   .tv-huge{display:flex;align-items:baseline;gap:1vw;justify-content:center}
   .tv-huge b{font-family:var(--serif);font-size:18vh;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
   .tv-huge span{font-family:var(--round);font-size:2.4vw;color:var(--gold)}
-  .tv-pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(25vw,1fr));gap:1vh 1vw;width:100%;max-height:62vh;overflow:hidden;margin-top:1vh}
+  .spk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;margin:8px 0;text-align:left}
+  .spk{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;background:rgba(255,246,234,.05);border:1px solid rgba(246,208,138,.15);font-family:var(--round);font-size:13.5px}
+  .spk span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.spk i{font-style:normal;flex:0 0 auto;color:var(--gold)}
+  .spk.mu{border-color:rgba(255,91,102,.6);background:rgba(179,18,31,.18)}
+  .tv-spk{width:100%;grid-template-columns:repeat(5,minmax(0,1fr));align-content:start;gap:.5vh .5vw;flex:1;min-height:0;overflow:hidden;margin:0}.tv-spk .spk{font-size:.85vw;padding:.45vh .5vw}
+  #tvMain:has(.tv-spk){justify-content:flex-start;overflow:hidden;min-height:0}#tvMain:has(.tv-spk) .tv-pairs .bd-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}#tvMain:has(.tv-spk) .tv-h{font-size:3vw}#tvMain:has(.tv-spk) .tv-pairs{grid-template-columns:repeat(3,minmax(0,1fr));max-height:none;overflow:visible}#tvMain:has(.tv-spk) .tv-pairs .bd-row{font-size:1vw;padding:.5vh .7vw}#tvMain:has(.tv-spk) .tv-pairs .bd-no{width:2.2vw;height:2.2vw;font-size:1vw}
+  .tv-pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(25vw,1fr));gap:1vh 1vw;width:100%;max-height:30vh;overflow:hidden;margin-top:1vh}
   .tv-pairs .bd-row{font-size:1.5vw;padding:1vh 1vw}.tv-pairs .bd-no{width:2.8vw;height:2.8vw;font-size:1.3vw}
   .tv-pods{display:grid;grid-template-columns:1fr 1fr;gap:4vw;width:100%;margin-top:2vh}
   .tv-pods .pod .e{font-size:5vw}.tv-pods .pod .n{font-size:1.4vw}.tv-pods .pod.p1 .blk{height:20vh}.tv-pods .pod.p2 .blk{height:14vh}.tv-pods .pod.p3 .blk{height:10vh}.tv-pods .pod .blk{font-size:2vw}.tv-pods .votes{font-size:1vw}
@@ -2076,6 +2082,14 @@ function computeSecret(S){
 function secretPairs(){ const st=sstate(); if(st.ph!=='result') return []; return (st.S.result&&st.S.result.pairs)||computeSecret(st.S); }
 // 지난 비밀의 방에서 이어진 상대들 (이벤트를 닫거나 다시 열어도 밀담방은 유지)
 function secretPast(){ const H=Store.get('shist')||{}, out=[]; Object.values(H).forEach(ps=>(ps||[]).forEach(p=>{ if(p[0]===ME) out.push(p[1]); else if(p[1]===ME) out.push(p[0]); })); return out; }
+// 마감 시간 안에 낸 모든 지목 [지목한 사람, 받은 사람, 서로 지목?] · 서로 지목한 쌍 먼저
+function secretPicks(){ const st=sstate(); if(st.ph!=='result') return [];
+  const S=st.S, P=Store.get('spicks/'+S.id)||{}, t2=S.start+(S.vsec+S.psec)*1000+3000, ok=id=>P[id]&&P[id].at<=t2;
+  return Object.keys(P).filter(ok).map(a=>[a,P[a].to,!!(ok(P[a].to)&&P[P[a].to].to===a)])
+    .filter(x=>!x[2]||x[0]<x[1]) // 서로 지목은 한 줄로
+    .sort((x,y)=>(y[2]-x[2])||nick(x[0]).localeCompare(nick(y[0]))); }
+function picksHTML(cls){ const L=secretPicks();
+  return '<div class="'+cls+'">'+(L.length?L.map(([a,b,m])=>'<div class="spk'+(m?' mu':'')+'"><span>'+esc(avat(a)+' '+nick(a))+'</span><i>'+(m?'💞':'→')+'</i><span>'+esc(avat(b)+' '+nick(b))+'</span></div>').join(''):'<p class="muted">지목한 사람이 없어요</p>')+'</div>'; }
 function secretPartner(){ const p=secretPairs().find(x=>x[0]===ME||x[1]===ME); return p?(p[0]===ME?p[1]:p[0]):null; }
 function secretNo(){ return secretPairs().findIndex(x=>x[0]===ME||x[1]===ME)+1; }
 const myTarget=()=>{ const st=sstate(); return st.S?((Store.get('spicks/'+st.S.id+'/'+ME)||{}).to||null):null; };
@@ -2143,6 +2157,7 @@ function renderSecret(){
         '<p class="so-p">안쪽 자리부터 <b>1번</b>입니다. 운영진 안내에 따라 <b style="color:var(--gold)">'+no+'번 자리</b>로 함께 이동해 주세요.<br>둘만의 💬 밀담방도 열렸어요.</p>'+
         '<button class="btn small" id="soChat">💬 '+esc(nick(sp))+'님과 밀담방</button>'
       :'<div class="sc-ch" data-ch="boo" style="margin:4px auto 0"></div><h2 class="so-h">이번엔 실이 엇갈렸어요</h2><p class="so-p">'+(pairs.length?pairs.length+'쌍이 비밀의 방으로 향했어요. ':'')+'지목이 엇갈렸을 뿐, 아직 운명의 실이 남아 있어요.<br>사탕을 건네거나 자유 시간에 다시 말을 걸어보세요.</p>')+
+      '<div class="ck-ey" style="margin-top:18px">모든 지목 결과 · 💞 서로 지목</div>'+picksHTML('spk-list')+
       '<button class="btn ghost small" id="soClose" style="margin-top:10px">닫기</button></div>';
   }
   box.innerHTML=h; mountGuides(box);
@@ -2169,6 +2184,7 @@ function adminSecretHTML(){
       '<p class="muted" style="font-size:11.5px;margin-top:8px">누르는 순간 모든 참가자 폰이 이벤트 화면으로 바뀌어요. 영상이 끝나면 지목 시간이 흐르고, 시간이 끝나면 서로 지목한 쌍에 1번부터 랜덤 번호가 붙어요.</p>'
     :'<p class="muted">지목 제출 <b style="color:var(--gold)">'+n+'명</b>'+(st.ph==='result'?' · 매칭 <b style="color:var(--gold)">'+pairs.length+'쌍</b>'+(S.result?' · ✅ 결과 고정됨':' · 고정 중…'):'')+'</p>'+
       (st.ph==='result'?'<table style="margin-top:8px">'+pairs.map((p,i)=>'<tr><td><b style="color:var(--gold)">'+(i+1)+'번</b></td><td>'+esc(avat(p[0])+' '+nick(p[0]))+'</td><td>🚪</td><td>'+esc(avat(p[1])+' '+nick(p[1]))+'</td></tr>').join('')+'</table>'+
+        '<details style="margin-top:8px"><summary class="muted">모든 지목 보기</summary>'+picksHTML('spk-list')+'</details>'+
         '<div class="btnrow"><button class="btn gold small" id="sBoard">📺 발표 화면 띄우기</button><button class="btn ghost small" id="sCopy">번호표 복사</button></div>':'')+
       '<div class="btnrow"><button class="btn ghost small" id="sPreview">▶ 영상 미리보기</button>'+(st.ph==='pick'?'<button class="btn ghost small" id="sEndNow">⏭ 지금 지목 마감</button>':'')+'<button class="btn ghost small" id="sClose">■ 이벤트 닫기</button></div>')+
   '</div>';
@@ -2195,6 +2211,7 @@ function showBoard(){
   const pairs=secretPairs(), b=$('board');
   b.innerHTML='<div class="bd-in"><div class="ck-ey">THE SECRET ROOM</div><h2 class="so-h">비밀의 방으로 안내합니다</h2><div class="so-count"><b>'+pairs.length+'</b><span>쌍</span></div>'+
     '<div class="bd-grid">'+pairs.map((p,i)=>'<div class="bd-row"><span class="bd-no">'+(i+1)+'</span><span>'+esc(avat(p[0])+' '+nick(p[0]))+'</span><i>🚪</i><span>'+esc(avat(p[1])+' '+nick(p[1]))+'</span></div>').join('')+'</div>'+
+    '<div class="ck-ey" style="margin-top:14px">모든 지목 결과</div>'+picksHTML('spk-list')+
     '<p class="so-p">안쪽 자리부터 1번입니다 · 화면을 누르면 닫혀요</p></div>';
   b.hidden=false; b.onclick=()=>b.hidden=true;
 }
@@ -2242,7 +2259,7 @@ function bindAddPanel(){
    비밀의 방(영상 → 지목 카운트다운 → 번호표) > 배치도(관리자 토글) > 운명의 실 공개 > 베스트 드레서 시상 > 라운드 시계(이동 시간엔 배치도) > 대기(QR · 입장 현황)
    개인 정보 보호: 사탕·편지·지목은 누가 누구에게 했는지 절대 보여주지 않음(숫자만). 비밀의 방 번호표는 자리 안내용이라 닉네임 공개 */
 const TV_QR='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 33 33" shape-rendering="crispEdges"><rect x="-2" y="-2" width="33" height="33" fill="#fff7e8"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM16 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM17 3h1v1h-1zM19 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM17 7h1v1h-1zM18 7h1v1h-1zM19 7h1v1h-1zM0 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM22 8h1v1h-1zM25 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM28 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM28 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM17 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM0 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM0 14h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM13 14h1v1h-1zM16 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM7 15h1v1h-1zM10 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM23 15h1v1h-1zM27 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM18 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM27 17h1v1h-1zM0 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM2 19h1v1h-1zM3 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM9 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM19 19h1v1h-1zM24 19h1v1h-1zM26 19h1v1h-1zM1 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM26 20h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM28 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM16 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM20 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM13 25h1v1h-1zM15 25h1v1h-1zM16 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM11 26h1v1h-1zM13 26h1v1h-1zM16 26h1v1h-1zM20 26h1v1h-1zM23 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM16 27h1v1h-1zM20 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM14 28h1v1h-1zM15 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM27 28h1v1h-1z" fill="#1a0a06"/></svg>';
-let tvT=0, tvKey='', tvSig='', tvLast=null, tvMode='', tvSecretPlayed=null;
+let tvScrollT=0, tvT=0, tvKey='', tvSig='', tvLast=null, tvMode='', tvSecretPlayed=null;
 function enterTV(){
   show('tv'); ME=null; Store.start();
   Store.listeners=[()=>tvRender()];
@@ -2300,6 +2317,10 @@ function tvRender(force){
   if(key!==tvKey&&tvKey) tvAnnounce(ts);
   tvKey=key; tvSig=sig; tvMode=ts.m;
   $('tvMain').innerHTML=tvMainHTML(ts); mountGuides($('tvMain'));
+  // 지목 결과가 화면보다 길면 천천히 자동 스크롤 (끝에서 잠깐 멈췄다가 처음으로)
+  clearInterval(tvScrollT); const L=$('tvMain').querySelector('.tv-spk');
+  if(L){ let hold=12; tvScrollT=setInterval(()=>{ if(L.scrollHeight<=L.clientHeight+2) return; if(hold>0){ hold--; return; }
+    if(L.scrollTop+L.clientHeight>=L.scrollHeight-1){ hold=12; setTimeout(()=>L.scrollTop=0,2500); return; } L.scrollTop+=1; },50); }
   tvTick();
 }
 function tvMainHTML(ts){
@@ -2312,7 +2333,8 @@ function tvMainHTML(ts){
       return h('THE SECRET ROOM','단 한 명을 지목하라','마음에 드는 이, 더 이야기해 보고 싶은 이 · 서로의 마음이 같다면 비밀의 방으로')+ring('tvBar','#ff5b66')+'<p class="tv-sub">지목을 마친 영혼 <b class="gold">'+n+'</b> / '+souls().length+'</p>'; }
     const pairs=secretPairs();
     return h('THE SECRET ROOM','비밀의 방으로 안내합니다','서로를 지목한 영혼 <b class="gold">'+pairs.length+'쌍</b> · 안쪽 자리부터 1번')+
-      '<div class="tv-pairs">'+(pairs.length?pairs.map((p,i)=>'<div class="bd-row"><span class="bd-no">'+(i+1)+'</span><span>'+esc(avat(p[0])+' '+nick(p[0]))+'</span><i>🚪</i><span>'+esc(avat(p[1])+' '+nick(p[1]))+'</span></div>').join(''):'<p class="tv-sub">이번엔 모든 실이 엇갈렸어요… 👻</p>')+'</div>';
+      '<div class="tv-pairs">'+(pairs.length?pairs.map((p,i)=>'<div class="bd-row"><span class="bd-no">'+(i+1)+'</span><span>'+esc(avat(p[0])+' '+nick(p[0]))+'</span><i>🚪</i><span>'+esc(avat(p[1])+' '+nick(p[1]))+'</span></div>').join(''):'<p class="tv-sub">이번엔 모든 실이 엇갈렸어요… 👻</p>')+'</div>'+
+      '<div class="ck-ey" style="margin-top:2vh">모든 지목 결과 · 💞 서로 지목</div>'+picksHTML('spk-list tv-spk');
   }
   if(ts.m==='map') return h('SEATING MAP','테이블 배치도','여성은 자리 고정 · 벨이 울리면 남성은 다음 번호 테이블로')+'<img class="tv-map" src="seating-map.png" alt="테이블 배치도">';
   if(ts.m==='match'){
