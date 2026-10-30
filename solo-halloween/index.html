@@ -622,6 +622,86 @@
   .bd-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;border:1px solid rgba(246,208,138,.3);background:rgba(255,246,234,.05);font-family:var(--round);font-size:clamp(16px,2.4vw,22px);text-align:left}
   .bd-row i{font-style:normal}
   .bd-no{flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#f3d08c,#b47a2c);color:#2a1204;font-family:var(--serif);font-weight:600;font-size:20px}
+  /* ── 메인 TV ── */
+  #tv{position:fixed;inset:0;z-index:45;overflow:hidden;background:radial-gradient(60% 50% at 30% 10%,rgba(242,165,65,.18),transparent 70%),radial-gradient(50% 40% at 85% 0%,rgba(179,18,31,.2),transparent 70%),rgba(8,4,3,.72)}
+  .tv-grid{display:grid;grid-template-columns:1fr 29vw;gap:2.4vw;height:100%;padding:3vh 2.6vw calc(3vh + var(--badge))}
+  .tv-main{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0}
+  .tv-main .ck-ey{font-size:1vw}
+  .tv-h{margin:.6vh 0 .8vh;font-family:var(--round);font-weight:300;font-size:4.6vw;letter-spacing:.08em;line-height:1.15;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 2vw rgba(242,165,65,.3))}
+  .tv-sub{font-family:var(--story);font-size:1.5vw;color:#efdcc4;margin:.6vh 0 1.4vh;line-height:1.6}
+  .gold{color:var(--gold)}
+  .tv-ring{position:relative;width:46vh;height:46vh;margin:1vh auto}
+  .tv-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .tv-ring .trk{fill:none;stroke:rgba(246,208,138,.12);stroke-width:5}
+  .tv-ring .bar{fill:none;stroke:url(#tvg);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .25s linear;filter:drop-shadow(0 0 8px rgba(246,208,138,.6))}
+  .tv-ring-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .tv-time{font-family:var(--serif);font-weight:500;font-size:11vh;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+  .tv-ring-l{font-family:var(--story);font-size:2.4vh;color:#fff1d6;margin-top:1vh;letter-spacing:.1em}
+  .tv-main.move .bar{stroke:#7fd6c9!important;filter:drop-shadow(0 0 8px rgba(63,184,168,.7))}
+  .tv-main.move .tv-time{background:linear-gradient(180deg,#e6fffb,#7fd6c9 55%,#2f8a80);-webkit-background-clip:text;background-clip:text}
+  .tv-main.hurry .bar{stroke:#ff5b66!important}
+  .tv-main.hurry .tv-time{background:linear-gradient(180deg,#ffe1e3,#ff5b66 55%,#a3101c);-webkit-background-clip:text;background-clip:text;animation:hb 1s ease-in-out infinite}
+  .tv-round{display:flex;align-items:center;gap:3vw;width:100%;justify-content:center}
+  .tv-theme{text-align:left;max-width:30vw}
+  .tv-theme .tv-h{font-size:4vw;margin:.4vh 0 0}
+  .tv-en{font-family:var(--script);font-style:italic;font-size:1.8vw;color:rgba(246,208,138,.85);margin:0 0 1.6vh}
+  .tv-theme ol{margin:0;padding:0;list-style:none;display:grid;gap:1vh;counter-reset:q}
+  .tv-theme li{position:relative;padding:1.1vh 1vw 1.1vh 3vw;border-radius:1vw;background:rgba(255,246,234,.07);font-family:var(--story);font-size:1.45vw;line-height:1.5;counter-increment:q}
+  .tv-theme li::before{content:counter(q,upper-roman);position:absolute;left:1vw;top:1.2vh;font-family:var(--serif);font-size:1vw;color:var(--gold)}
+  .tv-mis{margin-top:1.4vh;padding:1.2vh 1vw;border-radius:1vw;border:1px dashed rgba(246,208,138,.4);font-family:var(--story);font-size:1.3vw;color:#f3dcb0}
+  .tv-mis b{display:block;font-family:var(--serif);font-size:.8vw;letter-spacing:.3em;color:var(--gold)}
+  .tv-candles{margin-top:3vh;gap:1.2vw}.tv-candles .cd{transform:scale(1.8)}
+  .tv-ch{width:22vh;height:22vh;margin:1vh auto}.tv-ch .ch{width:22vh;height:22vh}
+  .tv-chars{display:flex;justify-content:center;gap:1.5vw;margin:3vh 0}
+  .tv-chars .sc-ch{width:15vh;height:15vh}.tv-chars .sc-ch .ch{width:15vh;height:15vh}
+  .tv-title{font-size:8vw;line-height:1.1;font-weight:200;letter-spacing:.08em}
+  .tv-huge{display:flex;align-items:baseline;gap:1vw;justify-content:center}
+  .tv-huge b{font-family:var(--serif);font-size:18vh;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tv-huge span{font-family:var(--round);font-size:2.4vw;color:var(--gold)}
+  .tv-pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(25vw,1fr));gap:1vh 1vw;width:100%;max-height:62vh;overflow:hidden;margin-top:1vh}
+  .tv-pairs .bd-row{font-size:1.5vw;padding:1vh 1vw}.tv-pairs .bd-no{width:2.8vw;height:2.8vw;font-size:1.3vw}
+  .tv-pods{display:grid;grid-template-columns:1fr 1fr;gap:4vw;width:100%;margin-top:2vh}
+  .tv-pods .pod .e{font-size:5vw}.tv-pods .pod .n{font-size:1.4vw}.tv-pods .pod.p1 .blk{height:20vh}.tv-pods .pod.p2 .blk{height:14vh}.tv-pods .pod.p3 .blk{height:10vh}.tv-pods .pod .blk{font-size:2vw}.tv-pods .votes{font-size:1vw}
+  .tv-side{display:flex;flex-direction:column;gap:1.6vh;min-height:0;background:linear-gradient(180deg,rgba(28,13,8,.82),rgba(10,5,4,.9));border:1px solid rgba(246,208,138,.28);border-radius:1.4vw;padding:2.2vh 1.4vw}
+  .tv-side .ck-ey{font-size:.75vw}
+  .tv-qr{display:flex;gap:1.1vw;align-items:center}
+  .tv-qrbox{flex:0 0 10vw;width:10vw;height:10vw;padding:.5vw;border-radius:.8vw;background:#fff7e8;border:3px solid #b47a2c}
+  .tv-qrbox svg{width:100%;height:100%;display:block}
+  .tv-qr b{display:block;font-family:var(--round);font-weight:500;font-size:1.5vw;color:#fff1d6;margin-top:.4vh}
+  .tv-qr span{display:block;font-family:var(--story);font-size:1vw;color:var(--gold)}
+  .tv-qr i{display:block;font-style:normal;font-family:var(--serif);font-size:.75vw;color:var(--muted);margin-top:.6vh;letter-spacing:.04em}
+  .tv-count{border-top:1px solid rgba(246,208,138,.18);padding-top:1.4vh}
+  .tv-big{display:flex;align-items:baseline;gap:.6vw}
+  .tv-big b{font-family:var(--serif);font-size:4.6vw;line-height:1.05;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tv-big span{font-family:var(--serif);font-size:1.6vw;color:var(--muted)}
+  .tv-count .tally-bar{height:.9vh;margin-top:.6vh}
+  .tv-mf{display:flex;gap:1.2vw;margin-top:.8vh;font-size:1vw;color:var(--muted)}.tv-mf span{display:flex;align-items:center;gap:.4vw}
+  .tv-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6vw}
+  .tv-stats div{background:rgba(0,0,0,.3);border-radius:.8vw;padding:1.2vh .4vw;text-align:center}
+  .tv-stats b{display:block;font-family:var(--serif);font-size:2.2vw;color:var(--gold)}
+  .tv-stats span{font-size:.75vw;color:var(--muted)}
+  .tv-recent{flex:1;min-height:0;overflow:hidden;border-top:1px solid rgba(246,208,138,.18);padding-top:1.4vh}
+  .tv-recent div{display:flex;align-items:center;gap:.7vw;font-family:var(--round);font-size:1.25vw;padding:.55vh 0;animation:bubIn .5s both}
+  .tv-recent div span{font-size:1.6vw}
+  .tv-recent .muted{font-size:1vw}
+  #tvVid{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:47;opacity:0;pointer-events:none;transition:opacity .6s}
+  #tvVid.on{opacity:1}
+  #tvStage{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(60% 50% at 50% 45%,rgba(120,20,30,.4),transparent 70%),rgba(5,2,2,.94);animation:fadeIn .4s}
+  #tvStage .sc-ch{width:24vh;height:24vh}#tvStage .sc-ch .ch{width:24vh;height:24vh}
+  #tvStage .sc-rn{font-family:var(--serif);font-size:1.6vw;letter-spacing:.5em;color:var(--gold);animation:scIn .8s .1s both}
+  #tvStage .sc-big{font-family:var(--serif);font-weight:500;font-size:22vh;line-height:1;background:var(--goldtxt);-webkit-background-clip:text;background-clip:text;color:transparent;animation:scBig 1s cubic-bezier(.2,.8,.2,1) both}
+  #tvStage .sc-n{font-family:var(--round);font-size:5vw;letter-spacing:.08em;color:#fff1d6;animation:scIn .8s .4s both}
+  #tvStage .sc-d{font-family:var(--story);font-size:1.6vw;color:var(--muted);margin-top:1.2vh;animation:scIn .8s .7s both}
+  #tvStage .bell{font-size:18vh}
+  #tvPop{position:fixed;left:2.6vw;bottom:calc(3vh + var(--badge));z-index:48;display:flex;flex-direction:column;gap:1vh;pointer-events:none}
+  .tv-popi{padding:1.2vh 1.4vw;border-radius:99px;background:rgba(255,246,234,.95);color:#2a140a;font-family:var(--story);font-size:1.3vw;box-shadow:0 1vh 3vh rgba(0,0,0,.5);animation:toastIn .4s cubic-bezier(.3,1.4,.5,1),tvOut .5s 4.7s forwards}
+  .tv-popi b{color:var(--blood)}
+  @keyframes tvOut{to{opacity:0;transform:translateY(1vh)}}
+  .tv-start{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(5,2,2,.92);cursor:pointer}
+  .tv-start p{font-family:var(--story);font-size:1.6vw;color:#efdcc4;margin-top:3vh;animation:breathe 2.2s infinite}
+  .tv-start small{font-size:1vw;color:var(--muted)}
+  .tv-start[hidden]{display:none}
+  #tvExit{position:fixed;top:1.2vh;right:1vw;z-index:61;width:2.4vw;height:2.4vw;min-width:28px;min-height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.3);color:rgba(255,255,255,.35);cursor:pointer}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
 </head>
@@ -708,6 +788,15 @@
 <div id="stageCard" hidden></div>
 <section id="secretOv" hidden><video id="svid" playsinline webkit-playsinline preload="auto"></video><div class="so-in" id="soIn"></div></section>
 <section id="board" hidden></section>
+<section id="tv" hidden>
+  <div class="tv-grid"><div class="tv-main" id="tvMain"></div><aside class="tv-side" id="tvSide"></aside></div>
+  <video id="tvVid" playsinline webkit-playsinline preload="auto"></video>
+  <div id="tvStage" hidden></div>
+  <div id="tvPop"></div>
+  <div class="tv-start" id="tvStart"><div class="script" style="font-size:3vw">Halloween</div><div class="poster" style="font-size:6vw;font-weight:200">메인 TV 화면</div>
+    <p>화면을 한 번 눌러 시작하세요<br><small>전체 화면 · 화면 꺼짐 방지 · 영상 소리 켜짐</small></p></div>
+  <button id="tvExit" type="button" title="TV 화면 나가기">✕</button>
+</section>
 <section id="admin" hidden><div class="wrap adm" id="admIn"></div></section>
 
 <script src="roster.js"></script>
@@ -948,10 +1037,11 @@ const souls=()=>roster().map(withG).filter(p=>p.g&&prof(p.id).nick);
   Store.pull().then(()=>{
     if(location.hash==='#admin'){ openAdmin(); }
     const saved=LS.get(K('me'),null);
+    if(location.hash==='#tv'||saved==='__tv'){ if(saved==='__tv'||prompt('📺 메인 TV · 관리자 PIN')===CONFIG.ADMIN_PIN){ LS.set(K('me'),'__tv'); enterTV(); return; } }
     if(saved&&person(saved)){ ME=saved; route(); } else show('login');
   });
 })();
-function show(id){ ['login','intro','vn','app'].forEach(s=>$(s).hidden=(s!==id)); window.scrollTo(0,0); }
+function show(id){ ['login','intro','vn','app','tv'].forEach(s=>$(s).hidden=(s!==id)); window.scrollTo(0,0); }
 function route(){
   if(!prof(ME).nick||!prof(ME).seen){ playIntro(); }
   else enterApp();
@@ -963,6 +1053,8 @@ $('loginForm').addEventListener('submit',async e=>{
   const n=$('lgName').value, b=$('lgPin').value;
   if(!normName(n)){ $('lgErr').textContent='이름을 적어주세요.'; return; }
   if(!normPin(b)){ $('lgErr').textContent='휴대폰 번호 뒤 4자리를 숫자로 적어주세요.'; return; }
+  // 메인 TV 전용 계정: 이름 '메인TV' + 비밀번호 = 관리자 PIN
+  if(/^(메인TV|메인티비|TV)$/i.test(normName(n))){ if(normPin(b)===CONFIG.ADMIN_PIN){ LS.set(K('me'),'__tv'); $('lgErr').textContent=''; enterTV(); } else $('lgErr').textContent='메인 TV 비밀번호가 달라요.'; return; }
   $('lgBtn').disabled=true; $('lgBtn').querySelector('small').textContent='명단을 확인하는 중…';
   await Store.pull();
   const h=credHash(n,b), p=roster().find(x=>x.h===h);
@@ -2141,6 +2233,143 @@ function bindAddPanel(){
   });
 }
 
+/* ════════════════ 📺 메인 TV 화면 ════════════════
+   로그인: 이름 '메인TV' + 관리자 PIN (또는 주소 뒤 #tv). 가로 화면, 손댈 필요 없이 상황에 따라 자동 전환:
+   비밀의 방(영상 → 지목 카운트다운 → 번호표) > 운명의 실 공개 > 베스트 드레서 시상 > 라운드 시계 > 대기(QR · 입장 현황)
+   개인 정보 보호: 사탕·편지·지목은 누가 누구에게 했는지 절대 보여주지 않음(숫자만). 비밀의 방 번호표는 자리 안내용이라 닉네임 공개 */
+const TV_QR='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 33 33" shape-rendering="crispEdges"><rect x="-2" y="-2" width="33" height="33" fill="#fff7e8"/><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM16 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM17 3h1v1h-1zM19 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM10 4h1v1h-1zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM17 7h1v1h-1zM18 7h1v1h-1zM19 7h1v1h-1zM0 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM22 8h1v1h-1zM25 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM28 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM28 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM17 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM0 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM0 14h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM13 14h1v1h-1zM16 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM7 15h1v1h-1zM10 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM23 15h1v1h-1zM27 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM14 16h1v1h-1zM16 16h1v1h-1zM18 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM27 17h1v1h-1zM0 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM2 19h1v1h-1zM3 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM9 19h1v1h-1zM13 19h1v1h-1zM14 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM19 19h1v1h-1zM24 19h1v1h-1zM26 19h1v1h-1zM1 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM26 20h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM19 21h1v1h-1zM20 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM28 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM16 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM20 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM13 25h1v1h-1zM15 25h1v1h-1zM16 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM11 26h1v1h-1zM13 26h1v1h-1zM16 26h1v1h-1zM20 26h1v1h-1zM23 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM16 27h1v1h-1zM20 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM14 28h1v1h-1zM15 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM27 28h1v1h-1z" fill="#1a0a06"/></svg>';
+let tvT=0, tvKey='', tvSig='', tvLast=null, tvMode='', tvSecretPlayed=null;
+function enterTV(){
+  show('tv'); ME=null; Store.start();
+  Store.listeners=[()=>tvRender()];
+  clearInterval(tickT); clearInterval(tvT); tvT=setInterval(tvTick,250);
+  $('tvStart').onclick=async()=>{
+    $('tvStart').hidden=true; Voice.init();
+    try{ await document.documentElement.requestFullscreen(); }catch(e){}
+    try{ tvWake=await navigator.wakeLock.request('screen'); }catch(e){}
+    tvRender(true);
+  };
+  $('tvExit').onclick=()=>{ if(confirm('메인 TV 화면에서 나갈까요?')){ LS.del(K('me')); location.hash=''; location.reload(); } };
+  document.addEventListener('visibilitychange',async()=>{ if(!document.hidden&&!$('tv').hidden){ try{ tvWake=await navigator.wakeLock.request('screen'); }catch(e){} } });
+  tvRender(true);
+}
+let tvWake=null;
+function tvState(){
+  const ss=sstate(); if(ss.ph!=='none') return {m:'secret',ph:ss.ph,ss};
+  const mp=mphase(); if(mp==='countdown'||mp==='reveal') return {m:'match',ph:mp};
+  if(phase('vote')==='reveal') return {m:'vote'};
+  const t=tstate(); if(t.kind!=='idle') return {m:'timer',t};
+  return {m:'idle'};
+}
+function tvStats(){
+  const S=souls(), m=S.filter(p=>p.g==='m').length, R=roster().filter(p=>!p.staff);
+  const c=Store.get('candy')||{}; let candy=0, rooms=0; Object.keys(c).forEach(a=>Object.keys(c[a]||{}).forEach(b=>{ candy++; if(a<b&&c[b]&&c[b][a]) rooms++; }));
+  const L=Store.get('letters')||{}; let letters=0; Object.values(L).forEach(x=>letters+=Object.keys(x||{}).length);
+  return {n:S.length,m,f:S.length-m,total:R.length,candy,rooms,letters,recent:S.slice().sort((a,b)=>(prof(b.id).at||0)-(prof(a.id).at||0)).slice(0,7)};
+}
+function tvSide(){
+  const st=tvStats();
+  $('tvSide').innerHTML=
+    '<div class="tv-qr"><div class="tv-qrbox">'+TV_QR+'</div><div><div class="ck-ey">JOIN THE MANOR</div><b>QR을 찍고 입장</b><span>이름 + 휴대폰 뒤 4자리</span><i>solohalloween.netlify.app</i></div></div>'+
+    '<div class="tv-count"><div class="ck-ey">SOULS IN THE MANOR</div><div class="tv-big"><b>'+st.n+'</b><span>/ '+st.total+'</span></div>'+
+      '<div class="tally-bar"><i class="t-m" style="width:'+(st.n?st.m/st.n*100:50)+'%"></i><i class="t-f" style="width:'+(st.n?st.f/st.n*100:50)+'%"></i></div>'+
+      '<div class="tv-mf"><span><i class="dot t-m"></i>남 '+st.m+'</span><span><i class="dot t-f"></i>여 '+st.f+'</span></div></div>'+
+    '<div class="tv-stats"><div><b>'+st.candy+'</b><span>🍬 배달된 사탕</span></div><div><b>'+st.rooms+'</b><span>💬 열린 밀담방</span></div><div><b>'+st.letters+'</b><span>🦇 박쥐편지</span></div></div>'+
+    '<div class="tv-recent"><div class="ck-ey">JUST ARRIVED</div>'+(st.recent.length?st.recent.map(p=>'<div><span>'+esc(avat(p.id))+'</span>'+esc(nick(p.id))+'</div>').join(''):'<p class="muted">첫 번째 영혼을 기다리는 중…</p>')+'</div>';
+  return st;
+}
+function tvRender(force){
+  if($('tv').hidden) return;
+  const st=tvSide();
+  // 새 입장 · 사탕 배달 알림 (누가 누구에게 보냈는지는 표시하지 않음)
+  if(tvLast){
+    if(st.n>tvLast.n&&st.recent[0]) tvPop('👻 <b>'+esc(nick(st.recent[0].id))+'</b>님이 저택에 들어왔어요');
+    else if(st.rooms>tvLast.rooms) tvPop('💬 방금 <b>둘만의 밀담방</b>이 열렸어요!');
+    else if(st.candy>tvLast.candy) tvPop('🍬 누군가에게 <b>사탕</b>이 배달됐어요');
+    else if(st.letters>tvLast.letters) tvPop('🦇 <b>익명의 박쥐편지</b>가 날아갔어요');
+  }
+  tvLast=st;
+  const ts=tvState(), key=ts.m+':'+(ts.ph||'')+':'+(ts.t?ts.t.kind+ts.t.r+ts.t.ph:'')+':'+(ts.ss&&ts.ss.S?ts.ss.S.id:'');
+  const sig=key+JSON.stringify([Store.get('results'),Store.get('secret'),Store.get('spicks'),phase('vote')]);
+  if(!force&&sig===tvSig) return;
+  if(key!==tvKey&&tvKey) tvAnnounce(ts);
+  tvKey=key; tvSig=sig; tvMode=ts.m;
+  $('tvMain').innerHTML=tvMainHTML(ts); mountGuides($('tvMain'));
+  tvTick();
+}
+function tvMainHTML(ts){
+  const h=(ey,title,sub)=>'<div class="ck-ey">'+ey+'</div><h1 class="tv-h">'+title+'</h1>'+(sub?'<p class="tv-sub">'+sub+'</p>':'');
+  const ring=(id,color)=>'<div class="tv-ring"><svg viewBox="0 0 180 180"><defs><linearGradient id="tvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4dc"/><stop offset=".5" stop-color="#f6d08a"/><stop offset="1" stop-color="#b47a2c"/></linearGradient></defs><circle class="trk" cx="90" cy="90" r="76"/><circle class="bar" id="'+id+'" cx="90" cy="90" r="76" stroke-dasharray="477.5" stroke-dashoffset="0" '+(color?'style="stroke:'+color+'"':'')+'/></svg><div class="tv-ring-in"><div class="tv-time" id="tvTime">--:--</div><div class="tv-ring-l" id="tvRingL"></div></div></div>';
+  if(ts.m==='secret'){
+    const ss=ts.ss;
+    if(ss.ph==='video') return h('THE SECRET ROOM','비밀의 방이 열립니다','루시안이 모두를 부릅니다…')+'<div class="sc-ch tv-ch" data-ch="lucian"></div>';
+    if(ss.ph==='pick'){ const n=Object.keys(Store.get('spicks/'+ss.S.id)||{}).length;
+      return h('THE SECRET ROOM','단 한 명을 지목하라','마음에 드는 이, 더 이야기해 보고 싶은 이 · 서로의 마음이 같다면 비밀의 방으로')+ring('tvBar','#ff5b66')+'<p class="tv-sub">지목을 마친 영혼 <b class="gold">'+n+'</b> / '+souls().length+'</p>'; }
+    const pairs=secretPairs();
+    return h('THE SECRET ROOM','비밀의 방으로 안내합니다','서로를 지목한 영혼 <b class="gold">'+pairs.length+'쌍</b> · 안쪽 자리부터 1번')+
+      '<div class="tv-pairs">'+(pairs.length?pairs.map((p,i)=>'<div class="bd-row"><span class="bd-no">'+(i+1)+'</span><span>'+esc(avat(p[0])+' '+nick(p[0]))+'</span><i>🚪</i><span>'+esc(avat(p[1])+' '+nick(p[1]))+'</span></div>').join(''):'<p class="tv-sub">이번엔 모든 실이 엇갈렸어요… 👻</p>')+'</div>';
+  }
+  if(ts.m==='match'){
+    if(ts.ph==='countdown') return h('RED STRING OF FATE','운명의 실이 엮이는 중','결과는 각자의 휴대폰에서 공개돼요')+ring('tvBar','#ff5b66');
+    return h('RED STRING OF FATE','운명의 실이 풀렸어요','지금 휴대폰에서 관을 열어 확인하세요')+'<div class="tv-huge"><b>'+matchResults().length+'</b><span>가닥의 실이 이어졌어요</span></div><div class="sc-ch tv-ch" data-ch="boo"></div>';
+  }
+  if(ts.m==='vote'){ const r=voteResults();
+    return h('THE VAMPIRE GIFT','베스트 드레서','오늘 밤 가장 매혹적인 영혼들')+'<div class="tv-pods"><div><div class="ck-ey">MEN</div>'+podium(r.m)+'</div><div><div class="ck-ey">WOMEN</div>'+podium(r.f)+'</div></div>'; }
+  if(ts.m==='timer'){ const t=ts.t;
+    if(t.kind==='free') return h('FREE TIME','마음이 가는 곳으로','★ 기억해둔 영혼을 직접 찾아가세요 · 운명의 실은 휴대폰에서')+'<div class="sc-ch tv-ch" data-ch="boo"></div>';
+    if(t.kind==='break') return h('INTERMISSION','숨 고르기','물 한 잔, 빙고 체크, ★ 기억 노트 정리')+ring('tvBar');
+    const R=ROUNDS[Math.max(0,t.r-1)];
+    return '<div class="tv-round">'+ring('tvBar')+'<div class="tv-theme"><div class="ck-ey">ROUND '+roman(t.r)+' / X</div><h1 class="tv-h" style="text-align:left">'+R.n+'</h1><p class="tv-en">'+R.en+'</p>'+
+      '<ol>'+R.q.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ol><div class="tv-mis"><b>MISSION</b>'+esc(R.m)+'</div></div></div>'+
+      '<div class="candles tv-candles">'+ROUNDS.map((_,i)=>'<span class="cd'+(i<(t.ph==='talk'?t.r-1:t.r)?' done':'')+(t.ph==='talk'&&i===t.r-1?' now':'')+'"><b></b><i></i><small>'+roman(i+1)+'</small></span>').join('')+'</div>';
+  }
+  return '<div class="tv-idle"><div class="script" style="font-size:3.2vw">Halloween</div><div class="poster tv-title">솔로 할로윈</div><div class="orn">◆</div>'+
+    '<p class="tv-sub">이태원 비밀 저택에 오신 영혼들을 환영합니다</p>'+
+    '<div class="tv-chars">'+['pipi','jack','lucian','boo','hazel'].map(c=>'<div class="sc-ch" data-ch="'+c+'"></div>').join('')+'</div>'+
+    '<p class="tv-sub">오른쪽 QR을 찍고 <b class="gold">이름 + 휴대폰 뒤 4자리</b>로 입장하세요</p></div>';
+}
+function tvTick(){
+  if($('tv').hidden) return;
+  const ts=tvState(), el=$('tvTime'), bar=$('tvBar'), lab=$('tvRingL');
+  // 시간 흐름만으로 바뀌는 상태(종, 비밀의 방 단계)도 감지
+  const key=ts.m+':'+(ts.ph||'')+':'+(ts.t?ts.t.kind+ts.t.r+ts.t.ph:'')+':'+(ts.ss&&ts.ss.S?ts.ss.S.id:'');
+  if(key!==tvKey){ tvRender(true); return; }
+  let left=null,tot=1,label='';
+  if(ts.m==='secret'&&ts.ph==='pick'){ left=ts.ss.left; tot=ts.ss.S.psec; label='남은 시간'; }
+  else if(ts.m==='match'&&ts.ph==='countdown'){ left=revealLeft(); tot=CONFIG.REVEAL_DELAY_MIN*60; label='공개까지'; }
+  else if(ts.m==='timer'&&ts.t.kind!=='free'){ left=ts.t.rem; tot=ts.t.tot; label=ts.t.ph==='talk'?'대화 중':ts.t.ph==='move'?'다음 테이블로 이동':ts.t.ph==='break'?'휴식':'다음 라운드 대기'; }
+  if(el&&left!=null){ el.textContent=fmt(left); if(lab) lab.textContent=(ts.t&&ts.t.paused?'⏸ ':'')+label; }
+  if(bar&&left!=null){ bar.setAttribute('stroke-dashoffset',String(477.5*(1-Math.max(0,Math.min(1,left/tot)))));
+    const hurry=(ts.m==='timer'&&ts.t.ph==='talk'&&left<=60)||(ts.m==='secret'&&left<=30), mv=ts.m==='timer'&&ts.t.ph==='move';
+    $('tvMain').classList.toggle('hurry',hurry); $('tvMain').classList.toggle('move',mv); }
+}
+function tvAnnounce(ts){
+  const st=$('tvStage'); let html='', dur=6000;
+  if(ts.m==='timer'&&ts.t.kind==='round'&&ts.t.ph==='talk'){ const R=ROUNDS[ts.t.r-1]; html='<div class="sc-ch" data-ch="'+R.c+'"></div><div class="sc-rn">ROUND</div><div class="sc-big">'+roman(ts.t.r)+'</div><div class="sc-n">'+R.n+'</div><div class="sc-d">'+esc(R.q[0])+'</div>'; tvChime(); }
+  else if(ts.m==='timer'&&ts.t.ph==='move'){ html='<span class="bell">🔔</span><div class="sc-rn" style="margin-top:1vh">ROUND '+roman(ts.t.r)+' · END</div><div class="sc-n">종이 울렸어요</div><div class="sc-d">다음 테이블로 이동해 주세요 · 기억할 영혼에 ★</div>'; tvBell(); }
+  else if(ts.m==='timer'&&ts.t.kind==='break'){ html='<div class="sc-ch" data-ch="pipi"></div><div class="sc-rn">INTERMISSION</div><div class="sc-n">숨 고르기</div>'; tvChime(); }
+  else if(ts.m==='timer'&&ts.t.kind==='free'){ html='<div class="sc-ch" data-ch="boo"></div><div class="sc-rn">FREE TIME</div><div class="sc-n">마음이 가는 곳으로</div>'; tvChime(); }
+  else if(ts.m==='secret'&&ts.ph==='video'){ tvPlaySecret(ts.ss.S.id); return; }
+  else if(ts.m==='secret'&&ts.ph==='result'){ html='<div class="sc-rn">THE SECRET ROOM</div><div class="sc-n">시간이 다 됐다!</div><div class="sc-d">서로를 지목한 영혼들을 비밀의 방으로 안내합니다</div>'; tvBell(); }
+  else if(ts.m==='vote'){ html='<div class="sc-ch" data-ch="lucian"></div><div class="sc-rn">THE VAMPIRE GIFT</div><div class="sc-n">베스트 드레서 발표</div>'; tvChime(); dur=4000; }
+  else if(ts.m==='match'&&ts.ph==='reveal'){ html='<div class="sc-ch" data-ch="boo"></div><div class="sc-rn">RED STRING OF FATE</div><div class="sc-n">운명의 실이 풀렸어요</div>'; tvChime(); }
+  else return;
+  st.innerHTML=html; mountGuides(st); st.hidden=false; clearTimeout(st._t); st._t=setTimeout(()=>st.hidden=true,dur);
+}
+function tvPlaySecret(id){
+  if(tvSecretPlayed===id) return; tvSecretPlayed=id;
+  const v=$('tvVid'); const srcs=[].concat(CONFIG.SECRET_VIDEO||[]).filter(u=>u&&!/SECRET_CDN_URL/.test(u));
+  v.innerHTML=srcs.map(u=>'<source src="'+esc(u)+'" type="video/mp4">').join(''); v.load(); v.muted=false;
+  v.classList.add('on'); v.onended=()=>v.classList.remove('on');
+  v.play().catch(()=>{ v.muted=true; v.play().catch(()=>v.classList.remove('on')); });
+}
+function tvPop(html){ const box=$('tvPop'), d=document.createElement('div'); d.className='tv-popi'; d.innerHTML=html; box.appendChild(d); setTimeout(()=>d.remove(),5200); while(box.children.length>3) box.firstChild.remove(); }
+// 종소리: 브라우저에서 합성 (라운드 종료) · 차임 (라운드 시작 등)
+function tvTone(freqs,dur,gain){ const ctx=Voice.ctx; if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime;
+  freqs.forEach(([f,g,d],i)=>{ const o=ctx.createOscillator(), a=ctx.createGain(); o.type='sine'; o.frequency.value=f; a.gain.setValueAtTime(0,t); a.gain.linearRampToValueAtTime(gain*g,t+.01); a.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(a).connect(ctx.destination); o.start(t); o.stop(t+d+.05); }); }
+function tvBell(){ [0,.9,1.8].forEach(k=>setTimeout(()=>tvTone([[523,1,2.6],[1046,.5,1.8],[1444,.35,1.2],[2093,.15,.8]],2.6,.35),k*1000)); }
+function tvChime(){ [659,784,988].forEach((f,i)=>setTimeout(()=>tvTone([[f,1,1.4],[f*2,.3,.9]],1.4,.25),i*180)); }
+
 /* ════════════════ 시트 · 토스트 · 연출 ════════════════ */
 function openSheet(html){ $('sheetIn').innerHTML=html; $('sheet').hidden=false; $('sheetBack').hidden=false; document.body.style.overflow='hidden'; }
 function closeSheet(){ $('sheet').hidden=true; $('sheetBack').hidden=true; document.body.style.overflow=''; }
@@ -2177,7 +2406,7 @@ function renderAdmin(){
   const rc=computeReceived(), top=Object.entries(rc).sort((a,b)=>b[1]-a[1]).slice(0,8), inM=new Set(mr.flat());
   $('admIn').innerHTML=
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2>🧛 운영진 저택</h2><button class="btn ghost small" style="width:auto;padding:0 16px" id="admClose">닫기</button></div>'+
-    '<div class="btnrow" style="margin:0 0 12px"><a class="btn ghost small" href="guidebook.html" target="_blank" rel="noopener" style="text-decoration:none">📖 운영 가이드북</a><a class="btn ghost small" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none">📄 한 장 요약</a></div>'+
+    '<div class="btnrow" style="margin:0 0 12px"><a class="btn ghost small" href="./#tv" target="_blank" rel="noopener" style="text-decoration:none">📺 메인 TV 화면</a><a class="btn ghost small" href="guidebook.html" target="_blank" rel="noopener" style="text-decoration:none">📖 운영 가이드북</a><a class="btn ghost small" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none">📄 한 장 요약</a></div>'+
     (Store.remote?'':'<div class="panel" style="border-color:var(--amber)"><h3>⚠️ 로컬 데모 모드</h3><p class="muted">DB_URL이 비어 있어 이 기기에만 저장돼요. 실제 행사에선 README대로 Firebase 주소를 넣어주세요.</p></div>')+
     adminRoundHTML()+adminSecretHTML()+addPanelHTML()+
     '<div class="panel"><h3>현황 <small>5초마다 갱신</small></h3><div class="stats"><div class="stat"><b>'+S.length+'/'+R.length+'</b><span>입장</span></div><div class="stat"><b>'+Object.keys(V).length+'</b><span>투표</span></div><div class="stat"><b>'+Object.keys(P).length+'</b><span>실 제출</span></div></div></div>'+

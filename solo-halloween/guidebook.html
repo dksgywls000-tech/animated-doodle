@@ -295,7 +295,10 @@ const BOOK=[
  {id:'tools',no:'09',title:'운영진 도구',host:['🧛','루시안'],lead:'관리자 화면 아래쪽에 있는 보조 도구들이에요.',
   gallery:{items:[['90-wheel','🎡 경품 룰렛','전체, 남, 여, 미매칭 중 대상을 골라 추첨해요'],['91-tables','🍷 테이블 나누기','남녀를 섞어 N개 테이블로 나눠요 (참고용)'],['93-tag','📸 인스타 태그','태그에 동의한 사람의 @아이디를 한 번에 복사해요']]}},
 
- {id:'timeline',no:'10',title:'당일 타임라인',host:['🎃','잭'],lead:'시간대별로 관리자 화면에서 무엇을 누르면 되는지 정리했어요.',
+ {id:'tv',no:'10',title:'📺 메인 TV 화면',host:['🧛','루시안'],lead:'행사장 메인 TV에 띄우는 전용 화면이에요. <b>한 번 켜두면 손댈 필요 없이</b> 상황에 따라 저절로 바뀌어요. 노트북이나 태블릿을 TV에 연결하고 가로로 띄우세요.',
+  gallery:{items:[['T1-tv-idle','대기 화면','입장 QR · 입장 인원 · 방금 들어온 영혼'],['T2-tv-round','라운드 진행','큰 시계 · 이번 라운드 질문과 미션'],['T3-tv-bell','🔔 종','대화가 끝나면 종소리와 함께 이동 안내'],['T4-tv-secret-pick','비밀의 방 지목','루시안 영상이 소리와 함께 자동 재생 → 3분 카운트다운'],['T5-tv-secret-result','비밀의 방 번호표','1번부터 안쪽 자리 안내'],['T6-tv-vote','베스트 드레서','발표하면 시상대가 자동으로 떠요']]},
+  table:{title:'켜는 법',head:['순서','할 일'],rows:[['1','TV에 연결한 노트북에서 사이트를 열고 <b>이름 <span class="k">메인TV</span> + 비밀번호 <span class="k">1031</span></b>(관리자 PIN)로 로그인하세요. 관리자 화면 위쪽 <span class="k">📺 메인 TV 화면</span> 버튼이나 주소 뒤 <span class="k">#tv</span>로도 열 수 있어요.'],['2','<b>화면을 한 번 클릭</b>하세요. 전체 화면, 화면 꺼짐 방지, 영상 소리가 켜져요. 클릭하지 않으면 비밀의 방 영상 소리가 나지 않을 수 있어요.'],['3','그다음부터는 운영진이 휴대폰 관리자 화면에서 라운드, 비밀의 방, 발표를 누르는 대로 TV가 따라 바뀌어요.'],['✕','오른쪽 위의 작은 ✕를 누르면 TV 화면에서 나가요.']]}},
+ {id:'timeline',no:'11',title:'당일 타임라인',host:['🎃','잭'],lead:'시간대별로 관리자 화면에서 무엇을 누르면 되는지 정리했어요.',
   table:{head:['시간','현장','관리자 화면에서'],rows:[
    ['20:00','체크인 · 착석 · 웰컴 드링크','입장 QR을 안내해요. 시계는 <span class="k">■ 대기 화면</span>.'],
    ['20:25','파티 룰 안내','“📜 저택의 규칙을 누르면 캐릭터가 설명해줘요” 안내'],
@@ -348,12 +351,12 @@ BOOK.forEach(p=>{
     '<p class="lead">'+p.lead+'</p>'+
     (p.steps||[]).map(stepHTML).join('')+(p.gallery?galleryHTML(p.gallery):'')+(p.steps2||[]).map(stepHTML).join('')+(p.table?tableHTML(p.table):'')+'</section>';
 });
-html+='<section class="part" id="check"><div class="ph"><span class="no">11</span><h2>행사 전 체크리스트</h2></div><p class="lead">하나씩 체크해 보세요. 체크 상태는 이 폰에만 저장돼요.</p><ul class="chk">'+
+html+='<section class="part" id="check"><div class="ph"><span class="no">12</span><h2>행사 전 체크리스트</h2></div><p class="lead">하나씩 체크해 보세요. 체크 상태는 이 폰에만 저장돼요.</p><ul class="chk">'+
   CHECK.map((c,i)=>'<li><input type="checkbox" data-i="'+i+'" id="c'+i+'"><label for="c'+i+'">'+c+'</label></li>').join('')+'</ul></section>';
-html+='<section class="part" id="faq"><div class="ph"><span class="no">12</span><h2>자주 묻는 질문</h2></div>'+FAQ.map(f=>'<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>').join('')+'</section>';
+html+='<section class="part" id="faq"><div class="ph"><span class="no">13</span><h2>자주 묻는 질문</h2></div>'+FAQ.map(f=>'<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>').join('')+'</section>';
 document.getElementById('book').innerHTML=html;
 
-const NAV=[['prep','준비'],['enter','입장'],['round','라운드'],['candy','사탕·밀담'],['letter','편지'],['vote','베스트드레서'],['match','운명의 실'],['secret','비밀의 방'],['rooms','방들'],['tools','도구'],['timeline','타임라인'],['check','체크리스트'],['faq','FAQ']];
+const NAV=[['prep','준비'],['enter','입장'],['round','라운드'],['candy','사탕·밀담'],['letter','편지'],['vote','베스트드레서'],['match','운명의 실'],['secret','비밀의 방'],['rooms','방들'],['tools','도구'],['tv','메인 TV'],['timeline','타임라인'],['check','체크리스트'],['faq','FAQ']];
 document.getElementById('toc').innerHTML=NAV.map(([id,t])=>'<a href="#'+id+'" data-id="'+id+'">'+t+'</a>').join('');
 // 지금 보고 있는 파트를 목차에 표시
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) document.querySelectorAll('nav.toc a').forEach(a=>{ const on=a.dataset.id===e.target.id; a.classList.toggle('on',on); if(on) a.scrollIntoView({inline:'center',block:'nearest'}); }); }),{rootMargin:'-40% 0px -55% 0px'});
