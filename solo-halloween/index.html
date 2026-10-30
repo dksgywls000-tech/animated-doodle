@@ -1930,7 +1930,7 @@ function renderAdmin(){
   const rc=computeReceived(), top=Object.entries(rc).sort((a,b)=>b[1]-a[1]).slice(0,8), inM=new Set(mr.flat());
   $('admIn').innerHTML=
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2>🧛 운영진 저택</h2><button class="btn ghost small" style="width:auto;padding:0 16px" id="admClose">닫기</button></div>'+
-    '<a class="btn ghost small" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none;margin-bottom:12px">📖 운영진 가이드 (한 장 요약 · 인쇄용)</a>'+
+    '<div class="btnrow" style="margin:0 0 12px"><a class="btn ghost small" href="guidebook.html" target="_blank" rel="noopener" style="text-decoration:none">📖 운영 가이드북</a><a class="btn ghost small" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none">📄 한 장 요약</a></div>'+
     (Store.remote?'':'<div class="panel" style="border-color:var(--amber)"><h3>⚠️ 로컬 데모 모드</h3><p class="muted">DB_URL이 비어 있어 이 기기에만 저장돼요. 실제 행사에선 README대로 Firebase 주소를 넣어주세요.</p></div>')+
     adminRoundHTML()+
     '<div class="panel"><h3>현황 <small>5초마다 갱신</small></h3><div class="stats"><div class="stat"><b>'+S.length+'/'+R.length+'</b><span>입장</span></div><div class="stat"><b>'+Object.keys(V).length+'</b><span>투표</span></div><div class="stat"><b>'+Object.keys(P).length+'</b><span>실 제출</span></div></div></div>'+

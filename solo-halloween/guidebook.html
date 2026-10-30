@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>운영 가이드북</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@200..700&family=Gowun+Batang:wght@400;700&family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#0e0705; --paper:#1a0e09; --paper2:#22130c; --line:rgba(246,208,138,.22); --ink:#f7ecdc; --muted:rgba(247,236,220,.68);
+    --gold:#f2c46d; --gold2:#ffe2a8; --red:#ff6b7a; --teal:#6fd8c8; --violet:#c9b2ff;
+    --kr:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;
+    --disp:"Hahmlet","Noto Serif KR",serif; --story:"Gowun Batang","Hahmlet",serif; --cap:"Cinzel",serif; --it:"Cormorant Garamond",serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:70px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--kr);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;word-break:keep-all}
+  a{color:var(--gold)}
+  b{color:#fff}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+  /* 표지 */
+  .cover{position:relative;overflow:hidden;padding:64px 0 46px;text-align:center;
+    background:radial-gradient(50% 60% at 30% 10%,rgba(242,165,65,.22),transparent 70%),radial-gradient(40% 50% at 80% 0%,rgba(179,18,31,.25),transparent 70%)}
+  .ey{font-family:var(--cap);font-size:11px;letter-spacing:.42em;padding-left:.42em;color:var(--gold)}
+  .cover .it{font-family:var(--it);font-style:italic;font-size:24px;color:#f3dcb0;margin-top:14px}
+  .cover h1{margin:2px 0 0;font-family:var(--disp);font-weight:200;font-size:clamp(40px,9vw,72px);letter-spacing:.06em;line-height:1.15;
+    background:linear-gradient(180deg,#fff4dc,#f6d08a 45%,#b47a2c);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .cover p{max-width:560px;margin:14px auto 0;font-family:var(--story);color:var(--muted);font-size:15.5px}
+  .chars{display:flex;justify-content:center;gap:10px;margin-top:20px;font-size:30px}
+  .chars span{display:inline-block;animation:bob 3s ease-in-out infinite}
+  .chars span:nth-child(2){animation-delay:-.6s}.chars span:nth-child(3){animation-delay:-1.2s}.chars span:nth-child(4){animation-delay:-1.8s}.chars span:nth-child(5){animation-delay:-2.4s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* 목차 */
+  nav.toc{position:sticky;top:0;z-index:10;background:rgba(14,7,5,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav.toc .wrap{display:flex;gap:6px;overflow-x:auto;padding-top:10px;padding-bottom:10px;scrollbar-width:none}
+  nav.toc a{flex:0 0 auto;padding:6px 12px;border-radius:99px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:13px;white-space:nowrap}
+  nav.toc a:hover,nav.toc a.on{background:var(--gold);color:#2a1204;border-color:var(--gold)}
+
+  /* 한눈에 보기 */
+  .glance{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0 0}
+  @media(max-width:820px){.glance{grid-template-columns:1fr 1fr}}
+  .gl{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px}
+  .gl .e{font-size:28px}
+  .gl h3{margin:6px 0 4px;font-family:var(--disp);font-weight:600;font-size:17px;color:var(--gold)}
+  .gl p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.6}
+
+  /* 파트 */
+  section.part{padding:56px 0 8px;border-top:1px solid var(--line);margin-top:48px}
+  .ph{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .ph .no{font-family:var(--cap);font-size:44px;line-height:1;color:var(--gold);opacity:.9}
+  .ph h2{margin:0;font-family:var(--disp);font-weight:400;font-size:clamp(26px,5vw,34px);letter-spacing:.04em}
+  .ph .host{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .ph .host span{font-size:26px}
+  .lead{font-family:var(--story);font-size:16px;color:var(--muted);max-width:760px;margin:6px 0 22px}
+
+  /* 스텝 */
+  .step{display:grid;grid-template-columns:270px 1fr;gap:28px;align-items:start;padding:22px;margin:16px 0;background:linear-gradient(160deg,var(--paper2),var(--paper));border:1px solid var(--line);border-radius:22px}
+  .step.flip{grid-template-columns:1fr 270px}
+  .step.flip .phone{order:2}
+  @media(max-width:720px){.step,.step.flip{grid-template-columns:1fr;gap:18px;padding:16px}.step.flip .phone{order:0}}
+  .phone{position:relative;width:100%;max-width:270px;margin:0 auto;border-radius:34px;padding:9px;background:linear-gradient(145deg,#3a2a1e,#120a07);box-shadow:0 22px 50px rgba(0,0,0,.6),inset 0 0 0 1px rgba(246,208,138,.25)}
+  .phone img{display:block;width:100%;border-radius:26px;background:#000;cursor:zoom-in}
+  .phone::before{content:"";position:absolute;top:15px;left:50%;transform:translateX(-50%);width:70px;height:6px;border-radius:4px;background:rgba(0,0,0,.6);z-index:2}
+  .who{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;letter-spacing:.04em;margin-bottom:8px}
+  .who.guest{background:rgba(111,216,200,.14);color:var(--teal)}
+  .who.staff{background:rgba(255,107,122,.14);color:var(--red)}
+  .step h3{margin:0 0 8px;font-family:var(--disp);font-weight:600;font-size:21px;line-height:1.35}
+  .step h3 small{display:block;font-family:var(--cap);font-weight:500;font-size:11px;letter-spacing:.3em;color:var(--gold);margin-bottom:4px}
+  .step .desc{margin:0 0 12px;color:var(--muted)}
+  ol.marks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  ol.marks li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+  ol.marks li i{font-style:normal;width:26px;height:26px;border-radius:50%;background:#ffd36b;color:#2a1204;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center;margin-top:1px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+  .box{margin-top:14px;padding:12px 14px;border-radius:14px;font-size:14px;line-height:1.65}
+  .box .lbl{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:2px}
+  .tip{background:rgba(242,196,109,.08);border:1px dashed rgba(242,196,109,.4)}
+  .tip .lbl{color:var(--gold)}
+  .say{background:rgba(201,178,255,.08);border-left:3px solid var(--violet);font-family:var(--story)}
+  .say .lbl{color:var(--violet);font-family:var(--kr)}
+  .warn{background:rgba(255,107,122,.08);border:1px solid rgba(255,107,122,.35)}
+  .warn .lbl{color:var(--red)}
+
+  /* 갤러리 (여러 화면 나란히) */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin:16px 0}
+  .gallery figure{margin:0;text-align:center}
+  .gallery .phone{max-width:200px;border-radius:28px;padding:7px}
+  .gallery .phone img{border-radius:22px}
+  .gallery figcaption{margin-top:10px;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .gallery figcaption b{display:block;font-family:var(--disp);font-size:15px;color:var(--gold)}
+
+  /* 표 */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:9px 10px;border-bottom:1px solid rgba(246,208,138,.14);text-align:left;vertical-align:top}
+  th{font-size:12px;color:var(--muted);font-weight:600}
+  td:first-child{white-space:nowrap;color:var(--gold);font-weight:700;font-family:var(--cap)}
+  .tbl{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:8px 14px;overflow-x:auto}
+  .k{display:inline-block;padding:0 7px;border-radius:5px;background:rgba(242,196,109,.16);color:var(--gold);font-weight:700;font-size:13px;white-space:nowrap}
+
+  /* 체크리스트 & FAQ */
+  .chk{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+  .chk li{display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+  .chk input{width:20px;height:20px;margin-top:3px;accent-color:#d4a24a;flex:0 0 auto}
+  details{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin:8px 0;padding:0 16px}
+  summary{cursor:pointer;padding:14px 0;font-weight:700;list-style:none}
+  summary::before{content:"Q. ";color:var(--gold);font-family:var(--cap)}
+  details p{margin:0 0 14px;color:var(--muted)}
+
+  /* 확대 보기 */
+  #zoom{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+  #zoom img{max-height:94vh;max-width:94vw;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+  #zoom[hidden]{display:none}
+  footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:13px}
+  .links{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .links a{padding:9px 16px;border-radius:99px;border:1px solid var(--gold);text-decoration:none;font-weight:700;font-size:14px}
+
+  @media print{
+    :root{--bg:#fff;--paper:#fff;--paper2:#fff;--line:#d8c7a8;--ink:#1d140e;--muted:#5d4c3c;--gold:#8a5a12;--teal:#0f7b6c;--red:#b0122a;--violet:#5b3fa6}
+    b{color:#000}
+    nav.toc,#zoom,.links{display:none}
+    body{font-size:11.5px}
+    .cover h1{color:#8a5a12;background:none;-webkit-text-fill-color:#8a5a12}
+    section.part{break-before:page;margin-top:0;padding-top:10px;border:0}
+    .step{break-inside:avoid;grid-template-columns:200px 1fr;gap:18px;padding:12px}
+    .step.flip{grid-template-columns:1fr 200px}
+    .phone{max-width:200px;box-shadow:none}
+    .gallery{grid-template-columns:repeat(4,1fr)}
+    .gallery .phone{max-width:150px}
+  }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="ey">SOLO HALLOWEEN · STAFF GUIDEBOOK</div>
+    <div class="it">a little book for the keepers of the manor</div>
+    <h1>솔로 할로윈<br>운영 가이드북</h1>
+    <p>처음 보는 운영진도 이 책을 따라 하면 행사를 진행할 수 있도록, 실제 사이트 화면을 한 장씩 보여드리며 안내합니다. 화면 속 <b style="color:#ffd36b">노란 번호</b>는 설명의 번호와 같습니다. 이미지를 누르면 크게 볼 수 있어요.</p>
+    <div class="chars" aria-hidden="true"><span>🎃</span><span>🦇</span><span>🧛</span><span>👻</span><span>🧙</span></div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap" id="toc"></div></nav>
+
+<main class="wrap" id="book"></main>
+
+<footer class="wrap">
+  <div class="links"><a href="index.html">🏰 사이트 열기</a><a href="guide.html">📄 한 장 요약본</a><a href="javascript:print()">🖨 인쇄 / PDF</a></div>
+  <p style="margin-top:20px">화면은 실제 사이트를 테스트 계정으로 돌려서 찍었습니다. 행사 당일에는 성당 배경 사진이 함께 나옵니다.</p>
+</footer>
+
+<div id="zoom" hidden><img alt=""></div>
+
+<script>
+/* ─────────────────────────────────────────────
+   가이드북 내용. 화면 이미지는 guide-img/ 폴더에 있습니다.
+   who: 'guest'(참가자 화면) · 'staff'(운영진 화면)
+   ───────────────────────────────────────────── */
+const IMG=n=>'guide-img/'+n+'.jpg';
+const GLANCE=[
+  ['⏱','라운드 시계','운영진이 라운드를 시작하면 모든 폰의 시계가 흐르고, 대화가 끝나면 종이 울려요.'],
+  ['🍬','사탕 → 밀담방','사탕엔 보낸 사람 이름이 보여요. 서로 주고받으면 둘만의 1:1 채팅방이 열려요.'],
+  ['🦇','익명 편지','이름은 비밀이지만, 도착하는 순간 서로의 인스타 아이디가 공유돼요.'],
+  ['🩸','운명의 실','3명을 순위 없이 고르고, 서로 고르면 매칭이에요. 종료 30분 뒤에 받은 표와 매칭 상대가 공개돼요.']
+];
+const BOOK=[
+ {id:'prep',no:'00',title:'행사 전 준비',host:['🎃','잭'],lead:'행사 전날까지 딱 네 가지만 해두면 됩니다. 사이트 주소를 정하고, 실시간 저장소를 연결하고, 명단을 넣고, 리허설을 하는 것입니다.',
+  steps:[
+   {img:'92-roster',who:'staff',sub:'STEP 1',title:'참가자 명단 올리기',desc:'관리자 화면 맨 아래 <b>📜 명단 만들기</b>에서 합니다. 엑셀 명단을 그대로 복사해서 붙여넣어도 돼요.',
+    marks:['한 줄에 한 명씩 <b>이름 생년월일 성별</b>을 붙여넣습니다. 예: <span class="k">홍길동 950315 남</span>, <span class="k">김영희 1997.08.22 여</span>','<b>서버 명단으로 올리기</b>를 누르면 바로 반영되고, 파일을 고칠 필요가 없습니다.'],
+    tip:'실명과 생년월일은 이 폰 안에서 암호처럼 바뀌어 저장되고, 원본은 어디에도 올라가지 않아요. 지금 들어 있는 <b>테스트일~테스트육</b> 계정은 이 작업을 하면 사라집니다.'},
+  ],
+  table:{head:['순서','할 일','어디서'],rows:[
+   ['1','Firebase Realtime Database를 만들고(테스트 모드) 주소를 받아요','firebase.google.com'],
+   ['2','index.html의 <span class="k">DB_URL</span>에 주소를, <span class="k">ADMIN_PIN</span>에 운영진 비밀번호를 넣어요','index.html 맨 위 설정'],
+   ['3','index.html, guide.html, guidebook.html, guide-img 폴더, intro.mp4를 한 폴더에 담아 넷리파이에 올려요','app.netlify.com/drop'],
+   ['4','위 STEP 1처럼 실제 명단을 서버에 올려요','관리자 › 📜 명단 만들기'],
+   ['5','폰 2대로 리허설해요: 로그인 → 사탕 주고받기 → 밀담 → 라운드 시작과 종','현장 와이파이에서']]}},
+
+ {id:'enter',no:'01',title:'참가자 입장',host:['🎃','잭'],lead:'참가자는 QR로 사이트에 들어와 <b>이름과 생년월일</b>로 로그인합니다. <b>처음 한 번만</b> 영상과 캐릭터 소개가 나오고, 그다음부터는 바로 로비로 들어갑니다.',
+  steps:[
+   {img:'01-login',who:'guest',sub:'STEP 1',title:'이름과 생년월일로 입장',marks:['신청서에 적은 <b>이름</b>을 입력해요. 띄어쓰기는 무시돼요.','<b>생년월일</b>은 6자리(950315)나 8자리(19950315) 모두 돼요.','<b>ENTER</b>를 누르면 저택 문이 열려요.'],
+    say:'“QR 찍고 이름이랑 생년월일만 넣으면 돼요. 소리 켜고 들어가 보세요!”'},
+   {img:'02-login-error',who:'guest',flip:1,sub:'STEP 1-1',title:'명단에 없다고 나올 때',marks:['명단에 없거나 오타가 있으면 이 안내가 나와요.'],
+    tip:'신청서의 이름 표기(예: 영문 이름, 개명)와 생년월일을 확인해 주세요. 명단은 관리자 화면에서 언제든 다시 올릴 수 있어요.'},
+   {img:'03-gate',who:'guest',sub:'STEP 2',title:'촛불을 눌러 문 열기',marks:['촛불을 누르면 힉스필드로 만든 <b>오프닝 영상</b>이 소리와 함께 재생돼요.'],
+    tip:'폰은 화면을 눌러야 소리를 켜줘서 이 단계를 두었어요. <b>아이폰 무음 스위치</b>가 켜져 있으면 소리가 나지 않아요.'},
+   {img:'05-intro-title',who:'guest',flip:1,sub:'STEP 3',title:'“솔로 할로윈” 타이틀',desc:'영상 위로 “쉿… 방금, 문이 열렸어” 같은 환영 문구가 뜨고, 마지막에 타이틀이 지지직 나타나요. 오른쪽 위 <b>건너뛰기</b>로 넘길 수도 있어요.'},
+   {img:'06-vn-jack',who:'guest',sub:'STEP 4',title:'캐릭터가 게임처럼 안내해요',marks:['대사 상자를 누르면 다음 대사로 넘어가요. 글자가 찍힐 때 캐릭터마다 다른 <b>목소리 효과음</b>이 나요.','🔊 버튼으로 효과음을 끄고 켤 수 있어요.','건너뛰기를 누르면 닉네임만 정하고 바로 들어갈 수 있어요.']},
+   {img:'07-vn-form',who:'guest',flip:1,sub:'STEP 5',title:'밤의 이름(닉네임) 정하기',marks:['저택 안에서는 <b>닉네임</b>으로만 불려요. 실명은 보이지 않아요.','대표 아바타를 하나 골라요.','<b>인스타 아이디</b>는 편지를 주고받거나 매칭되면 상대에게 공유돼요. 꼭 넣으라고 권해 주세요.','저장하면 캐릭터들의 규칙 설명이 이어져요.'],
+    say:'“인스타 아이디를 넣어두면 편지를 받거나 매칭됐을 때 서로 연결돼요!”'}
+  ],
+  gallery:{title:'캐릭터들이 차례로 규칙을 설명해요',items:[['08-vn-pipi','🦇 피피','사탕 · 밀담방 · 편지'],['09-vn-lucian','🧛 루시안','베스트 드레서'],['10-vn-boo','👻 부','운명의 실(최종 선택)'],['11-vn-hazel','🧙 헤이즐','방들(타로 · 카드 · 빙고)']]},
+  steps2:[
+   {img:'12-home-top',who:'guest',sub:'STEP 6',title:'로비 도착',marks:['<b>Midnight Clock</b>: 운영진이 라운드를 시작하면 여기서 시간이 흘러요. 시작 전에는 “곧 첫 번째 종이 울립니다”가 보여요.','<b>라운드 테마 카드</b>: 이번 라운드의 대화 질문 3개와 미션이에요.']},
+   {img:'13-home-tag',who:'guest',flip:1,sub:'STEP 7',title:'내 명찰과 규칙 다시 듣기',marks:['<b>영혼 명찰</b>: 닉네임, 코스튬, 인스타, 받은 사탕·편지·밀담방 수가 보여요.','<b>📜 저택의 규칙</b>을 누르면 캐릭터들이 규칙을 처음부터 다시 설명해줘요.'],
+    say:'“규칙이 헷갈리면 로비의 📜 저택의 규칙을 눌러보세요. 캐릭터들이 다시 설명해줘요.”'}
+  ]},
+
+ {id:'round',no:'02',title:'로테이션 라운드 진행',host:['🎃','잭'],lead:'현장 상황에 따라 시간이 달라질 수 있어서, 시계는 <b>운영진이 버튼을 누르는 순간</b> 시작돼요. 대화 8분이 끝나면 모두의 폰에 종이 울리고, 이동 2분은 자동으로 흘러요.',
+  steps:[
+   {img:'20-admin-top',who:'staff',sub:'STEP 1',title:'관리자 화면 열기',desc:'사이트 상단의 <b>“Halloween 솔로할로윈” 로고를 5번 빠르게</b> 누르고 PIN을 입력해요. 주소 뒤에 <span class="k">#admin</span>을 붙여도 돼요.',
+    marks:['이 가이드북과 한 장 요약본을 여는 버튼이에요.','지금 시계 상태가 실시간으로 보여요.']},
+   {img:'21-admin-round',who:'staff',flip:1,sub:'STEP 2',title:'라운드 진행 버튼',marks:['라운드 번호를 −/+로 맞춰요(보통 자동으로 다음 번호가 돼요).','<b>▶ ROUND N 시작</b>: 모두의 폰에 라운드 타이틀이 뜨고 8분이 흘러요.','<b>⏸ 일시정지 / +1분 / −1분</b>: 현장 상황에 맞춰 조절해요.','<b>⏭ 지금 종 울리기</b>: 대화를 바로 끝내고 이동 시간으로 넘어가요.','<b>☕ 숨 고르기 3분</b>: 5라운드가 끝나고 눌러요.','<b>🕯 자유 시간</b>: 10라운드와 정리가 끝나면 눌러요.'],
+    tip:'대화 시간과 이동 시간은 이 화면 아래에서 바꿀 수 있어요(기본 8분/2분). 관리자 화면을 보고 있는 동안에는 운영진 폰에 타이틀 카드가 뜨지 않아요.'},
+   {img:'22-round-stage',who:'guest',sub:'STEP 3',title:'라운드 시작 연출',desc:'모든 참가자 폰에 <b>ROUND IV · 피의 맛</b>처럼 라운드 타이틀과 첫 질문이 뜨고 진동이 울려요. 누르면 닫혀요.'},
+   {img:'23-round-talk',who:'guest',flip:1,sub:'STEP 4',title:'대화 중인 시계',marks:['금빛 링이 줄어들며 남은 시간을 보여줘요.','촛불 10개: 지난 라운드는 꺼지고 지금 라운드만 타올라요.','다른 탭에 있어도 위쪽에 <b>미니 타이머</b>가 계속 보여요.']},
+   {img:'24-round-theme',who:'guest',sub:'STEP 5',title:'라운드 테마 질문과 미션',marks:['이번 라운드에 테이블에서 함께 나눌 질문 3개예요.','테이블 미션이에요(예: 서로의 잔을 채워주고 건배사).','<b>☆ 기억할 영혼 표시</b>: 마음에 든 사람을 메모해둬요.'],
+    say:'“대화가 막히면 로비에 있는 이번 라운드 질문을 그대로 읽어보세요!”'},
+   {img:'25-round-hurry',who:'guest',flip:1,sub:'STEP 6',title:'마지막 1분',marks:['1분이 남으면 숫자가 붉게 두근거리고 “곧 종이 울립니다”가 떠요.']},
+   {img:'26-round-bell',who:'guest',sub:'STEP 7',title:'🔔 종이 울렸어요',marks:['대화가 끝나면 종소리 연출과 진동이 오고, <b>기억할 영혼 표시하기</b> 버튼이 나와요.'],
+    say:'“종이 울렸습니다! 다음 테이블로 이동해 주세요. 방금 테이블에서 기억할 분이 있으면 ★ 눌러두세요!”'},
+   {img:'27-stars',who:'guest',flip:1,sub:'STEP 8',title:'★ 기억 노트',marks:['방금 만난 사람에게 ★를 눌러둬요. <b>본인만 볼 수 있고</b>, 마지막 운명의 실 목록 맨 위에 “★ IV”처럼 몇 라운드에서 만났는지와 함께 나와요.'],
+    tip:'10개 테이블에서 40명 가까이 만나면 누가 누구였는지 잊기 쉬워요. 이동할 때마다 ★를 누르게 안내해 주세요.'},
+   {img:'28-round-move',who:'guest',sub:'STEP 9',title:'이동 시간 2분',marks:['링이 <b>청록색</b>으로 바뀌고 2분이 흘러요. 이동이 끝나면 운영진이 다음 라운드를 시작해요.']}
+  ],
+  gallery:{title:'숨 고르기와 자유 시간',items:[['29-break','☕ 숨 고르기','5라운드 뒤 3분 휴식'],['30-free-stage','🕯 자유 시간 시작','모두의 폰에 안내 카드가 떠요'],['31-free-home','🕯 자유 시간 로비','★ 기억해둔 사람을 찾아가게 안내해요']]},
+  table:{title:'라운드 테마',head:['라운드','테마','질문 예시','미션'],rows:[
+   ['I','가면 소개 🎭','오늘 코스튬과 닉네임에 담긴 이야기는?','건배하고 닉네임 외우기'],
+   ['II','밤의 취향 🌙','새벽 2시엔 주로 뭘 해?','가장 밤형 인간 뽑기'],
+   ['III','공포 취향 🕷️','귀신보다 무서운 연애 상황은?','가장 겁 많은 영혼 지목'],
+   ['IV','피의 맛 🍷','와인 vs 소주 vs 맥주?','잔 채워주며 건배사'],
+   ['V','몬스터 유형 🧛','내 몬스터 연애유형 결과는?','같은 유형 찾기'],
+   ['☕','숨 고르기','물 한 잔 · 빙고 · ★ 정리','—'],
+   ['VI','타로의 계시 🔮','타로 결과를 서로 보여주기','가장 좋은 카드 찾기'],
+   ['VII','영원의 질문 ⏳','영원히 멈추고 싶은 나이는?','대화 카드 함께 답하기'],
+   ['VIII','가면 뒤의 나 👻','나의 반전 매력은?','반전 매력 맞히기'],
+   ['IX','크리스마스까지 🎄','크리스마스 데이트 코스는?','베스트 데이트 코스 정하기'],
+   ['X','마지막 종 🔔','오늘 가장 기억에 남는 순간은?','마음속 1지망 정하기']]}},
+
+ {id:'candy',no:'03',title:'사탕과 밀담방',host:['🦇','피피'],lead:'사탕에는 <b>보낸 사람의 닉네임이 공개</b>돼요. 받은 사람이 사탕을 <b>돌려주면</b>, 두 사람만 쓰는 <b>💬 밀담방</b>(1:1 채팅)이 열려요. 파티 한가운데서도 둘만 몰래 대화할 수 있어요.',
+  steps:[
+   {img:'40-souls',who:'guest',sub:'STEP 1',title:'영혼 도감에서 상대 찾기',marks:['입장한 남녀 인원이에요.','전체, 남, 여로 걸러 보고 닉네임이나 코스튬으로 검색할 수 있어요.','카드를 누르면 사탕, 편지, ★ 기억 메뉴가 열려요.']},
+   {img:'41-candy-sheet',who:'guest',flip:1,sub:'STEP 2',title:'🍬 사탕 건네기',marks:['<b>사탕 건네기</b>를 누르면 내 닉네임과 함께 배달돼요. 먼저 보내는 사탕은 1인당 <b>5개</b>예요.']},
+   {img:'43-candy-toast',who:'guest',sub:'STEP 3',title:'받은 사람에게 알림',marks:['“○○님이 사탕을 보냈어요!” 알림이 뜨고, 박쥐 피피가 화면을 가로질러 날아가요.']},
+   {img:'44-candy-inbox',who:'guest',flip:1,sub:'STEP 4',title:'🍬 돌려주기',marks:['로비의 <b>피피의 우편함</b>에서 <b>돌려주기</b>를 누르면 바로 밀담방이 열려요. 돌려주기는 개수 제한이 없어요.']},
+   {img:'45-room-opened',who:'guest',sub:'STEP 5',title:'밀담방이 열렸어요',marks:['“둘만의 밀담방이 열렸어요!” 알림이 떠요.','우편함 버튼이 <b>💬 입장</b>으로 바뀌어요.']},
+   {img:'46-chat-list',who:'guest',flip:1,sub:'STEP 6',title:'밀담 탭',marks:['하단 <b>💬 밀담</b> 탭이에요. 새 메시지가 오면 빨간 점이 생겨요.','열린 방 목록이에요. 누르면 대화방으로 들어가요.']},
+   {img:'47-chat-room',who:'guest',sub:'STEP 7',title:'둘만의 대화',marks:['대화 상대예요. 다른 참가자에게는 보이지 않아요.','메시지를 입력하고 보내요. 상대 폰에 바로 떠요.'],
+    say:'“마음에 드는 분께 사탕을 보내보세요. 상대가 돌려주면 둘만의 채팅방이 열려요!”'}
+  ]},
+
+ {id:'letter',no:'04',title:'익명 편지',host:['🦇','피피'],lead:'편지는 <b>익명</b>이에요. 대신 도착하는 순간 <b>서로의 인스타 아이디가 공유</b>돼요. 누가 보냈는지는 인스타를 보고 맞혀보는 재미예요.',
+  steps:[
+   {img:'50-letter-sheet',who:'guest',sub:'STEP 1',title:'편지 고르기',marks:['정해진 문구 8개 중에서 골라 보내요. 불쾌한 메시지는 보낼 수 없어요. 1인당 <b>5통</b>까지 보낼 수 있어요.']},
+   {img:'51-letter-received',who:'guest',flip:1,sub:'STEP 2',title:'받은 편지',marks:['편지 내용과 함께 <b>보낸 이의 인스타</b>가 보여요. 누르면 인스타로 이동해요.']},
+   {img:'52-letter-sent',who:'guest',sub:'STEP 3',title:'보낸 편지',marks:['보낸 사람에게도 <b>받은 사람의 인스타</b>가 보여요.'],
+    tip:'인스타를 등록하지 않은 사람은 “인스타 미등록”으로 나와요. 입장할 때 등록을 권해 주세요.'}
+  ]},
+
+ {id:'vote',no:'05',title:'베스트 드레서',host:['🧛','루시안'],lead:'남녀 각 1표씩 투표하고, 본인은 뽑을 수 없어요. 운영진이 <b>발표</b>를 누르면 시상대 애니메이션과 함께 공개돼요.',
+  steps:[
+   {img:'61-vote-admin',who:'staff',sub:'STEP 1',title:'투표 열고 발표하기',marks:['<b>열림</b>을 누르면 참가자들이 투표할 수 있어요. 실시간 득표 순위가 바로 위에 보여요.','<b>발표</b>를 누르면 그 순간의 결과가 고정되어 모두에게 공개돼요.']},
+   {img:'60-vote',who:'guest',flip:1,sub:'STEP 2',title:'참가자 투표 화면',marks:['남녀 누구에게 투표했는지 보여요. 마감 전까지는 바꿀 수 있어요.','남자 후보와 여자 후보를 전환해요.','누르면 👑 한 표가 들어가요.']},
+   {img:'62-podium',who:'guest',sub:'STEP 3',title:'시상대 발표',desc:'3위, 2위, 1위 순서로 단상이 솟아오르고 1위에게 왕관이 떨어져요. 무대에서 함께 화면을 보여주며 발표하면 분위기가 좋아요.'}
+  ]},
+
+ {id:'match',no:'06',title:'운명의 실 (최종 선택)',host:['👻','부'],lead:'마음에 드는 이성을 <b>3명</b> 고르고, <b>순위는 없어요</b>. 서로 고르면 매칭이고, 한 사람이 <b>여러 명과 매칭</b>될 수 있어요. 결과는 바로 공개되지 않고 <b>종료 30분 뒤</b> 자동으로 열려요.',
+  steps:[
+   {img:'70-picks',who:'guest',sub:'STEP 1',title:'3명 고르기',marks:['선택한 수와 마감 전까지 수정 가능하다는 안내가 보여요.','누르면 <b>✓ 선택</b>, 다시 누르면 빠져요. ★ 기억 노트에 표시한 사람이 맨 위에 나와요.'],
+    say:'“이제 마음에 드는 분 세 명을 골라주세요. 순위는 없고, 서로 고르면 매칭이에요. 여러 명과 매칭될 수도 있어요!”'},
+   {img:'71-match-admin',who:'staff',flip:1,sub:'STEP 2',title:'마감 → 종료',marks:['<b>마감</b>(22:50): 선택이 잠겨요.','<b>종료</b>(파티가 끝날 때): 결과가 고정되고 공개 카운트다운이 시작돼요.','종료 후 공개까지의 시간이에요(기본 30분).'],
+    tip:'<b>발표</b>를 누르면 기다리지 않고 바로 공개돼요. 시간이 촉박할 때만 쓰세요.'},
+   {img:'72-match-admin-cd',who:'staff',sub:'STEP 3',title:'운영진 카운트다운',marks:['자동 공개까지 남은 시간이 보여요. 지금 몇 쌍이 매칭됐는지와 받은 표 순위도 미리 볼 수 있어요.']},
+   {img:'73-countdown',who:'guest',flip:1,sub:'STEP 4',title:'참가자 카운트다운',marks:['모든 참가자 폰에 공개까지 남은 시간이 떠요. 2차 장소로 이동하는 동안 보게 돼요.']},
+   {img:'74-reveal-stage',who:'guest',sub:'STEP 5',title:'운명의 실이 풀렸어요',desc:'시간이 되면 모든 폰에 공개 알림과 진동이 와요. <b>확인하러 가기</b>를 누르면 운명의 실 탭으로 이동해요.'},
+   {img:'75-coffin',who:'guest',flip:1,sub:'STEP 6',title:'관을 열어 결과 확인',marks:['관을 누르면 덜컹거리다 열리면서 결과가 나와요.']},
+   {img:'76-result',who:'guest',sub:'STEP 7',title:'받은 표와 매칭 상대',marks:['<b>나를 고른 사람 수</b>(받은 표)예요.','매칭된 상대 <b>전원</b>이 붉은 실로 이어져 나오고, 인스타와 밀담방 버튼도 함께 보여요.']},
+   {img:'77-result-ticket',who:'guest',flip:1,sub:'STEP 8',title:'선물 티켓',marks:['매칭된 상대와 바로 대화할 수 있는 밀담방 버튼이에요.','<b>The Vampire Gift 티켓</b>이에요. 운영진에게 이 화면을 보여주면 선물을 받아요.'],
+    tip:'티켓 번호는 사람마다 달라요. 선물을 줄 때 번호를 메모해두면 중복으로 받는 걸 막을 수 있어요.'}
+  ]},
+
+ {id:'rooms',no:'07',title:'놀거리 방들',host:['🧙','헤이즐'],lead:'혼자서도, 테이블에서 같이도 즐기는 놀거리예요. 라운드 테마(타로의 계시, 몬스터 유형 등)와 이어져요.',
+  gallery:{items:[['80-rooms','📜 방 목록','저택의 규칙도 여기서 다시 들을 수 있어요'],['81-tarot','🔮 미래의 방','카드 3장 연애 타로 (밤새 고정)'],['82-cards','🍷 영원의 방','뱀파이어 대화 카드 16장'],['83-bingo','🎃 할로윈 빙고','한 줄 완성하면 운영진에게 보여줘요'],['84-quiz','🧟 몬스터 연애유형','결과가 명찰 배지로 붙어요']]}},
+
+ {id:'tools',no:'08',title:'운영진 도구',host:['🧛','루시안'],lead:'관리자 화면 아래쪽에 있는 보조 도구들이에요.',
+  gallery:{items:[['90-wheel','🎡 경품 룰렛','전체, 남, 여, 미매칭 중 대상을 골라 추첨해요'],['91-tables','🍷 테이블 나누기','남녀를 섞어 N개 테이블로 나눠요 (참고용)'],['93-tag','📸 인스타 태그','태그에 동의한 사람의 @아이디를 한 번에 복사해요']]}},
+
+ {id:'timeline',no:'09',title:'당일 타임라인',host:['🎃','잭'],lead:'시간대별로 관리자 화면에서 무엇을 누르면 되는지 정리했어요.',
+  table:{head:['시간','현장','관리자 화면에서'],rows:[
+   ['20:00','체크인 · 착석 · 웰컴 드링크','입장 QR을 안내해요. 시계는 <span class="k">■ 대기 화면</span>.'],
+   ['20:25','파티 룰 안내','“📜 저택의 규칙을 누르면 캐릭터가 설명해줘요” 안내'],
+   ['20:30','1라운드','<span class="k">▶ ROUND I 시작</span>. 이후 이동이 끝날 때마다 다음 라운드를 시작해요'],
+   ['21:20','숨 고르기','5라운드 뒤 <span class="k">☕ 숨 고르기 3분</span>'],
+   ['21:23~22:11','6~10라운드','<span class="k">▶ 시작</span>을 반복해요. 베스트 드레서는 원하는 때 <span class="k">열림</span>'],
+   ['22:25','자유 시간','<span class="k">🕯 자유 시간</span> + 운명의 실 <span class="k">열림</span>'],
+   ['22:50','투표 마감','운명의 실 <span class="k">마감</span>, 베스트 드레서 <span class="k">마감</span>'],
+   ['23:10','발표','베스트 드레서 <span class="k">발표</span> (운명의 실은 아직 공개하지 않아요)'],
+   ['23:20~','마무리 · 2차','운명의 실 <span class="k">종료</span> → 30분 뒤 자동 공개']]}},
+];
+const CHECK=['Firebase 주소(DB_URL)와 운영진 PIN을 넣었다','실제 명단을 서버에 올렸고, 테스트 계정으로는 로그인되지 않는다','넷리파이에 모든 파일(index.html, guide-img 폴더, intro.mp4 포함)을 올렸다','폰 2대로 사탕 → 돌려주기 → 밀담 대화를 해봤다','라운드 시작 → 종 → 이동 → 다음 라운드를 한 번 돌려봤다','입장 QR 코드와 이 가이드북(또는 한 장 요약본)을 출력했다','행사가 끝나면 Firebase 데이터를 지우기로 했다'];
+const FAQ=[
+ ['참가자가 로그인이 안 된대요.','명단의 이름 표기와 생년월일을 확인해 주세요. 띄어쓰기는 무시돼요. 고친 명단은 관리자 › 📜 명단 만들기에서 다시 올리면 바로 반영돼요.'],
+ ['인트로 영상을 다시 보고 싶대요.','오른쪽 위 닉네임 → 🎬 인트로 다시 보기를 누르면 돼요. 규칙 설명만 다시 들으려면 로비의 📜 저택의 규칙을 누르세요.'],
+ ['소리가 안 나요.','아이폰 무음 스위치를 확인하고, 대화 화면 오른쪽 위 🔊가 켜져 있는지 확인해 주세요.'],
+ ['시계가 사람마다 조금 달라요.','폰의 날짜·시간 자동 설정이 꺼져 있으면 몇 초 차이가 날 수 있어요. 자동 설정을 켜게 안내해 주세요.'],
+ ['사탕을 실수로 보냈대요.','보낸 사탕은 취소할 수 없어요. 상대가 돌려주지 않으면 밀담방은 열리지 않으니 안심시켜 주세요.'],
+ ['익명 편지인데 누가 보냈는지 알 수 있나요?','이름은 보이지 않지만 인스타가 공유되기 때문에 짐작할 수는 있어요. 이게 이 기능의 재미예요.'],
+ ['매칭 결과를 지금 바로 보여주고 싶어요.','관리자 › 운명의 실에서 <b>발표</b>를 누르면 카운트다운 없이 바로 공개돼요.'],
+ ['데이터는 어떻게 지우나요?','관리자 › 🧹 초기화 › 전체 데이터 삭제, 또는 Firebase 콘솔에서 데이터베이스를 삭제하면 돼요. 밀담방 대화도 함께 지워져요.']
+];
+
+/* ── 렌더링 ── */
+const phone=(n,small)=>'<div class="phone"><img loading="lazy" src="'+IMG(n)+'" alt="'+n+'"></div>';
+const who=w=>w?'<span class="who '+w+'">'+(w==='staff'?'🛠 운영진 화면':'📱 참가자 화면')+'</span>':'';
+function stepHTML(s){
+  return '<article class="step'+(s.flip?' flip':'')+'">'+phone(s.img)+'<div>'+who(s.who)+'<h3><small>'+(s.sub||'')+'</small>'+s.title+'</h3>'+
+    (s.desc?'<p class="desc">'+s.desc+'</p>':'')+
+    (s.marks?'<ol class="marks">'+s.marks.map((m,i)=>'<li><i>'+(i+1)+'</i><span>'+m+'</span></li>').join('')+'</ol>':'')+
+    (s.tip?'<div class="box tip"><span class="lbl">💡 운영 팁</span>'+s.tip+'</div>':'')+
+    (s.say?'<div class="box say"><span class="lbl">🎤 이렇게 안내하세요</span>'+s.say+'</div>':'')+'</div></article>';
+}
+function galleryHTML(g){
+  return (g.title?'<h3 style="font-family:var(--disp);font-weight:500;font-size:20px;margin:30px 0 4px">'+g.title+'</h3>':'')+
+    '<div class="gallery">'+g.items.map(([n,t,c])=>'<figure>'+phone(n)+'<figcaption><b>'+t+'</b>'+c+'</figcaption></figure>').join('')+'</div>';
+}
+function tableHTML(t){
+  return (t.title?'<h3 style="font-family:var(--disp);font-weight:500;font-size:20px;margin:30px 0 10px">'+t.title+'</h3>':'')+
+    '<div class="tbl"><table><tr>'+t.head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+t.rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</table></div>';
+}
+let html='<div class="glance">'+GLANCE.map(g=>'<div class="gl"><div class="e">'+g[0]+'</div><h3>'+g[1]+'</h3><p>'+g[2]+'</p></div>').join('')+'</div>';
+BOOK.forEach(p=>{
+  html+='<section class="part" id="'+p.id+'"><div class="ph"><span class="no">'+p.no+'</span><h2>'+p.title+'</h2><span class="host">안내 캐릭터 <span>'+p.host[0]+'</span>'+p.host[1]+'</span></div>'+
+    '<p class="lead">'+p.lead+'</p>'+
+    (p.steps||[]).map(stepHTML).join('')+(p.gallery?galleryHTML(p.gallery):'')+(p.steps2||[]).map(stepHTML).join('')+(p.table?tableHTML(p.table):'')+'</section>';
+});
+html+='<section class="part" id="check"><div class="ph"><span class="no">10</span><h2>행사 전 체크리스트</h2></div><p class="lead">하나씩 체크해 보세요. 체크 상태는 이 폰에만 저장돼요.</p><ul class="chk">'+
+  CHECK.map((c,i)=>'<li><input type="checkbox" data-i="'+i+'" id="c'+i+'"><label for="c'+i+'">'+c+'</label></li>').join('')+'</ul></section>';
+html+='<section class="part" id="faq"><div class="ph"><span class="no">11</span><h2>자주 묻는 질문</h2></div>'+FAQ.map(f=>'<details><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>').join('')+'</section>';
+document.getElementById('book').innerHTML=html;
+
+const NAV=[['prep','준비'],['enter','입장'],['round','라운드'],['candy','사탕·밀담'],['letter','편지'],['vote','베스트드레서'],['match','운명의 실'],['rooms','방들'],['tools','도구'],['timeline','타임라인'],['check','체크리스트'],['faq','FAQ']];
+document.getElementById('toc').innerHTML=NAV.map(([id,t])=>'<a href="#'+id+'" data-id="'+id+'">'+t+'</a>').join('');
+// 지금 보고 있는 파트를 목차에 표시
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) document.querySelectorAll('nav.toc a').forEach(a=>{ const on=a.dataset.id===e.target.id; a.classList.toggle('on',on); if(on) a.scrollIntoView({inline:'center',block:'nearest'}); }); }),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section.part').forEach(s=>io.observe(s));
+// 체크리스트 저장 (이 기기에만)
+const CK='sh-guidebook-check';
+let saved={}; try{ saved=JSON.parse(localStorage.getItem(CK)||'{}'); }catch(e){}
+document.querySelectorAll('.chk input').forEach(c=>{ c.checked=!!saved[c.dataset.i]; c.onchange=()=>{ saved[c.dataset.i]=c.checked; try{ localStorage.setItem(CK,JSON.stringify(saved)); }catch(e){} }; });
+// 이미지 크게 보기
+const z=document.getElementById('zoom');
+document.addEventListener('click',e=>{ const im=e.target.closest('.phone img'); if(im){ z.querySelector('img').src=im.src; z.hidden=false; } else if(e.target.closest('#zoom')) z.hidden=true; });
+</script>
+</body></html>
