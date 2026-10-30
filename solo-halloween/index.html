@@ -1374,9 +1374,11 @@ $('tpill').onclick=()=>go('home');
 let soulFilter='all', soulQ='';
 function renderSouls(v){
   const all=roster().map(withG).filter(p=>p.g), m=all.filter(p=>p.g==='m').length, f=all.length-m, inM=souls().filter(p=>p.g==='m').length, inF=souls().length-inM;
-  const list=roster().map(withG).filter(p=>soulFilter==='all'||p.g===soulFilter)
+  // 입장한 사람만 카드로 보여줌 (나 → 최근 입장 순). 아직 안 온 사람은 아래 한 줄로만
+  const list=roster().map(withG).filter(p=>prof(p.id).nick).filter(p=>soulFilter==='all'||p.g===soulFilter)
     .filter(p=>!soulQ||nick(p.id).toLowerCase().includes(soulQ.toLowerCase())||(prof(p.id).cos||'').includes(soulQ))
-    .sort((a,b)=>(!!a.staff)-(!!b.staff)||(!!prof(b.id).nick)-(!!prof(a.id).nick)||(prof(b.id).at||0)-(prof(a.id).at||0));
+    .sort((a,b)=>(b.id===ME)-(a.id===ME)||(prof(b.id).at||0)-(prof(a.id).at||0));
+  const waiting=roster().filter(p=>!p.staff&&!prof(p.id).nick&&(soulFilter==='all'||p.g===soulFilter)).length;
   const sentC=candyFrom(ME), sentL=lettersFrom(ME);
   v.innerHTML=head('Halloween','영혼 도감','Who\'s Here')+
     guide('pipi','카드를 누르면 배달해줄게! <b>🍬 사탕</b>은 네 닉네임이 보이고, <b>🦇 편지</b>는 익명이지만 서로의 인스타가 공유돼. 남은 사탕 <b>'+Math.max(0,candyLeft())+'</b>개, 편지 <b>'+(CONFIG.LETTER_MAX-sentL.length)+'</b>통!')+
@@ -1391,7 +1393,9 @@ function renderSouls(v){
         (p.id!==ME&&chatOpen(p.id)?'<span class="mk">💬</span>':sentC.includes(p.id)?'<span class="mk">🍬</span>':candySent(p.id,ME)?'<span class="mk">🎁</span>':'')+
         '<div class="e">'+(on?esc(pr.av||'🎃'):'🕯️')+'</div><div class="n">'+(on?esc(pr.nick)+(p.staff?' <small title="운영진">🛠</small>':''):'아직 오는 중…')+'</div>'+
         '<div class="c">'+(on?(pr.cos?esc(pr.cos):(mt?mt.e+' '+mt.n:'&nbsp;')):'&nbsp;')+'</div></button>';
-    }).join('')+'</div>';
+    }).join('')+'</div>'+
+    (!list.length&&soulQ?'<p class="muted" style="text-align:center;margin-top:14px">찾는 영혼이 없어요.</p>':'')+
+    (waiting&&!soulQ?'<p class="muted" style="text-align:center;margin:16px 0 4px">🕯️ 아직 저택으로 오는 중인 영혼 <b style="color:var(--gold)">'+waiting+'명</b></p>':'');
   mountGuides(v);
   v.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{ soulFilter=b.dataset.f; renderSouls(v); });
   $('soulQ').oninput=e=>{ soulQ=e.target.value; const pos=e.target.selectionStart; renderSouls(v); const q=$('soulQ'); q.focus(); q.setSelectionRange(pos,pos); };
