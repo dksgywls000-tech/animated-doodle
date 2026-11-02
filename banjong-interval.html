@@ -1321,7 +1321,22 @@ function bind(){
   });
   $('#photo-reset').onclick = () => { S.photo = null; $('#photo').value = ''; $('#photo-reset').hidden = true; schedule(); };
 
-  $('#btn-save').onclick = () => {
+  // claude.ai 아티팩트 안에서는 downloads 기능으로, 파일로 열었을 땐 일반 다운로드 링크로 저장
+  const dlReady = (window.claude && window.claude.use) ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+  $('#btn-save').onclick = async () => {
+    const dl = await dlReady;
+    if (dl){
+      try {
+        const blob = await new Promise(r => S.canvas.toBlob(r, 'image/png'));
+        await dl.save({filename: fileName(), data: blob});
+        toast('저장했어요');
+      } catch (err){
+        if (err && err.code === 'declined') return;
+        if (err && err.code === 'rate_limited'){ toast('잠시 뒤에 다시 눌러 주세요'); return; }
+        toast('여기선 저장이 막혀 있어요. 포스터를 길게 눌러 저장하세요');
+      }
+      return;
+    }
     const a = document.createElement('a'); a.href = $('#poster').src; a.download = fileName();
     document.body.appendChild(a); a.click(); a.remove();
     toast('저장이 안 되면 포스터를 길게 눌러 저장하세요');
