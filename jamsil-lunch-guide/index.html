@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>주말 점심 소개팅 가이드</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 좁은 단일 컬럼 앱. 상단 지도(석촌호수 개략도) → 판정 순위 카드 → 판정 기준표. 확인 데이터 입력은 dialog. */
+:root{
+  --bg:#F3F6F6; --surface:#FFFFFF; --fg:#13222A; --muted:#5B6B72; --line:#D5DEE0;
+  --lake:#2E6E78; --lake-soft:#D7E8EA; --blossom:#C9466B; --blossom-soft:#F7E1E8;
+  --good:#1F7A4D; --good-soft:#DDF1E6; --warn:#9A6200; --warn-soft:#FBEED2; --bad:#B23A3A; --bad-soft:#F8E0E0;
+  --road:#C3CDCF; --font-display:"Gowun Dodum","IBM Plex Sans KR",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E171B; --surface:#152229; --fg:#E4ECEE; --muted:#93A4AA; --line:#2A3B42;
+  --lake:#6FB3BC; --lake-soft:#1C3A40; --blossom:#EE8AA7; --blossom-soft:#40202B;
+  --good:#6CCB98; --good-soft:#173527; --warn:#E5B35A; --warn-soft:#3A2D12; --bad:#EE8B8B; --bad-soft:#3E1C1C; --road:#33454C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E171B; --surface:#152229; --fg:#E4ECEE; --muted:#93A4AA; --line:#2A3B42;
+  --lake:#6FB3BC; --lake-soft:#1C3A40; --blossom:#EE8AA7; --blossom-soft:#40202B;
+  --good:#6CCB98; --good-soft:#173527; --warn:#E5B35A; --warn-soft:#3A2D12; --bad:#EE8B8B; --bad-soft:#3E1C1C; --road:#33454C; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,7vw,40px);line-height:1.15;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:700}
+.eyebrow{font-size:12px;letter-spacing:.08em;color:var(--lake);font-weight:600}
+.lede{color:var(--muted);margin:6px 0 0;max-width:62ch}
+header{display:grid;gap:6px}
+.notice{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--muted)}
+.notice b{color:var(--fg)}
+/* map */
+.map{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.map svg{display:block;width:100%;height:auto}
+.map-foot{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.pin{cursor:pointer}
+.pin:focus-visible circle{stroke:var(--fg);stroke-width:3}
+/* controls */
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip:focus-visible,.btn:focus-visible{outline:2px solid var(--lake);outline-offset:2px}
+.spacer{flex:1}
+/* cards */
+.list{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;scroll-margin-top:16px}
+.card.flash{box-shadow:0 0 0 3px var(--blossom)}
+.top{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
+.rank{font-family:var(--font-mono);font-size:13px;color:var(--muted);min-width:22px;padding-top:3px}
+.name{font-size:17px;font-weight:700;line-height:1.3}
+.meta{font-size:13px;color:var(--muted);margin-top:2px}
+.score{text-align:right;min-width:72px}
+.score .n{font-family:var(--font-mono);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.score .n small{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;white-space:nowrap}
+.b-strong{background:var(--good-soft);color:var(--good)}
+.b-ok{background:var(--lake-soft);color:var(--lake)}
+.b-meh{background:var(--warn-soft);color:var(--warn)}
+.b-out{background:var(--bad-soft);color:var(--bad)}
+.b-pending{background:var(--bg);color:var(--muted);border:1px dashed var(--line)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.fact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.fact .k{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+.fact .v{font-family:var(--font-mono);font-size:15px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fact .v.unk{font-family:var(--font-body);font-size:13px;color:var(--muted)}
+.fact .s{font-size:11px;color:var(--muted)}
+@media (max-width:520px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bars{display:grid;gap:5px}
+.brow{display:grid;grid-template-columns:92px 1fr 54px;gap:8px;align-items:center;font-size:12.5px}
+.brow .lbl{color:var(--muted)}
+.track{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.track i{display:block;height:100%;background:var(--lake)}
+.brow .pts{font-family:var(--font-mono);text-align:right;font-variant-numeric:tabular-nums}
+.why{font-size:13px;color:var(--muted);margin:0;padding-left:18px}
+.why li.flag{color:var(--bad)}
+.why li.miss{color:var(--warn)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:9px;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn.naver{background:#03A94D;border-color:#03A94D;color:#fff}
+.btn.kakao{background:#FEE500;border-color:#E8D100;color:#191600}
+.btn.call{background:var(--blossom);border-color:var(--blossom);color:#fff}
+.btn.ghost{background:transparent}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.phone{font-family:var(--font-mono);font-size:13px;user-select:all}
+.src{font-size:12px;color:var(--muted)}
+.src a{color:var(--lake)}
+.checked{font-size:12px;color:var(--muted)}
+/* criteria */
+.crit{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600}
+td.pt{font-family:var(--font-mono);white-space:nowrap}
+.gates{margin:0;padding-left:18px;font-size:13.5px}
+/* dialog */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(10,20,25,.45)}
+form.edit{display:grid;gap:14px;padding:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.grid2{grid-template-columns:1fr}}
+label.f{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+label.f input,label.f select,label.f textarea{font:inherit;font-size:14.5px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+label.c{display:flex;gap:8px;align-items:center;font-size:14px}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:10px;margin:0}
+legend{font-size:12.5px;font-weight:600;padding:0 4px}
+.formmsg{font-size:13px;min-height:1em}
+.empty{color:var(--muted);font-size:14px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:14px}
+@media (prefers-reduced-motion:no-preference){.card{transition:box-shadow .3s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">잠실 · 석촌호수 · 송리단길 — 토요일 점심 기준</div>
+    <h1>주말 점심 소개팅 가이드</h1>
+    <p class="lede">첫 만남 점심에 맞는지 숫자로 판정합니다. 네이버·카카오 지도에서 확인한 리뷰 수와 별점, 2인 객단가, 토요일 영업 여부를 기준표대로 점수화합니다.</p>
+  </header>
+
+  <div class="notice" id="dataNotice"><b>근거 데이터 원칙.</b> 별점·리뷰 수는 추정하지 않습니다. 각 식당의 <b>근거 입력</b>에서 네이버·카카오 지도에서 본 숫자를 넣으면 확인일과 함께 저장되고 점수가 바로 계산됩니다. 필수 근거가 비어 있으면 <b>판정 보류</b>로 둡니다.</div>
+
+  <section class="map" aria-label="잠실 지도">
+    <svg id="map" viewBox="0 0 720 440" role="img" aria-label="잠실 일대 개략도와 식당 위치"></svg>
+    <div class="map-foot">
+      <span>개략도이며 핀은 건물·골목 단위 위치입니다.</span>
+      <a class="btn naver" href="https://map.naver.com/p/search/%EC%9E%A0%EC%8B%A4%20%EB%A7%9B%EC%A7%91" target="_blank" rel="noopener">네이버 지도에서 잠실 열기</a>
+    </div>
+  </section>
+
+  <div class="bar" role="toolbar" aria-label="필터">
+    <button class="chip" data-area="all" aria-pressed="true">전체</button>
+    <button class="chip" data-area="롯데월드몰" aria-pressed="false">롯데월드몰</button>
+    <button class="chip" data-area="송리단길" aria-pressed="false">송리단길</button>
+    <span class="spacer"></span>
+    <button class="chip" id="hidePending" aria-pressed="false">판정된 곳만</button>
+  </div>
+
+  <section class="list" id="list" aria-live="polite"></section>
+
+  <section class="crit" id="criteria">
+    <h2>판정 기준 (100점)</h2>
+    <p class="src" style="margin:0">먼저 탈락 조건을 확인하고, 통과한 곳만 아래 5개 항목으로 점수를 매깁니다. 모든 구간 경계값을 공개합니다.</p>
+    <h3 style="font-size:15px">탈락·보류 조건</h3>
+    <ul class="gates">
+      <li><b>탈락</b> 토요일 점심(11:30–14:00) 영업을 하지 않음</li>
+      <li><b>탈락</b> 카카오맵 별점 3.8 미만</li>
+      <li><b>탈락</b> 카카오 리뷰 30개 미만이면서 네이버 방문자 리뷰 100개 미만 (표본 부족)</li>
+      <li><b>보류</b> 토요일 영업 여부, 카카오 별점, 카카오 리뷰 수, 네이버 방문자 리뷰 수, 2인 객단가 중 하나라도 비어 있음</li>
+    </ul>
+    <div class="tbl"><table>
+      <thead><tr><th>항목</th><th>배점</th><th>계산 방식</th><th>근거 출처</th></tr></thead>
+      <tbody>
+        <tr><td>맛·만족도</td><td class="pt">30</td><td>카카오 별점 3.5 = 0점 → 4.5 이상 = 30점 (직선 비례)</td><td>카카오맵 장소 페이지 별점</td></tr>
+        <tr><td>검증된 인기</td><td class="pt">20</td><td>네이버 방문자 리뷰 100개 = 0 → 3,000개 이상 = 10 (로그 비례)<br>카카오 리뷰 20개 = 0 → 300개 이상 = 10 (로그 비례)</td><td>네이버 지도 '방문자 리뷰' 수, 카카오맵 후기 수</td></tr>
+        <tr><td>대화 환경</td><td class="pt">20</td><td>네이버 키워드 '대화하기 좋아요' 비율 10% 이상 = 8, 5% 이상 = 4<br>테이블 간격 넉넉 6 · 룸/칸막이 6</td><td>네이버 리뷰 키워드 통계, 현장·사진 확인</td></tr>
+        <tr><td>2인 객단가</td><td class="pt">15</td><td>5–10만원 = 15 · 4–5만원 또는 10–13만원 = 10 · 3–4만원 또는 13–16만원 = 5 · 그 외 0</td><td>메뉴판 가격 (메인 2 + 공유 1, 음료 제외)</td></tr>
+        <tr><td>토요일 운영 편의</td><td class="pt">15</td><td>예약 가능 8 · 토요일 점심 대기 15분 이하 4 · 역에서 도보 7분 이하 3</td><td>네이버 예약·캐치테이블, 지도 도보 경로</td></tr>
+      </tbody>
+    </table></div>
+    <p class="src" style="margin:0"><b>등급</b> 80점 이상 강력 추천 · 65–79 추천 · 50–64 무난 · 50 미만 비추천.<br>
+    네이버 지도는 현재 대부분의 장소에서 별점을 보여주지 않아, 네이버는 <b>방문자 리뷰 수</b>와 <b>키워드 통계</b>를 근거로 씁니다. 네이버 별점이 표시되는 곳은 참고값으로만 저장합니다.<br>
+    객단가 구간을 5–10만원으로 둔 이유: 첫 만남 점심은 한쪽이 계산해도 부담이 없고, 성의도 보이는 가격대가 적당합니다.</p>
+  </section>
+</div>
+
+<dialog id="dlg">
+  <form class="edit" id="editForm" method="dialog">
+    <div>
+      <div class="eyebrow">근거 입력</div>
+      <h2 id="dlgTitle">식당</h2>
+      <p class="src" style="margin:4px 0 0">네이버·카카오 지도에서 본 숫자를 그대로 넣으세요. 저장하면 오늘 날짜가 확인일로 기록됩니다.</p>
+    </div>
+    <div class="actions" id="dlgLinks"></div>
+    <fieldset><legend>리뷰·별점 (필수)</legend>
+      <div class="grid2">
+        <label class="f">카카오 별점 (0–5)<input id="f_kakaoRating" type="number" step="0.1" min="0" max="5" inputmode="decimal"></label>
+        <label class="f">카카오 후기 수<input id="f_kakaoReviews" type="number" min="0" inputmode="numeric"></label>
+        <label class="f">네이버 방문자 리뷰 수<input id="f_naverVisitor" type="number" min="0" inputmode="numeric"></label>
+        <label class="f">네이버 블로그 리뷰 수 (참고)<input id="f_naverBlog" type="number" min="0" inputmode="numeric"></label>
+        <label class="f">네이버 별점 (표시될 때만, 참고)<input id="f_naverRating" type="number" step="0.01" min="0" max="5" inputmode="decimal"></label>
+        <label class="f">'대화하기 좋아요' 비율 (%)<input id="f_talkPct" type="number" step="0.1" min="0" max="100" inputmode="decimal"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>가격·운영</legend>
+      <div class="grid2">
+        <label class="f">2인 객단가 (원)<input id="f_priceFor2" type="number" step="1000" min="0" inputmode="numeric"></label>
+        <label class="f">토요일 점심 영업<select id="f_satLunch"><option value="">미확인</option><option value="yes">영업함</option><option value="no">영업 안 함</option></select></label>
+      </div>
+      <label class="f">객단가 근거 (메뉴와 가격)<input id="f_priceBasis" type="text" placeholder="예: 파스타 24,000 + 리조또 26,000 + 샐러드 18,000"></label>
+      <div class="grid2">
+        <label class="f">토요일 영업시간<input id="f_satHours" type="text" placeholder="예: 11:00–22:00, 브레이크 없음"></label>
+        <label class="f">전화번호<input id="f_phone" type="tel" placeholder="02-0000-0000"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>대화 환경·편의</legend>
+      <label class="c"><input id="f_spacious" type="checkbox"> 테이블 간격이 넉넉함</label>
+      <label class="c"><input id="f_privateRoom" type="checkbox"> 룸 또는 칸막이 좌석이 있음</label>
+      <label class="c"><input id="f_reserve" type="checkbox"> 토요일 점심 예약 가능 (네이버 예약·캐치테이블·전화)</label>
+      <label class="c"><input id="f_shortWait" type="checkbox"> 토요일 점심 대기 15분 이하</label>
+      <label class="c"><input id="f_nearStation" type="checkbox"> 지하철역에서 도보 7분 이하</label>
+    </fieldset>
+    <label class="f">메모<textarea id="f_note" rows="2"></textarea></label>
+    <div class="formmsg" id="formMsg" role="status"></div>
+    <div class="actions">
+      <button class="btn call" id="saveBtn" type="submit" value="save">저장하고 다시 판정</button>
+      <button class="btn ghost" type="button" id="cancelBtn">닫기</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+// ─── 후보 식당: 웹에서 출처를 확인한 정보만 넣었습니다. 별점·리뷰 수는 비워 둡니다. ───
+const SEED = [
+  {id:"cheeseroom", name:"치즈룸&테이스팅룸 롯데월드몰", q:"치즈룸 테이스팅룸 롯데월드몰", area:"롯데월드몰", cuisine:"양식 · 와인 다이닝",
+   address:"서울 송파구 올림픽로 300 롯데월드몰 5층", lat:37.5136, lng:127.1036,
+   priceFor2:75000, priceBasis:"2023년 1월 기사 메뉴가 기준 추정: 트러플 파케리 파스타 24,000 + 전복 솥밥 리조또 26,000 + 시금치 플랫브레드 25,000 (음료 제외). 현재 가격 확인 필요",
+   reserve:true, note:"2층 구조. 앱(네이버 예약)으로 예약 가능하다는 기사·후기",
+   sources:[{label:"내일신문 2023 소개 기사",url:"https://www.localnaeil.com/News/View/649144"},{label:"a-ha 소개팅 추천 답변",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
+  {id:"dlifestyle", name:"디라이프스타일키친 롯데월드몰점", q:"디라이프스타일키친 롯데월드몰점", area:"롯데월드몰", cuisine:"양식 · 샐러드 파스타",
+   address:"서울 송파구 올림픽로 300 롯데월드몰", lat:37.5131, lng:127.1047,
+   note:"롯데월드몰 안 데이트 레스토랑으로 자주 소개됨",
+   sources:[{label:"a-ha 소개팅 추천 답변",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"},{label:"다이닝코드 잠실 소개팅장소",url:"https://www.diningcode.com/list.dc?query=%EC%9E%A0%EC%8B%A4+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
+  {id:"samsamsam", name:"쌤쌤쌤 롯데월드몰점", q:"쌤쌤쌤 롯데월드몰점", area:"롯데월드몰", cuisine:"양식 · 파스타 라자냐",
+   address:"서울 송파구 올림픽로 300 롯데월드몰", lat:37.5127, lng:127.1052,
+   sources:[{label:"a-ha 소개팅 추천 답변",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
+  {id:"donghwa", name:"동화고옥 롯데월드몰점", q:"동화고옥 롯데월드몰", area:"롯데월드몰", cuisine:"한식 · 솥밥 냉면",
+   address:"서울 송파구 올림픽로 300 롯데월드몰", lat:37.5139, lng:127.1052,
+   note:"후기상 룸 위주 좌석. 직접 확인 후 '룸/칸막이' 체크",
+   sources:[{label:"다이닝코드 롯데월드몰 소개팅장소",url:"https://www.diningcode.com/list.dc?query=%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
+  {id:"sesang", name:"세상의모든아침 롯데월드몰점", q:"세상의모든아침 잠실", area:"롯데월드몰", cuisine:"양식 · 브런치 파스타",
+   address:"서울 송파구 올림픽로 300 일대", lat:37.5122, lng:127.1040,
+   sources:[{label:"다이닝코드 롯데월드몰 소개팅장소",url:"https://www.diningcode.com/list.dc?query=%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
+  {id:"songchwi", name:"송리단취향", q:"송리단취향", area:"송리단길", cuisine:"양식 · 통베이컨 파스타 오므라이스",
+   address:"서울 송파구 송리단길 일대", lat:37.5083, lng:127.1078,
+   note:"석촌호수 근처 데이트 점심으로 소개됨. 가격대가 다소 높다는 후기",
+   sources:[{label:"다이닝코드 프로필",url:"https://www.diningcode.com/profile.php?rid=Cr1Eq6a9nU20"}]},
+  {id:"pastaimnida", name:"파스타입니다 본점", q:"파스타입니다 송파", area:"송리단길", cuisine:"양식 · 매콤크림파스타",
+   address:"서울 송파구 송리단길 일대", lat:37.5077, lng:127.1071,
+   sources:[{label:"다이닝코드 프로필",url:"https://www.diningcode.com/profile.php?rid=u9SvygKcHBGG"}]},
+  {id:"donburi", name:"돈부리 파스타 송리단길점", q:"돈부리파스타 송리단길점", area:"송리단길", cuisine:"퓨전 · 곱창 파스타",
+   address:"서울 송파구 백제고분로45길 15", lat:37.5071, lng:127.1083,
+   satHours:"점심 11:30–15:00 (요일별 확인 필요)",
+   sources:[{label:"트리플 장소 정보",url:"https://triple.guide/restaurants/97264f41-327d-4964-a39f-9c6e4ebb9988"}]},
+  {id:"alley9", name:"앨리나인", q:"앨리나인 송리단길", area:"송리단길", cuisine:"양식 · 다이닝",
+   address:"서울 송파구 송리단길 일대", lat:37.5088, lng:127.1068,
+   note:"인테리어가 예쁘다는 후기가 많음"},
+  {id:"geumgeum", name:"금금", q:"금금 송리단길", area:"송리단길", cuisine:"퓨전 한식",
+   address:"서울 송파구 송리단길 일대", lat:37.5079, lng:127.1090,
+   note:"주말 웨이팅이 있다는 후기. 캐치테이블 줄서기 여부 확인 필요"}
+];
+
+const FIELDS = ["kakaoRating","kakaoReviews","naverVisitor","naverBlog","naverRating","talkPct","priceFor2","priceBasis","satLunch","satHours","phone","spacious","privateRoom","reserve","shortWait","nearStation","note"];
+const NUM = new Set(["kakaoRating","kakaoReviews","naverVisitor","naverBlog","naverRating","talkPct","priceFor2"]);
+const BOOL = new Set(["spacious","privateRoom","reserve","shortWait","nearStation"]);
+
+let checks = {};      // id -> 저장된 확인 데이터
+let mode = "local";   // "db" | "local"
+let db = null, me = null;
+let areaFilter = "all", onlyJudged = false;
+
+// ─── 판정 로직 ───
+const clamp = (x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const logScale = (n,lo,hi)=> n==null?0:clamp((Math.log10(Math.max(n,1))-Math.log10(lo))/(Math.log10(hi)-Math.log10(lo)));
+function pricePts(p){
+  if(p==null) return 0;
+  const m=p/10000;
+  if(m>=5&&m<=10) return 15;
+  if((m>=4&&m<5)||(m>10&&m<=13)) return 10;
+  if((m>=3&&m<4)||(m>13&&m<=16)) return 5;
+  return 0;
+}
+function evaluate(p){
+  const why=[], missing=[];
+  if(p.satLunch==null) missing.push("토요일 점심 영업 여부");
+  if(p.kakaoRating==null) missing.push("카카오 별점");
+  if(p.kakaoReviews==null) missing.push("카카오 후기 수");
+  if(p.naverVisitor==null) missing.push("네이버 방문자 리뷰 수");
+  if(p.priceFor2==null) missing.push("2인 객단가");
+
+  const parts={
+    taste: p.kakaoRating==null?0: clamp((p.kakaoRating-3.5)/1.0)*30,
+    pop: logScale(p.naverVisitor,100,3000)*10 + logScale(p.kakaoReviews,20,300)*10,
+    talk: (p.talkPct>=10?8:p.talkPct>=5?4:0) + (p.spacious?6:0) + (p.privateRoom?6:0),
+    price: pricePts(p.priceFor2),
+    ops: (p.reserve?8:0)+(p.shortWait?4:0)+(p.nearStation?3:0)
+  };
+  const total=Math.round(Object.values(parts).reduce((a,b)=>a+b,0));
+
+  let status, label;
+  if(p.satLunch===false){status="out";label="탈락";why.push({t:"flag",s:"토요일 점심 영업을 하지 않음"});}
+  else if(p.kakaoRating!=null&&p.kakaoRating<3.8){status="out";label="탈락";why.push({t:"flag",s:`카카오 별점 ${p.kakaoRating.toFixed(1)}: 기준 3.8 미만`});}
+  else if(p.kakaoReviews!=null&&p.naverVisitor!=null&&p.kakaoReviews<30&&p.naverVisitor<100){status="out";label="탈락";why.push({t:"flag",s:"리뷰 표본 부족 (카카오 30개, 네이버 100개 미만)"});}
+  else if(missing.length){status="pending";label="판정 보류";}
+  else if(total>=80){status="strong";label="강력 추천";}
+  else if(total>=65){status="ok";label="추천";}
+  else if(total>=50){status="meh";label="무난";}
+  else {status="out";label="비추천";}
+
+  if(missing.length) why.push({t:"miss",s:"필요한 근거: "+missing.join(", ")});
+  if(p.kakaoRating!=null) why.push({t:"",s:`카카오 별점 ${p.kakaoRating.toFixed(1)} → 맛·만족도 ${parts.taste.toFixed(1)}/30`});
+  if(p.naverVisitor!=null||p.kakaoReviews!=null) why.push({t:"",s:`네이버 방문자 ${fmtN(p.naverVisitor)}개 · 카카오 후기 ${fmtN(p.kakaoReviews)}개 → 인기 ${parts.pop.toFixed(1)}/20`});
+  if(p.priceFor2!=null) why.push({t:"",s:`2인 ${fmtWon(p.priceFor2)} → 객단가 ${parts.price}/15${p.priceFor2>=50000&&p.priceFor2<=100000?" (적정 구간)":""}`});
+  if(p.talkPct!=null) why.push({t:"",s:`'대화하기 좋아요' ${p.talkPct}%`});
+  return {total,parts,status,label,why,missing};
+}
+
+// ─── 데이터 병합 ───
+function merged(){
+  return SEED.map(s=>{
+    const c=checks[s.id]||{};
+    const o={...s};
+    FIELDS.forEach(f=>{ if(c[f]!==undefined && c[f]!==null && c[f]!=="") o[f]=c[f]; else if(o[f]===undefined) o[f]=null; });
+    if(c.satLunch===false) o.satLunch=false;
+    BOOL.forEach(f=>{ if(c[f]===false) o[f]=false; });
+    o.checkedAt=c.checkedAt||null;
+    return o;
+  });
+}
+
+// ─── 렌더 ───
+const fmtN=n=>n==null?"–":Number(n).toLocaleString("ko-KR");
+const fmtWon=n=>n==null?"–":(n>=10000?(n/10000).toLocaleString("ko-KR",{maximumFractionDigits:1})+"만원":n.toLocaleString("ko-KR")+"원");
+const naverUrl=p=>"https://map.naver.com/p/search/"+encodeURIComponent(p.q||p.name);
+const kakaoUrl=p=>"https://map.kakao.com/?q="+encodeURIComponent(p.q||p.name);
+const badgeCls={strong:"b-strong",ok:"b-ok",meh:"b-meh",out:"b-out",pending:"b-pending"};
+const order={strong:0,ok:1,meh:2,pending:3,out:4};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function fact(k,v,sub){
+  const unk=v==null||v==="";
+  return `<div class="fact"><div class="k">${k}</div><div class="v${unk?" unk":""}">${unk?"미확인":esc(v)}</div>${sub?`<div class="s">${esc(sub)}</div>`:""}</div>`;
+}
+function bar(lbl,v,max){
+  return `<div class="brow"><span class="lbl">${lbl}</span><span class="track"><i style="width:${(v/max*100).toFixed(0)}%"></i></span><span class="pts">${v.toFixed(v%1?1:0)}/${max}</span></div>`;
+}
+
+function render(){
+  const rows=merged().map(p=>({p,e:evaluate(p)}))
+    .filter(r=>areaFilter==="all"||r.p.area===areaFilter)
+    .filter(r=>!onlyJudged||r.e.status!=="pending")
+    .sort((a,b)=>order[a.e.status]-order[b.e.status]||b.e.total-a.e.total);
+  const list=document.getElementById("list");
+  if(!rows.length){list.innerHTML=`<div class="empty">아직 판정된 식당이 없습니다. 식당 카드의 <b>근거 입력</b>에서 네이버·카카오 숫자를 넣으면 여기에 순위가 나옵니다.</div>`;drawMap([]);return;}
+  let rank=0;
+  list.innerHTML=rows.map(({p,e})=>{
+    const judged=e.status!=="pending";
+    if(judged&&e.status!=="out") rank++;
+    const scoreHtml=judged?`<div class="n">${e.total}<small>/100</small></div>`:`<div class="n" style="color:var(--muted)">–</div>`;
+    const phone=p.phone?`<a class="btn call" href="tel:${esc(p.phone.replace(/[^0-9+]/g,""))}">전화 걸기</a><span class="phone">${esc(p.phone)}</span>`
+                       :`<a class="btn call" href="${naverUrl(p)}" target="_blank" rel="noopener" title="번호를 아직 입력하지 않아 네이버 지도의 전화 버튼으로 연결합니다">전화 (네이버에서)</a>`;
+    return `<article class="card" id="c-${p.id}">
+      <div class="top">
+        <div class="rank">${judged&&e.status!=="out"?String(rank).padStart(2,"0"):"·"}</div>
+        <div style="min-width:0"><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.area)} · ${esc(p.cuisine)}</div><div class="meta">${esc(p.address)}</div></div>
+        <div class="score">${scoreHtml}<span class="badge ${badgeCls[e.status]}">${e.label}</span></div>
+      </div>
+      <div class="facts">
+        ${fact("카카오 별점",p.kakaoRating!=null?p.kakaoRating.toFixed(1)+" / 5":null,p.kakaoReviews!=null?"후기 "+fmtN(p.kakaoReviews)+"개":null)}
+        ${fact("네이버 방문자 리뷰",p.naverVisitor!=null?fmtN(p.naverVisitor):null,[p.naverBlog!=null?"블로그 "+fmtN(p.naverBlog):"",p.naverRating!=null?"별점 "+p.naverRating:""].filter(Boolean).join(" · ")||null)}
+        ${fact("2인 객단가",p.priceFor2!=null?fmtWon(p.priceFor2):null,p.priceBasis&&p.priceBasis.includes("추정")?"추정":null)}
+        ${fact("토요일 점심",p.satLunch===true?"영업":p.satLunch===false?"휴무":null,p.satHours)}
+      </div>
+      ${judged?`<div class="bars">${bar("맛·만족도",e.parts.taste,30)}${bar("검증된 인기",e.parts.pop,20)}${bar("대화 환경",e.parts.talk,20)}${bar("2인 객단가",e.parts.price,15)}${bar("토요일 편의",e.parts.ops,15)}</div>`:""}
+      <ul class="why">${e.why.map(w=>`<li class="${w.t}">${esc(w.s)}</li>`).join("")}${p.priceBasis?`<li>객단가 근거: ${esc(p.priceBasis)}</li>`:""}${p.note?`<li>${esc(p.note)}</li>`:""}</ul>
+      <div class="actions">
+        <a class="btn naver" href="${naverUrl(p)}" target="_blank" rel="noopener">네이버 지도</a>
+        <a class="btn kakao" href="${kakaoUrl(p)}" target="_blank" rel="noopener">카카오맵</a>
+        ${phone}
+        <button class="btn ghost" type="button" data-edit="${p.id}">근거 입력</button>
+      </div>
+      <div class="src">${p.checkedAt?`<span class="checked">숫자 확인일 ${esc(p.checkedAt)}</span> · `:""}${(p.sources||[]).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join(" · ")||"출처 링크 없음"}</div>
+    </article>`;
+  }).join("");
+  drawMap(rows);
+}
+
+// ─── 지도 (개략도) ───
+const B={latMin:37.5040,latMax:37.5160,lngMin:127.0930,lngMax:127.1150};
+const W=720,H=440;
+const X=lng=>(lng-B.lngMin)/(B.lngMax-B.lngMin)*W;
+const Y=lat=>(B.latMax-lat)/(B.latMax-B.latMin)*H;
+function drawMap(rows){
+  const pinColor={strong:"var(--good)",ok:"var(--lake)",meh:"var(--warn)",out:"var(--bad)",pending:"var(--muted)"};
+  const st=(lat,lng,name)=>`<g><rect x="${X(lng)-6}" y="${Y(lat)-6}" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--fg)" stroke-width="2"/><text x="${X(lng)+10}" y="${Y(lat)+4}" font-size="13" font-weight="600" fill="var(--fg)">${name}</text></g>`;
+  let rank=0;
+  const pins=rows.map(({p,e})=>{
+    const ok=e.status!=="pending"&&e.status!=="out"; if(ok) rank++;
+    const x=X(p.lng),y=Y(p.lat);
+    return `<g class="pin" tabindex="0" role="button" aria-label="${esc(p.name)} ${e.label}" data-go="${p.id}">
+      <circle cx="${x}" cy="${y}" r="11" fill="${pinColor[e.status]}" stroke="var(--surface)" stroke-width="2"/>
+      <text x="${x}" y="${y+4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--surface)" font-family="IBM Plex Mono,monospace">${ok?rank:"·"}</text>
+      <title>${esc(p.name)} · ${e.label}</title></g>`;
+  }).join("");
+  document.getElementById("map").innerHTML=`
+    <rect width="${W}" height="${H}" fill="var(--bg)"/>
+    <path d="M0 ${Y(37.5137)} L${W} ${Y(37.5133)}" stroke="var(--road)" stroke-width="14" fill="none"/>
+    <text x="14" y="${Y(37.5137)-12}" font-size="12" fill="var(--muted)">올림픽로</text>
+    <path d="M${X(127.1005)} 0 L${X(127.1075)} ${H}" stroke="var(--road)" stroke-width="12" fill="none"/>
+    <text x="${X(127.1060)+10}" y="${H-14}" font-size="12" fill="var(--muted)">송파대로</text>
+    <path d="M${X(127.0930)} ${Y(37.5058)} L${W} ${Y(37.5060)}" stroke="var(--road)" stroke-width="10" fill="none"/>
+    <text x="14" y="${Y(37.5058)-10}" font-size="12" fill="var(--muted)">백제고분로</text>
+    <ellipse cx="${X(127.0985)}" cy="${Y(37.5093)}" rx="92" ry="44" fill="var(--lake-soft)" stroke="var(--lake)" stroke-width="1.5"/>
+    <text x="${X(127.0985)}" y="${Y(37.5093)+5}" text-anchor="middle" font-size="13" fill="var(--lake)">석촌호수 서호</text>
+    <ellipse cx="${X(127.1052)}" cy="${Y(37.5098)}" rx="64" ry="38" fill="var(--lake-soft)" stroke="var(--lake)" stroke-width="1.5"/>
+    <text x="${X(127.1052)}" y="${Y(37.5098)+5}" text-anchor="middle" font-size="13" fill="var(--lake)">동호</text>
+    <rect x="${X(127.1030)}" y="${Y(37.5143)}" width="${X(127.1060)-X(127.1030)}" height="${Y(37.5118)-Y(37.5143)}" rx="6" fill="var(--blossom-soft)" stroke="var(--blossom)" stroke-dasharray="4 3"/>
+    <text x="${X(127.1062)+6}" y="${Y(37.5145)-6}" font-size="12" fill="var(--blossom)" font-weight="600">롯데월드몰·타워</text>
+    <rect x="${X(127.1060)}" y="${Y(37.5094)}" width="${X(127.1098)-X(127.1060)}" height="${Y(37.5064)-Y(37.5094)}" rx="6" fill="none" stroke="var(--blossom)" stroke-dasharray="4 3"/>
+    <text x="${X(127.1100)+6}" y="${Y(37.5080)}" font-size="12" fill="var(--blossom)" font-weight="600">송리단길</text>
+    ${st(37.5133,127.1001,"잠실역 2·8호선")}
+    ${st(37.5054,127.1069,"석촌역 8·9호선")}
+    ${st(37.5103,127.1122,"송파나루역 9호선")}
+    ${pins}
+    <g transform="translate(${W-34},26)"><path d="M0 12 L6 -6 L12 12 L6 7 Z" fill="var(--fg)"/><text x="6" y="26" text-anchor="middle" font-size="11" fill="var(--muted)">N</text></g>`;
+}
+
+// ─── 편집 다이얼로그 ───
+const dlg=document.getElementById("dlg"); let editing=null;
+function openEdit(id){
+  const p=merged().find(x=>x.id===id); if(!p) return; editing=id;
+  document.getElementById("dlgTitle").textContent=p.name;
+  document.getElementById("dlgLinks").innerHTML=`<a class="btn naver" href="${naverUrl(p)}" target="_blank" rel="noopener">네이버 지도에서 보기</a><a class="btn kakao" href="${kakaoUrl(p)}" target="_blank" rel="noopener">카카오맵에서 보기</a>`;
+  FIELDS.forEach(f=>{
+    const el=document.getElementById("f_"+f); if(!el) return;
+    if(BOOL.has(f)) el.checked=!!p[f];
+    else if(f==="satLunch") el.value=p.satLunch===true?"yes":p.satLunch===false?"no":"";
+    else el.value=p[f]??"";
+  });
+  document.getElementById("formMsg").textContent=mode==="db"?"저장하면 이 페이지를 여는 모든 사람에게 반영됩니다.":"이 브라우저에만 저장됩니다.";
+  if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open","");
+}
+document.getElementById("cancelBtn").onclick=()=>dlg.close();
+document.getElementById("editForm").addEventListener("submit",async ev=>{
+  ev.preventDefault(); if(!editing) return;
+  const data={};
+  for(const f of FIELDS){
+    const el=document.getElementById("f_"+f); if(!el) continue;
+    if(BOOL.has(f)) data[f]=el.checked;
+    else if(f==="satLunch") data[f]=el.value==="yes"?true:el.value==="no"?false:null;
+    else if(NUM.has(f)) data[f]=el.value===""?null:Number(el.value);
+    else data[f]=el.value.trim()||null;
+  }
+  if(data.kakaoRating!=null&&(data.kakaoRating<0||data.kakaoRating>5)){document.getElementById("formMsg").textContent="카카오 별점은 0에서 5 사이로 입력하세요.";return;}
+  data.checkedAt=new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});
+  const msg=document.getElementById("formMsg"); msg.textContent="저장 중…";
+  try{
+    if(mode==="db"){ await db.doc("checks/"+editing).set({...data,checkedBy:me||null}); }
+    else { checks[editing]=data; try{localStorage.setItem("jlg-checks",JSON.stringify(checks));}catch(_){} render(); }
+    const id=editing; dlg.close(); setTimeout(()=>flash(id),50);
+  }catch(err){ msg.textContent="저장하지 못했습니다. 이 페이지의 편집 권한이 있는지 확인하세요. ("+(err&&err.code||"오류")+")"; }
+});
+
+function flash(id){const el=document.getElementById("c-"+id); if(!el) return; el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1400);}
+
+document.addEventListener("click",e=>{
+  const ed=e.target.closest("[data-edit]"); if(ed){openEdit(ed.dataset.edit);return;}
+  const go=e.target.closest("[data-go]"); if(go){flash(go.dataset.go);return;}
+  const ch=e.target.closest(".chip[data-area]"); if(ch){areaFilter=ch.dataset.area; document.querySelectorAll(".chip[data-area]").forEach(c=>c.setAttribute("aria-pressed",String(c===ch))); render(); return;}
+  if(e.target.id==="hidePending"){onlyJudged=!onlyJudged; e.target.setAttribute("aria-pressed",String(onlyJudged)); render();}
+});
+document.addEventListener("keydown",e=>{const go=e.target.closest&&e.target.closest("[data-go]"); if(go&&(e.key==="Enter"||e.key===" ")){e.preventDefault();flash(go.dataset.go);}});
+
+// ─── 저장소 연결: 공유 DB가 있으면 사용, 없으면 브라우저 저장 ───
+try{ checks=JSON.parse(localStorage.getItem("jlg-checks")||"{}")||{}; }catch(_){ checks={}; }
+render();
+(async()=>{
+  if(!window.claude||!window.claude.use) return;
+  try{
+    const d=await window.claude.use("db"); if(!d) return;
+    db=d; mode="db";
+    const u=await window.claude.use("user"); if(u){ try{me=await u.id();}catch(_){} }
+    const t=setTimeout(()=>{},10000);
+    db.collection("checks").onSnapshot(snap=>{
+      clearTimeout(t);
+      const next={}; (snap.docs||snap).forEach(doc=>{ next[doc.id]=(typeof doc.data==="function"?doc.data():doc.data)||{}; });
+      checks=next;
+      document.getElementById("dataNotice").innerHTML='<b>근거 데이터 원칙.</b> 별점·리뷰 수는 추정하지 않습니다. <b>근거 입력</b>에 넣은 숫자는 확인일과 함께 공유 저장되어, 이 페이지를 여는 사람 모두에게 같은 판정이 보입니다. 필수 근거가 비어 있으면 <b>판정 보류</b>입니다.';
+      render();
+    },err=>{ clearTimeout(t); mode="local"; db=null; });
+  }catch(_){ mode="local"; }
+})();
+})();
+</script>
+
+</body></html>
