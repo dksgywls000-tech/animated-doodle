@@ -1,487 +1,534 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}img{max-width:100%}</style></head><body>
 <title>주말 점심 소개팅 가이드</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: 좁은 단일 컬럼 앱. 상단 지도(석촌호수 개략도) → 판정 순위 카드 → 판정 기준표. 확인 데이터 입력은 dialog. */
+/* Layout: 상단 바(보기 전환·필터) → 보기 3종(슬라이드+미니지도 / 목록 / 큰 지도) → 체크 기준 접이식. 석촌호수 청록 + 벚꽃 분홍. */
 :root{
-  --bg:#F3F6F6; --surface:#FFFFFF; --fg:#13222A; --muted:#5B6B72; --line:#D5DEE0;
+  --bg:#F2F5F5; --surface:#FFFFFF; --fg:#13222A; --muted:#5B6B72; --line:#D5DEE0;
   --lake:#2E6E78; --lake-soft:#D7E8EA; --blossom:#C9466B; --blossom-soft:#F7E1E8;
-  --good:#1F7A4D; --good-soft:#DDF1E6; --warn:#9A6200; --warn-soft:#FBEED2; --bad:#B23A3A; --bad-soft:#F8E0E0;
-  --road:#C3CDCF; --font-display:"Gowun Dodum","IBM Plex Sans KR",system-ui,sans-serif;
+  --mall:#3D4F8F; --mall-soft:#DEE3F4; --alley:#8A5A2B; --alley-soft:#F1E6D8;
+  --road:#C6D0D2; --shadow:0 10px 30px rgba(19,34,42,.10);
+  --font-display:"Gowun Dodum","IBM Plex Sans KR",system-ui,sans-serif;
   --font-body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0E171B; --surface:#152229; --fg:#E4ECEE; --muted:#93A4AA; --line:#2A3B42;
   --lake:#6FB3BC; --lake-soft:#1C3A40; --blossom:#EE8AA7; --blossom-soft:#40202B;
-  --good:#6CCB98; --good-soft:#173527; --warn:#E5B35A; --warn-soft:#3A2D12; --bad:#EE8B8B; --bad-soft:#3E1C1C; --road:#33454C; color-scheme:dark}}
+  --mall:#9AA9E6; --mall-soft:#232B4A; --alley:#E0B07E; --alley-soft:#3A2A1A;
+  --road:#33454C; --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E171B; --surface:#152229; --fg:#E4ECEE; --muted:#93A4AA; --line:#2A3B42;
   --lake:#6FB3BC; --lake-soft:#1C3A40; --blossom:#EE8AA7; --blossom-soft:#40202B;
-  --good:#6CCB98; --good-soft:#173527; --warn:#E5B35A; --warn-soft:#3A2D12; --bad:#EE8B8B; --bad-soft:#3E1C1C; --road:#33454C; color-scheme:dark}
+  --mall:#9AA9E6; --mall-soft:#232B4A; --alley:#E0B07E; --alley-soft:#3A2A1A;
+  --road:#33454C; --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.55}
-.wrap{max-width:760px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+.wrap{max-width:1040px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
 h1,h2,h3{text-wrap:balance;margin:0}
-h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,7vw,40px);line-height:1.15;letter-spacing:-.01em}
-h2{font-size:18px;font-weight:700}
+h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,6.5vw,42px);line-height:1.15}
 .eyebrow{font-size:12px;letter-spacing:.08em;color:var(--lake);font-weight:600}
-.lede{color:var(--muted);margin:6px 0 0;max-width:62ch}
-header{display:grid;gap:6px}
-.notice{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--muted)}
-.notice b{color:var(--fg)}
-/* map */
-.map{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.map svg{display:block;width:100%;height:auto}
-.map-foot{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
-.pin{cursor:pointer}
-.pin:focus-visible circle{stroke:var(--fg);stroke-width:3}
-/* controls */
-.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;cursor:pointer}
-.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.chip:focus-visible,.btn:focus-visible{outline:2px solid var(--lake);outline-offset:2px}
-.spacer{flex:1}
-/* cards */
-.list{display:grid;gap:12px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;scroll-margin-top:16px}
-.card.flash{box-shadow:0 0 0 3px var(--blossom)}
-.top{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
-.rank{font-family:var(--font-mono);font-size:13px;color:var(--muted);min-width:22px;padding-top:3px}
-.name{font-size:17px;font-weight:700;line-height:1.3}
-.meta{font-size:13px;color:var(--muted);margin-top:2px}
-.score{text-align:right;min-width:72px}
-.score .n{font-family:var(--font-mono);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
-.score .n small{font-size:12px;color:var(--muted)}
-.badge{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;white-space:nowrap}
-.b-strong{background:var(--good-soft);color:var(--good)}
-.b-ok{background:var(--lake-soft);color:var(--lake)}
-.b-meh{background:var(--warn-soft);color:var(--warn)}
-.b-out{background:var(--bad-soft);color:var(--bad)}
-.b-pending{background:var(--bg);color:var(--muted);border:1px dashed var(--line)}
-.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.fact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
-.fact .k{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
-.fact .v{font-family:var(--font-mono);font-size:15px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.fact .v.unk{font-family:var(--font-body);font-size:13px;color:var(--muted)}
-.fact .s{font-size:11px;color:var(--muted)}
-@media (max-width:520px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.bars{display:grid;gap:5px}
-.brow{display:grid;grid-template-columns:92px 1fr 54px;gap:8px;align-items:center;font-size:12.5px}
-.brow .lbl{color:var(--muted)}
-.track{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
-.track i{display:block;height:100%;background:var(--lake)}
-.brow .pts{font-family:var(--font-mono);text-align:right;font-variant-numeric:tabular-nums}
-.why{font-size:13px;color:var(--muted);margin:0;padding-left:18px}
-.why li.flag{color:var(--bad)}
-.why li.miss{color:var(--warn)}
-.actions{display:flex;flex-wrap:wrap;gap:8px}
-.btn{display:inline-flex;align-items:center;gap:6px;border-radius:9px;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.lede{color:var(--muted);margin:4px 0 0;max-width:62ch}
+header{display:grid;gap:4px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lake);outline-offset:2px}
+
+/* toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--lake);border-color:var(--lake);color:var(--surface)}
+.chip.heart[aria-pressed="true"]{background:var(--blossom);border-color:var(--blossom)}
+.grow{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);white-space:nowrap}
+.btn.primary{background:var(--blossom);border-color:var(--blossom);color:#fff}
 .btn.naver{background:#03A94D;border-color:#03A94D;color:#fff}
 .btn.kakao{background:#FEE500;border-color:#E8D100;color:#191600}
-.btn.call{background:var(--blossom);border-color:var(--blossom);color:#fff}
-.btn.ghost{background:transparent}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-.phone{font-family:var(--font-mono);font-size:13px;user-select:all}
+.btn.icon{padding:8px 10px}
+.btn svg{width:16px;height:16px}
+.count{font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+
+/* slide view */
+.slideview{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+@media (max-width:820px){.slideview{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;overflow:hidden;border-radius:16px;touch-action:pan-y;user-select:none;box-shadow:var(--shadow)}
+.track{display:flex;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.track.dragging{transition:none}
+.slide{flex:0 0 100%;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:grid}
+[hidden]{display:none!important}
+@media (max-width:520px){.kv .v{font-size:13px}.body{padding:14px 14px 18px}.cover{padding:18px 16px 16px}}
+.cover{position:relative;padding:22px 22px 18px;min-height:170px;display:grid;align-content:end;gap:6px;overflow:hidden}
+.cover[data-area="롯데월드몰"]{background:var(--mall-soft)}
+.cover[data-area="송리단길"]{background:var(--alley-soft)}
+.cover canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cover > *:not(canvas){position:relative}
+.cover .tagrow{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;background:var(--surface);color:var(--fg)}
+.tag.area-mall{color:var(--mall)} .tag.area-alley{color:var(--alley)}
+.cover h2{font-family:var(--font-display);font-weight:400;font-size:clamp(24px,4.6vw,34px);line-height:1.2}
+.cover .num{position:absolute;top:16px;right:20px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.fav{position:absolute;top:10px;left:12px;border:0;background:var(--surface);border-radius:999px;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.cover .fav{position:absolute}
+.fav svg{width:20px;height:20px;fill:none;stroke:var(--blossom);stroke-width:2}
+.fav[aria-pressed="true"] svg{fill:var(--blossom)}
+.cover .tagrow{margin-top:34px}
+.body{padding:16px 20px 20px;display:grid;gap:14px}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kv > div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.kv .k{font-size:11.5px;color:var(--muted)}
+.kv .v{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.kv .v.unk{font-weight:400;color:var(--muted);font-size:13px}
+.check{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13.5px}
+.check li{display:grid;grid-template-columns:20px 1fr;gap:6px;align-items:start}
+.check input{margin:3px 0 0;accent-color:var(--lake)}
+.note{font-size:13.5px;color:var(--muted);margin:0}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
 .src{font-size:12px;color:var(--muted)}
 .src a{color:var(--lake)}
-.checked{font-size:12px;color:var(--muted)}
+.nav{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:12px}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dots button{width:9px;height:9px;border-radius:50%;border:0;padding:0;background:var(--line);cursor:pointer}
+.dots button[aria-current="true"]{background:var(--blossom);width:22px;border-radius:5px}
+.progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;width:0;background:var(--blossom)}
+.side{display:grid;gap:12px;position:sticky;top:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel h3{font-size:13px;color:var(--muted);font-weight:600;padding:10px 14px 0}
+.panel svg{display:block;width:100%;height:auto}
+.panel .pbody{padding:10px 14px 14px;font-size:13px;color:var(--muted);display:grid;gap:6px}
+kbd{font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--bg);color:var(--fg)}
+
+/* list view */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.mini{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid;cursor:pointer;text-align:left;padding:0;position:relative;transition:transform .2s,box-shadow .2s}
+.mini:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.mini .mc{padding:14px 14px 12px;min-height:84px;display:grid;align-content:end;gap:4px}
+.mini .mc[data-area="롯데월드몰"]{background:var(--mall-soft)}
+.mini .mc[data-area="송리단길"]{background:var(--alley-soft)}
+.mini .mn{font-family:var(--font-display);font-size:19px;line-height:1.25}
+.mini .mb{padding:10px 14px 14px;font-size:13px;color:var(--muted);display:grid;gap:8px}
+.mini .fav{top:8px;left:auto;right:8px;width:32px;height:32px}
+.mini .cmp{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--fg)}
+
+/* map view */
+.mapview{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media (max-width:820px){.mapview{grid-template-columns:minmax(0,1fr)}}
+.pin{cursor:pointer}
+.pin circle{transition:r .2s}
+.pin.active circle.dot{r:15}
+.pin:focus-visible circle.dot{stroke:var(--fg);stroke-width:3}
+.peek{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px}
+
 /* criteria */
-.crit{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
-.tbl{overflow-x:auto}
+details.crit{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+details.crit summary{cursor:pointer;font-weight:700;font-size:16px}
+.tbl{overflow-x:auto;margin-top:10px}
 table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
-th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;color:var(--muted);font-weight:600}
 td.pt{font-family:var(--font-mono);white-space:nowrap}
-.gates{margin:0;padding-left:18px;font-size:13.5px}
-/* dialog */
-dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
-dialog::backdrop{background:rgba(10,20,25,.45)}
-form.edit{display:grid;gap:14px;padding:18px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:480px){.grid2{grid-template-columns:1fr}}
-label.f{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
-label.f input,label.f select,label.f textarea{font:inherit;font-size:14.5px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
-label.c{display:flex;gap:8px;align-items:center;font-size:14px}
-fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:10px;margin:0}
-legend{font-size:12.5px;font-weight:600;padding:0 4px}
-.formmsg{font-size:13px;min-height:1em}
-.empty{color:var(--muted);font-size:14px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:14px}
-@media (prefers-reduced-motion:no-preference){.card{transition:box-shadow .3s}}
+
+/* compare tray + dialog */
+.tray{position:fixed;left:0;right:0;bottom:0;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;justify-content:center;pointer-events:none;z-index:5}
+.tray .inner{pointer-events:auto;background:var(--fg);color:var(--bg);border-radius:12px;padding:8px 8px 8px 14px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow);font-size:13.5px;max-width:100%;flex-wrap:wrap}
+.tray .btn{border-color:transparent}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--fg);padding:0;width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(10,20,25,.5)}
+.dlg{padding:18px;display:grid;gap:14px}
+.cmpgrid{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:10px}
+.cmpcol{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start;min-width:0;font-size:13.5px}
+.cmpcol h3{font-family:var(--font-display);font-weight:400;font-size:19px}
+.cmpcol dt{font-size:11.5px;color:var(--muted)}
+.cmpcol dd{margin:0 0 4px}
+@media (max-width:560px){.cmpgrid{grid-template-columns:1fr}}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);border-radius:10px;padding:8px 14px;font-size:13.5px;z-index:20;box-shadow:var(--shadow)}
+.empty{color:var(--muted);text-align:center;padding:30px;border:1px dashed var(--line);border-radius:14px}
+.spin .slide .card{animation:none}
+@media (prefers-reduced-motion:reduce){.track,.mini,.pin circle{transition:none}}
 </style>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">잠실 · 석촌호수 · 송리단길 — 토요일 점심 기준</div>
+    <div class="eyebrow">잠실 · 롯데월드몰 · 송리단길 — 토요일 점심</div>
     <h1>주말 점심 소개팅 가이드</h1>
-    <p class="lede">첫 만남 점심에 맞는지 숫자로 판정합니다. 네이버·카카오 지도에서 확인한 리뷰 수와 별점, 2인 객단가, 토요일 영업 여부를 기준표대로 점수화합니다.</p>
+    <p class="lede">첫 만남 점심 후보 10곳을 넘겨 보고, 지도에서 고르고, 둘을 나란히 비교하세요. 별점과 리뷰 수는 각 카드의 네이버·카카오 버튼으로 바로 확인합니다.</p>
   </header>
 
-  <div class="notice" id="dataNotice"><b>근거 데이터 원칙.</b> 별점·리뷰 수는 추정하지 않습니다. 각 식당의 <b>근거 입력</b>에서 네이버·카카오 지도에서 본 숫자를 넣으면 확인일과 함께 저장되고 점수가 바로 계산됩니다. 필수 근거가 비어 있으면 <b>판정 보류</b>로 둡니다.</div>
-
-  <section class="map" aria-label="잠실 지도">
-    <svg id="map" viewBox="0 0 720 440" role="img" aria-label="잠실 일대 개략도와 식당 위치"></svg>
-    <div class="map-foot">
-      <span>개략도이며 핀은 건물·골목 단위 위치입니다.</span>
-      <a class="btn naver" href="https://map.naver.com/p/search/%EC%9E%A0%EC%8B%A4%20%EB%A7%9B%EC%A7%91" target="_blank" rel="noopener">네이버 지도에서 잠실 열기</a>
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="보기 방식">
+      <button type="button" data-view="slide" aria-pressed="true">슬라이드</button>
+      <button type="button" data-view="list" aria-pressed="false">목록</button>
+      <button type="button" data-view="map" aria-pressed="false">지도</button>
     </div>
-  </section>
-
-  <div class="bar" role="toolbar" aria-label="필터">
-    <button class="chip" data-area="all" aria-pressed="true">전체</button>
-    <button class="chip" data-area="롯데월드몰" aria-pressed="false">롯데월드몰</button>
-    <button class="chip" data-area="송리단길" aria-pressed="false">송리단길</button>
-    <span class="spacer"></span>
-    <button class="chip" id="hidePending" aria-pressed="false">판정된 곳만</button>
+    <div class="chips" role="group" aria-label="지역">
+      <button type="button" class="chip" data-area="all" aria-pressed="true">전체</button>
+      <button type="button" class="chip" data-area="롯데월드몰" aria-pressed="false">롯데월드몰</button>
+      <button type="button" class="chip" data-area="송리단길" aria-pressed="false">송리단길</button>
+    </div>
+    <div class="chips" role="group" aria-label="음식 종류">
+      <button type="button" class="chip" data-kind="양식" aria-pressed="false">양식</button>
+      <button type="button" class="chip" data-kind="한식" aria-pressed="false">한식</button>
+      <button type="button" class="chip" data-kind="퓨전" aria-pressed="false">퓨전</button>
+    </div>
+    <button type="button" class="chip heart" id="favOnly" aria-pressed="false">찜만 보기 <span id="favCount">0</span></button>
+    <span class="grow"></span>
+    <button type="button" class="btn primary" id="pickBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>
+      골라줘</button>
   </div>
 
-  <section class="list" id="list" aria-live="polite"></section>
+  <!-- 슬라이드 보기 -->
+  <section id="v-slide" class="slideview" aria-roledescription="carousel" aria-label="식당 슬라이드">
+    <div>
+      <div class="stage" id="stage" tabindex="0" aria-label="좌우로 넘기기: 화살표 키 또는 스와이프">
+        <div class="track" id="track"></div>
+      </div>
+      <div class="nav">
+        <button type="button" class="btn icon" id="prevBtn" aria-label="이전 식당"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="dots" id="dots" role="tablist" aria-label="슬라이드 선택"></div>
+        <button type="button" class="btn icon" id="nextBtn" aria-label="다음 식당"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+      <div class="nav" style="margin-top:8px">
+        <span class="count" id="counter">01 / 10</span>
+        <button type="button" class="btn" id="playBtn" aria-pressed="false">자동 넘김 시작</button>
+      </div>
+      <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+    </div>
+    <aside class="side">
+      <div class="panel">
+        <h3>지금 보는 곳</h3>
+        <svg id="miniMap" viewBox="0 0 720 440" role="img" aria-label="잠실 개략도"></svg>
+        <div class="pbody">핀을 누르면 그 식당으로 넘어갑니다.</div>
+      </div>
+      <div class="panel">
+        <h3>조작 방법</h3>
+        <div class="pbody">
+          <span><kbd>←</kbd> <kbd>→</kbd> 넘기기 · 스와이프 · 마우스 끌기 · 휠</span>
+          <span><kbd>F</kbd> 또는 카드 더블탭 찜하기</span>
+          <span><kbd>C</kbd> 비교에 담기 · <kbd>R</kbd> 골라줘</span>
+          <span><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> 슬라이드·목록·지도 · <kbd>Space</kbd> 자동 넘김</span>
+        </div>
+      </div>
+    </aside>
+  </section>
 
-  <section class="crit" id="criteria">
-    <h2>판정 기준 (100점)</h2>
-    <p class="src" style="margin:0">먼저 탈락 조건을 확인하고, 통과한 곳만 아래 5개 항목으로 점수를 매깁니다. 모든 구간 경계값을 공개합니다.</p>
-    <h3 style="font-size:15px">탈락·보류 조건</h3>
-    <ul class="gates">
-      <li><b>탈락</b> 토요일 점심(11:30–14:00) 영업을 하지 않음</li>
-      <li><b>탈락</b> 카카오맵 별점 3.8 미만</li>
-      <li><b>탈락</b> 카카오 리뷰 30개 미만이면서 네이버 방문자 리뷰 100개 미만 (표본 부족)</li>
-      <li><b>보류</b> 토요일 영업 여부, 카카오 별점, 카카오 리뷰 수, 네이버 방문자 리뷰 수, 2인 객단가 중 하나라도 비어 있음</li>
-    </ul>
+  <!-- 목록 보기 -->
+  <section id="v-list" hidden>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- 지도 보기 -->
+  <section id="v-map" class="mapview" hidden>
+    <div class="panel">
+      <svg id="bigMap" viewBox="0 0 720 440" role="img" aria-label="잠실 개략도와 식당 위치"></svg>
+      <div class="pbody" style="flex-direction:row;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center">
+        <span>개략도이며 핀은 건물·골목 단위 위치입니다.</span>
+        <a class="btn naver" href="https://map.naver.com/p/search/%EC%9E%A0%EC%8B%A4%EC%97%AD%20%EB%A7%9B%EC%A7%91" target="_blank" rel="noopener">네이버 지도에서 잠실 열기</a>
+      </div>
+    </div>
+    <div class="peek" id="peek"></div>
+  </section>
+
+  <details class="crit" id="criteria">
+    <summary>소개팅 점심 체크 기준</summary>
+    <p class="note" style="margin-top:8px">각 카드의 체크리스트는 이 기준을 따릅니다. 네이버·카카오 버튼으로 장소 페이지를 열어 하나씩 확인하세요. 체크한 항목은 이 브라우저에 기억됩니다.</p>
     <div class="tbl"><table>
-      <thead><tr><th>항목</th><th>배점</th><th>계산 방식</th><th>근거 출처</th></tr></thead>
+      <thead><tr><th>기준</th><th>통과선</th><th>어디서 확인</th><th>이유</th></tr></thead>
       <tbody>
-        <tr><td>맛·만족도</td><td class="pt">30</td><td>카카오 별점 3.5 = 0점 → 4.5 이상 = 30점 (직선 비례)</td><td>카카오맵 장소 페이지 별점</td></tr>
-        <tr><td>검증된 인기</td><td class="pt">20</td><td>네이버 방문자 리뷰 100개 = 0 → 3,000개 이상 = 10 (로그 비례)<br>카카오 리뷰 20개 = 0 → 300개 이상 = 10 (로그 비례)</td><td>네이버 지도 '방문자 리뷰' 수, 카카오맵 후기 수</td></tr>
-        <tr><td>대화 환경</td><td class="pt">20</td><td>네이버 키워드 '대화하기 좋아요' 비율 10% 이상 = 8, 5% 이상 = 4<br>테이블 간격 넉넉 6 · 룸/칸막이 6</td><td>네이버 리뷰 키워드 통계, 현장·사진 확인</td></tr>
-        <tr><td>2인 객단가</td><td class="pt">15</td><td>5–10만원 = 15 · 4–5만원 또는 10–13만원 = 10 · 3–4만원 또는 13–16만원 = 5 · 그 외 0</td><td>메뉴판 가격 (메인 2 + 공유 1, 음료 제외)</td></tr>
-        <tr><td>토요일 운영 편의</td><td class="pt">15</td><td>예약 가능 8 · 토요일 점심 대기 15분 이하 4 · 역에서 도보 7분 이하 3</td><td>네이버 예약·캐치테이블, 지도 도보 경로</td></tr>
+        <tr><td>토요일 점심 영업</td><td class="pt">11:30–14:00 영업</td><td>네이버 지도 영업시간·브레이크타임</td><td>도착했는데 브레이크타임이면 첫인상이 무너집니다</td></tr>
+        <tr><td>맛 검증</td><td class="pt">카카오 별점 ≥ 3.8</td><td>카카오맵 장소 페이지</td><td>네이버는 대부분 별점을 숨겨 카카오 별점을 씁니다</td></tr>
+        <tr><td>리뷰 표본</td><td class="pt">네이버 방문자 ≥ 100 또는 카카오 ≥ 30</td><td>네이버 '방문자 리뷰', 카카오 '후기'</td><td>리뷰가 적으면 별점이 흔들립니다</td></tr>
+        <tr><td>대화 환경</td><td class="pt">'대화하기 좋아요' 키워드 상위</td><td>네이버 리뷰 키워드 통계</td><td>소개팅은 대화가 메인입니다</td></tr>
+        <tr><td>2인 객단가</td><td class="pt">5–10만원</td><td>메뉴판 (메인 2 + 공유 1, 음료 제외)</td><td>한쪽이 계산해도 부담 없고 성의도 보이는 선</td></tr>
+        <tr><td>예약·대기</td><td class="pt">예약 가능 또는 대기 15분 이하</td><td>네이버 예약·캐치테이블</td><td>토요일 점심 웨이팅은 어색함을 키웁니다</td></tr>
       </tbody>
     </table></div>
-    <p class="src" style="margin:0"><b>등급</b> 80점 이상 강력 추천 · 65–79 추천 · 50–64 무난 · 50 미만 비추천.<br>
-    네이버 지도는 현재 대부분의 장소에서 별점을 보여주지 않아, 네이버는 <b>방문자 리뷰 수</b>와 <b>키워드 통계</b>를 근거로 씁니다. 네이버 별점이 표시되는 곳은 참고값으로만 저장합니다.<br>
-    객단가 구간을 5–10만원으로 둔 이유: 첫 만남 점심은 한쪽이 계산해도 부담이 없고, 성의도 보이는 가격대가 적당합니다.</p>
-  </section>
+  </details>
 </div>
 
-<dialog id="dlg">
-  <form class="edit" id="editForm" method="dialog">
-    <div>
-      <div class="eyebrow">근거 입력</div>
-      <h2 id="dlgTitle">식당</h2>
-      <p class="src" style="margin:4px 0 0">네이버·카카오 지도에서 본 숫자를 그대로 넣으세요. 저장하면 오늘 날짜가 확인일로 기록됩니다.</p>
-    </div>
-    <div class="actions" id="dlgLinks"></div>
-    <fieldset><legend>리뷰·별점 (필수)</legend>
-      <div class="grid2">
-        <label class="f">카카오 별점 (0–5)<input id="f_kakaoRating" type="number" step="0.1" min="0" max="5" inputmode="decimal"></label>
-        <label class="f">카카오 후기 수<input id="f_kakaoReviews" type="number" min="0" inputmode="numeric"></label>
-        <label class="f">네이버 방문자 리뷰 수<input id="f_naverVisitor" type="number" min="0" inputmode="numeric"></label>
-        <label class="f">네이버 블로그 리뷰 수 (참고)<input id="f_naverBlog" type="number" min="0" inputmode="numeric"></label>
-        <label class="f">네이버 별점 (표시될 때만, 참고)<input id="f_naverRating" type="number" step="0.01" min="0" max="5" inputmode="decimal"></label>
-        <label class="f">'대화하기 좋아요' 비율 (%)<input id="f_talkPct" type="number" step="0.1" min="0" max="100" inputmode="decimal"></label>
-      </div>
-    </fieldset>
-    <fieldset><legend>가격·운영</legend>
-      <div class="grid2">
-        <label class="f">2인 객단가 (원)<input id="f_priceFor2" type="number" step="1000" min="0" inputmode="numeric"></label>
-        <label class="f">토요일 점심 영업<select id="f_satLunch"><option value="">미확인</option><option value="yes">영업함</option><option value="no">영업 안 함</option></select></label>
-      </div>
-      <label class="f">객단가 근거 (메뉴와 가격)<input id="f_priceBasis" type="text" placeholder="예: 파스타 24,000 + 리조또 26,000 + 샐러드 18,000"></label>
-      <div class="grid2">
-        <label class="f">토요일 영업시간<input id="f_satHours" type="text" placeholder="예: 11:00–22:00, 브레이크 없음"></label>
-        <label class="f">전화번호<input id="f_phone" type="tel" placeholder="02-0000-0000"></label>
-      </div>
-    </fieldset>
-    <fieldset><legend>대화 환경·편의</legend>
-      <label class="c"><input id="f_spacious" type="checkbox"> 테이블 간격이 넉넉함</label>
-      <label class="c"><input id="f_privateRoom" type="checkbox"> 룸 또는 칸막이 좌석이 있음</label>
-      <label class="c"><input id="f_reserve" type="checkbox"> 토요일 점심 예약 가능 (네이버 예약·캐치테이블·전화)</label>
-      <label class="c"><input id="f_shortWait" type="checkbox"> 토요일 점심 대기 15분 이하</label>
-      <label class="c"><input id="f_nearStation" type="checkbox"> 지하철역에서 도보 7분 이하</label>
-    </fieldset>
-    <label class="f">메모<textarea id="f_note" rows="2"></textarea></label>
-    <div class="formmsg" id="formMsg" role="status"></div>
-    <div class="actions">
-      <button class="btn call" id="saveBtn" type="submit" value="save">저장하고 다시 판정</button>
-      <button class="btn ghost" type="button" id="cancelBtn">닫기</button>
-    </div>
-  </form>
-</dialog>
+<div class="tray" id="tray" hidden><div class="inner"><span id="trayText">비교 0곳</span><button type="button" class="btn" id="cmpOpen">나란히 보기</button><button type="button" class="btn" id="cmpClear">비우기</button></div></div>
+
+<dialog id="cmpDlg"><div class="dlg">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="font-size:18px">나란히 비교</h2><button type="button" class="btn" id="cmpClose">닫기</button></div>
+  <div class="cmpgrid" id="cmpGrid"></div>
+</div></dialog>
+
+<div class="toast" id="toast" hidden role="status"></div>
 
 <script>
 (function(){
-// ─── 후보 식당: 웹에서 출처를 확인한 정보만 넣었습니다. 별점·리뷰 수는 비워 둡니다. ───
-const SEED = [
-  {id:"cheeseroom", name:"치즈룸&테이스팅룸 롯데월드몰", q:"치즈룸 테이스팅룸 롯데월드몰", area:"롯데월드몰", cuisine:"양식 · 와인 다이닝",
-   address:"서울 송파구 올림픽로 300 롯데월드몰 5층", lat:37.5136, lng:127.1036,
-   priceFor2:75000, priceBasis:"2023년 1월 기사 메뉴가 기준 추정: 트러플 파케리 파스타 24,000 + 전복 솥밥 리조또 26,000 + 시금치 플랫브레드 25,000 (음료 제외). 현재 가격 확인 필요",
-   reserve:true, note:"2층 구조. 앱(네이버 예약)으로 예약 가능하다는 기사·후기",
-   sources:[{label:"내일신문 2023 소개 기사",url:"https://www.localnaeil.com/News/View/649144"},{label:"a-ha 소개팅 추천 답변",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
-  {id:"dlifestyle", name:"디라이프스타일키친 롯데월드몰점", q:"디라이프스타일키친 롯데월드몰점", area:"롯데월드몰", cuisine:"양식 · 샐러드 파스타",
-   address:"서울 송파구 올림픽로 300 롯데월드몰", lat:37.5131, lng:127.1047,
-   note:"롯데월드몰 안 데이트 레스토랑으로 자주 소개됨",
-   sources:[{label:"a-ha 소개팅 추천 답변",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"},{label:"다이닝코드 잠실 소개팅장소",url:"https://www.diningcode.com/list.dc?query=%EC%9E%A0%EC%8B%A4+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
-  {id:"samsamsam", name:"쌤쌤쌤 롯데월드몰점", q:"쌤쌤쌤 롯데월드몰점", area:"롯데월드몰", cuisine:"양식 · 파스타 라자냐",
-   address:"서울 송파구 올림픽로 300 롯데월드몰", lat:37.5127, lng:127.1052,
-   sources:[{label:"a-ha 소개팅 추천 답변",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
-  {id:"donghwa", name:"동화고옥 롯데월드몰점", q:"동화고옥 롯데월드몰", area:"롯데월드몰", cuisine:"한식 · 솥밥 냉면",
-   address:"서울 송파구 올림픽로 300 롯데월드몰", lat:37.5139, lng:127.1052,
-   note:"후기상 룸 위주 좌석. 직접 확인 후 '룸/칸막이' 체크",
-   sources:[{label:"다이닝코드 롯데월드몰 소개팅장소",url:"https://www.diningcode.com/list.dc?query=%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
-  {id:"sesang", name:"세상의모든아침 롯데월드몰점", q:"세상의모든아침 잠실", area:"롯데월드몰", cuisine:"양식 · 브런치 파스타",
-   address:"서울 송파구 올림픽로 300 일대", lat:37.5122, lng:127.1040,
-   sources:[{label:"다이닝코드 롯데월드몰 소개팅장소",url:"https://www.diningcode.com/list.dc?query=%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
-  {id:"songchwi", name:"송리단취향", q:"송리단취향", area:"송리단길", cuisine:"양식 · 통베이컨 파스타 오므라이스",
-   address:"서울 송파구 송리단길 일대", lat:37.5083, lng:127.1078,
-   note:"석촌호수 근처 데이트 점심으로 소개됨. 가격대가 다소 높다는 후기",
-   sources:[{label:"다이닝코드 프로필",url:"https://www.diningcode.com/profile.php?rid=Cr1Eq6a9nU20"}]},
-  {id:"pastaimnida", name:"파스타입니다 본점", q:"파스타입니다 송파", area:"송리단길", cuisine:"양식 · 매콤크림파스타",
-   address:"서울 송파구 송리단길 일대", lat:37.5077, lng:127.1071,
-   sources:[{label:"다이닝코드 프로필",url:"https://www.diningcode.com/profile.php?rid=u9SvygKcHBGG"}]},
-  {id:"donburi", name:"돈부리 파스타 송리단길점", q:"돈부리파스타 송리단길점", area:"송리단길", cuisine:"퓨전 · 곱창 파스타",
-   address:"서울 송파구 백제고분로45길 15", lat:37.5071, lng:127.1083,
-   satHours:"점심 11:30–15:00 (요일별 확인 필요)",
-   sources:[{label:"트리플 장소 정보",url:"https://triple.guide/restaurants/97264f41-327d-4964-a39f-9c6e4ebb9988"}]},
-  {id:"alley9", name:"앨리나인", q:"앨리나인 송리단길", area:"송리단길", cuisine:"양식 · 다이닝",
-   address:"서울 송파구 송리단길 일대", lat:37.5088, lng:127.1068,
-   note:"인테리어가 예쁘다는 후기가 많음"},
-  {id:"geumgeum", name:"금금", q:"금금 송리단길", area:"송리단길", cuisine:"퓨전 한식",
-   address:"서울 송파구 송리단길 일대", lat:37.5079, lng:127.1090,
-   note:"주말 웨이팅이 있다는 후기. 캐치테이블 줄서기 여부 확인 필요"}
+// 후보 식당: 웹 기사·후기에서 확인한 정보만 담았습니다. 별점·리뷰 수는 지도 앱 버튼으로 확인합니다.
+const PLACES = [
+  {id:"cheeseroom", name:"치즈룸&테이스팅룸", branch:"롯데월드몰", q:"치즈룸 테이스팅룸 롯데월드몰", area:"롯데월드몰", kind:"양식", cuisine:"와인 다이닝 · 파스타 · 리조또",
+   address:"송파구 올림픽로 300 롯데월드몰 5층", lat:37.5136, lng:127.1036,
+   price:"약 7.5만원 (추정)", priceNote:"2023년 1월 기사 메뉴가: 트러플 파케리 24,000 + 전복 솥밥 리조또 26,000 + 시금치 플랫브레드 25,000",
+   reserve:"네이버 예약 가능 (기사·후기)", vibe:["2층 구조","예약 가능"],
+   note:"치즈룸과 테이스팅룸 메뉴를 함께 주문할 수 있다는 후기가 있습니다.",
+   sources:[{label:"내일신문 2023",url:"https://www.localnaeil.com/News/View/649144"},{label:"a-ha 소개팅 추천",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
+  {id:"dlifestyle", name:"디라이프스타일키친", branch:"롯데월드몰점", q:"디라이프스타일키친 롯데월드몰점", area:"롯데월드몰", kind:"양식", cuisine:"샐러드 · 파스타 · 건강식",
+   address:"송파구 올림픽로 300 롯데월드몰", lat:37.5131, lng:127.1047,
+   vibe:["고급스러운 분위기 (후기)"], note:"롯데월드몰 안 데이트 레스토랑으로 자주 소개됩니다.",
+   sources:[{label:"a-ha 소개팅 추천",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
+  {id:"samsamsam", name:"쌤쌤쌤", branch:"롯데월드몰점", q:"쌤쌤쌤 롯데월드몰점", area:"롯데월드몰", kind:"양식", cuisine:"파스타 · 라자냐",
+   address:"송파구 올림픽로 300 롯데월드몰", lat:37.5127, lng:127.1052,
+   vibe:[], note:"용산 본점으로 알려진 파스타집의 롯데월드몰 지점입니다.",
+   sources:[{label:"a-ha 소개팅 추천",url:"https://www.a-ha.io/questions/4e2f0111c27d8f288a9ac2d7e1a726a1"}]},
+  {id:"donghwa", name:"동화고옥", branch:"롯데월드몰점", q:"동화고옥 롯데월드몰", area:"롯데월드몰", kind:"한식", cuisine:"솥밥 · 냉면 · 한식",
+   address:"송파구 올림픽로 300 롯데월드몰", lat:37.5139, lng:127.1052,
+   vibe:["룸 좌석 위주 (후기)"], note:"조용히 대화하기 좋다는 후기가 있어 한식 선호 상대에게 맞습니다.",
+   sources:[{label:"다이닝코드 롯데월드몰 소개팅",url:"https://www.diningcode.com/list.dc?query=%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
+  {id:"sesang", name:"세상의모든아침", branch:"롯데월드몰점", q:"세상의모든아침 잠실", area:"롯데월드몰", kind:"양식", cuisine:"브런치 · 파스타",
+   address:"송파구 올림픽로 300 일대", lat:37.5122, lng:127.1040,
+   vibe:[], note:"브런치 메뉴가 있어 점심 시간대에 부담이 적습니다.",
+   sources:[{label:"다이닝코드 롯데월드몰 소개팅",url:"https://www.diningcode.com/list.dc?query=%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0+%EC%86%8C%EA%B0%9C%ED%8C%85%EC%9E%A5%EC%86%8C"}]},
+  {id:"songchwi", name:"송리단취향", branch:"", q:"송리단취향", area:"송리단길", kind:"양식", cuisine:"통베이컨 파스타 · 오므라이스",
+   address:"송파구 송리단길 일대", lat:37.5083, lng:127.1078,
+   vibe:["석촌호수 도보권"], note:"석촌호수 데이트 점심으로 소개되며, 가격대가 다소 있다는 후기가 있습니다.",
+   sources:[{label:"다이닝코드",url:"https://www.diningcode.com/profile.php?rid=Cr1Eq6a9nU20"}]},
+  {id:"pastaimnida", name:"파스타입니다", branch:"본점", q:"파스타입니다 송파", area:"송리단길", kind:"양식", cuisine:"매콤크림파스타",
+   address:"송파구 송리단길 일대", lat:37.5077, lng:127.1071,
+   vibe:["석촌호수 도보권"], note:"데이트 장소로 쓸 만하다는 리뷰가 있습니다.",
+   sources:[{label:"다이닝코드",url:"https://www.diningcode.com/profile.php?rid=u9SvygKcHBGG"}]},
+  {id:"donburi", name:"돈부리 파스타", branch:"송리단길점", q:"돈부리파스타 송리단길점", area:"송리단길", kind:"퓨전", cuisine:"곱창 파스타 · 퓨전",
+   address:"송파구 백제고분로45길 15", lat:37.5071, lng:127.1083,
+   hours:"점심 11:30–15:00", vibe:["석촌역 도보권"], note:"메뉴가 개성 있어 대화 소재가 됩니다. 곱창 메뉴는 상대 취향을 먼저 확인하세요.",
+   sources:[{label:"트리플",url:"https://triple.guide/restaurants/97264f41-327d-4964-a39f-9c6e4ebb9988"}]},
+  {id:"alley9", name:"앨리나인", branch:"", q:"앨리나인 송리단길", area:"송리단길", kind:"양식", cuisine:"양식 다이닝",
+   address:"송파구 송리단길 일대", lat:37.5088, lng:127.1068,
+   vibe:["인테리어 호평 (후기)"], note:"데이트·모임 모두 좋다는 후기가 있습니다."},
+  {id:"geumgeum", name:"금금", branch:"", q:"금금 송리단길", area:"송리단길", kind:"한식", cuisine:"퓨전 한식",
+   address:"송파구 송리단길 일대", lat:37.5079, lng:127.1090,
+   vibe:["주말 웨이팅 (후기)"], note:"웨이팅이 있다는 후기가 있어 줄서기 앱 지원 여부를 미리 확인하세요."}
 ];
+const CHECKS=[["sat","토요일 11:30–14:00 영업 (브레이크타임 확인)"],["kakao","카카오 별점 3.8 이상"],["reviews","네이버 방문자 리뷰 100개 이상"],["talk","'대화하기 좋아요' 키워드 상위"],["price","2인 5–10만원"],["reserve","예약 가능 또는 대기 15분 이하"]];
 
-const FIELDS = ["kakaoRating","kakaoReviews","naverVisitor","naverBlog","naverRating","talkPct","priceFor2","priceBasis","satLunch","satHours","phone","spacious","privateRoom","reserve","shortWait","nearStation","note"];
-const NUM = new Set(["kakaoRating","kakaoReviews","naverVisitor","naverBlog","naverRating","talkPct","priceFor2"]);
-const BOOL = new Set(["spacious","privateRoom","reserve","shortWait","nearStation"]);
+// 상태 (브라우저에만 저장)
+const store={get(k,d){try{const v=localStorage.getItem("jlg2-"+k);return v?JSON.parse(v):d}catch(_){return d}},set(k,v){try{localStorage.setItem("jlg2-"+k,JSON.stringify(v))}catch(_){}}};
+let favs=new Set(store.get("favs",[])), ticks=store.get("ticks",{}), cmp=[];
+let view="slide", area="all", kinds=new Set(), favOnly=false, idx=0, playing=false, timer=null, progT=null;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-let checks = {};      // id -> 저장된 확인 데이터
-let mode = "local";   // "db" | "local"
-let db = null, me = null;
-let areaFilter = "all", onlyJudged = false;
-
-// ─── 판정 로직 ───
-const clamp = (x,a=0,b=1)=>Math.max(a,Math.min(b,x));
-const logScale = (n,lo,hi)=> n==null?0:clamp((Math.log10(Math.max(n,1))-Math.log10(lo))/(Math.log10(hi)-Math.log10(lo)));
-function pricePts(p){
-  if(p==null) return 0;
-  const m=p/10000;
-  if(m>=5&&m<=10) return 15;
-  if((m>=4&&m<5)||(m>10&&m<=13)) return 10;
-  if((m>=3&&m<4)||(m>13&&m<=16)) return 5;
-  return 0;
-}
-function evaluate(p){
-  const why=[], missing=[];
-  if(p.satLunch==null) missing.push("토요일 점심 영업 여부");
-  if(p.kakaoRating==null) missing.push("카카오 별점");
-  if(p.kakaoReviews==null) missing.push("카카오 후기 수");
-  if(p.naverVisitor==null) missing.push("네이버 방문자 리뷰 수");
-  if(p.priceFor2==null) missing.push("2인 객단가");
-
-  const parts={
-    taste: p.kakaoRating==null?0: clamp((p.kakaoRating-3.5)/1.0)*30,
-    pop: logScale(p.naverVisitor,100,3000)*10 + logScale(p.kakaoReviews,20,300)*10,
-    talk: (p.talkPct>=10?8:p.talkPct>=5?4:0) + (p.spacious?6:0) + (p.privateRoom?6:0),
-    price: pricePts(p.priceFor2),
-    ops: (p.reserve?8:0)+(p.shortWait?4:0)+(p.nearStation?3:0)
-  };
-  const total=Math.round(Object.values(parts).reduce((a,b)=>a+b,0));
-
-  let status, label;
-  if(p.satLunch===false){status="out";label="탈락";why.push({t:"flag",s:"토요일 점심 영업을 하지 않음"});}
-  else if(p.kakaoRating!=null&&p.kakaoRating<3.8){status="out";label="탈락";why.push({t:"flag",s:`카카오 별점 ${p.kakaoRating.toFixed(1)}: 기준 3.8 미만`});}
-  else if(p.kakaoReviews!=null&&p.naverVisitor!=null&&p.kakaoReviews<30&&p.naverVisitor<100){status="out";label="탈락";why.push({t:"flag",s:"리뷰 표본 부족 (카카오 30개, 네이버 100개 미만)"});}
-  else if(missing.length){status="pending";label="판정 보류";}
-  else if(total>=80){status="strong";label="강력 추천";}
-  else if(total>=65){status="ok";label="추천";}
-  else if(total>=50){status="meh";label="무난";}
-  else {status="out";label="비추천";}
-
-  if(missing.length) why.push({t:"miss",s:"필요한 근거: "+missing.join(", ")});
-  if(p.kakaoRating!=null) why.push({t:"",s:`카카오 별점 ${p.kakaoRating.toFixed(1)} → 맛·만족도 ${parts.taste.toFixed(1)}/30`});
-  if(p.naverVisitor!=null||p.kakaoReviews!=null) why.push({t:"",s:`네이버 방문자 ${fmtN(p.naverVisitor)}개 · 카카오 후기 ${fmtN(p.kakaoReviews)}개 → 인기 ${parts.pop.toFixed(1)}/20`});
-  if(p.priceFor2!=null) why.push({t:"",s:`2인 ${fmtWon(p.priceFor2)} → 객단가 ${parts.price}/15${p.priceFor2>=50000&&p.priceFor2<=100000?" (적정 구간)":""}`});
-  if(p.talkPct!=null) why.push({t:"",s:`'대화하기 좋아요' ${p.talkPct}%`});
-  return {total,parts,status,label,why,missing};
-}
-
-// ─── 데이터 병합 ───
-function merged(){
-  return SEED.map(s=>{
-    const c=checks[s.id]||{};
-    const o={...s};
-    FIELDS.forEach(f=>{ if(c[f]!==undefined && c[f]!==null && c[f]!=="") o[f]=c[f]; else if(o[f]===undefined) o[f]=null; });
-    if(c.satLunch===false) o.satLunch=false;
-    BOOL.forEach(f=>{ if(c[f]===false) o[f]=false; });
-    o.checkedAt=c.checkedAt||null;
-    return o;
-  });
-}
-
-// ─── 렌더 ───
-const fmtN=n=>n==null?"–":Number(n).toLocaleString("ko-KR");
-const fmtWon=n=>n==null?"–":(n>=10000?(n/10000).toLocaleString("ko-KR",{maximumFractionDigits:1})+"만원":n.toLocaleString("ko-KR")+"원");
-const naverUrl=p=>"https://map.naver.com/p/search/"+encodeURIComponent(p.q||p.name);
-const kakaoUrl=p=>"https://map.kakao.com/?q="+encodeURIComponent(p.q||p.name);
-const badgeCls={strong:"b-strong",ok:"b-ok",meh:"b-meh",out:"b-out",pending:"b-pending"};
-const order={strong:0,ok:1,meh:2,pending:3,out:4};
+const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const naverUrl=p=>"https://map.naver.com/p/search/"+encodeURIComponent(p.q);
+const kakaoUrl=p=>"https://map.kakao.com/?q="+encodeURIComponent(p.q);
+const heart='<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>';
+function visible(){return PLACES.filter(p=>(area==="all"||p.area===area)&&(!kinds.size||kinds.has(p.kind))&&(!favOnly||favs.has(p.id)))}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,1600)}
 
-function fact(k,v,sub){
-  const unk=v==null||v==="";
-  return `<div class="fact"><div class="k">${k}</div><div class="v${unk?" unk":""}">${unk?"미확인":esc(v)}</div>${sub?`<div class="s">${esc(sub)}</div>`:""}</div>`;
-}
-function bar(lbl,v,max){
-  return `<div class="brow"><span class="lbl">${lbl}</span><span class="track"><i style="width:${(v/max*100).toFixed(0)}%"></i></span><span class="pts">${v.toFixed(v%1?1:0)}/${max}</span></div>`;
-}
-
-function render(){
-  const rows=merged().map(p=>({p,e:evaluate(p)}))
-    .filter(r=>areaFilter==="all"||r.p.area===areaFilter)
-    .filter(r=>!onlyJudged||r.e.status!=="pending")
-    .sort((a,b)=>order[a.e.status]-order[b.e.status]||b.e.total-a.e.total);
-  const list=document.getElementById("list");
-  if(!rows.length){list.innerHTML=`<div class="empty">아직 판정된 식당이 없습니다. 식당 카드의 <b>근거 입력</b>에서 네이버·카카오 숫자를 넣으면 여기에 순위가 나옵니다.</div>`;drawMap([]);return;}
-  let rank=0;
-  list.innerHTML=rows.map(({p,e})=>{
-    const judged=e.status!=="pending";
-    if(judged&&e.status!=="out") rank++;
-    const scoreHtml=judged?`<div class="n">${e.total}<small>/100</small></div>`:`<div class="n" style="color:var(--muted)">–</div>`;
-    const phone=p.phone?`<a class="btn call" href="tel:${esc(p.phone.replace(/[^0-9+]/g,""))}">전화 걸기</a><span class="phone">${esc(p.phone)}</span>`
-                       :`<a class="btn call" href="${naverUrl(p)}" target="_blank" rel="noopener" title="번호를 아직 입력하지 않아 네이버 지도의 전화 버튼으로 연결합니다">전화 (네이버에서)</a>`;
-    return `<article class="card" id="c-${p.id}">
-      <div class="top">
-        <div class="rank">${judged&&e.status!=="out"?String(rank).padStart(2,"0"):"·"}</div>
-        <div style="min-width:0"><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.area)} · ${esc(p.cuisine)}</div><div class="meta">${esc(p.address)}</div></div>
-        <div class="score">${scoreHtml}<span class="badge ${badgeCls[e.status]}">${e.label}</span></div>
+// ─── 슬라이드 ───
+function slideHTML(p,i,n){
+  const t=ticks[p.id]||{};
+  const done=CHECKS.filter(([k])=>t[k]).length;
+  return `<div class="slide" role="group" aria-roledescription="slide" aria-label="${i+1} / ${n}: ${esc(p.name)}" data-id="${p.id}">
+   <article class="card">
+    <div class="cover" data-area="${p.area}">
+      <canvas data-seed="${p.id}" aria-hidden="true"></canvas>
+      <button type="button" class="fav" data-fav="${p.id}" aria-pressed="${favs.has(p.id)}" aria-label="찜하기">${heart}</button>
+      <span class="num">${String(i+1).padStart(2,"0")} / ${String(n).padStart(2,"0")}</span>
+      <div class="tagrow"><span class="tag ${p.area==="롯데월드몰"?"area-mall":"area-alley"}">${p.area}</span><span class="tag">${p.kind}</span>${p.vibe.map(v=>`<span class="tag">${esc(v)}</span>`).join("")}</div>
+      <h2>${esc(p.name)}${p.branch?` <span style="font-size:.55em;color:var(--muted)">${esc(p.branch)}</span>`:""}</h2>
+      <div class="note">${esc(p.cuisine)}</div>
+    </div>
+    <div class="body">
+      <div class="kv">
+        <div><div class="k">2인 객단가</div><div class="v${p.price?"":" unk"}">${p.price?esc(p.price):"메뉴판 확인"}</div></div>
+        <div><div class="k">토요일 점심</div><div class="v${p.hours?"":" unk"}">${p.hours?esc(p.hours):"지도에서 확인"}</div></div>
+        <div><div class="k">체크 통과</div><div class="v">${done} / ${CHECKS.length}</div></div>
       </div>
-      <div class="facts">
-        ${fact("카카오 별점",p.kakaoRating!=null?p.kakaoRating.toFixed(1)+" / 5":null,p.kakaoReviews!=null?"후기 "+fmtN(p.kakaoReviews)+"개":null)}
-        ${fact("네이버 방문자 리뷰",p.naverVisitor!=null?fmtN(p.naverVisitor):null,[p.naverBlog!=null?"블로그 "+fmtN(p.naverBlog):"",p.naverRating!=null?"별점 "+p.naverRating:""].filter(Boolean).join(" · ")||null)}
-        ${fact("2인 객단가",p.priceFor2!=null?fmtWon(p.priceFor2):null,p.priceBasis&&p.priceBasis.includes("추정")?"추정":null)}
-        ${fact("토요일 점심",p.satLunch===true?"영업":p.satLunch===false?"휴무":null,p.satHours)}
-      </div>
-      ${judged?`<div class="bars">${bar("맛·만족도",e.parts.taste,30)}${bar("검증된 인기",e.parts.pop,20)}${bar("대화 환경",e.parts.talk,20)}${bar("2인 객단가",e.parts.price,15)}${bar("토요일 편의",e.parts.ops,15)}</div>`:""}
-      <ul class="why">${e.why.map(w=>`<li class="${w.t}">${esc(w.s)}</li>`).join("")}${p.priceBasis?`<li>객단가 근거: ${esc(p.priceBasis)}</li>`:""}${p.note?`<li>${esc(p.note)}</li>`:""}</ul>
+      <ul class="check" aria-label="소개팅 체크리스트">${CHECKS.map(([k,l])=>`<li><input type="checkbox" id="ck-${p.id}-${k}" data-tick="${p.id}:${k}" ${t[k]?"checked":""}><label for="ck-${p.id}-${k}">${l}</label></li>`).join("")}</ul>
+      ${p.priceNote?`<p class="note">객단가 근거: ${esc(p.priceNote)}</p>`:""}
+      ${p.note?`<p class="note">${esc(p.note)}</p>`:""}
       <div class="actions">
         <a class="btn naver" href="${naverUrl(p)}" target="_blank" rel="noopener">네이버 지도</a>
         <a class="btn kakao" href="${kakaoUrl(p)}" target="_blank" rel="noopener">카카오맵</a>
-        ${phone}
-        <button class="btn ghost" type="button" data-edit="${p.id}">근거 입력</button>
+        <a class="btn" href="${naverUrl(p)}" target="_blank" rel="noopener" title="네이버 장소 페이지의 전화 버튼으로 연결됩니다">전화 (네이버)</a>
+        <button type="button" class="btn" data-cmp="${p.id}" aria-pressed="${cmp.includes(p.id)}">${cmp.includes(p.id)?"비교에서 빼기":"비교에 담기"}</button>
       </div>
-      <div class="src">${p.checkedAt?`<span class="checked">숫자 확인일 ${esc(p.checkedAt)}</span> · `:""}${(p.sources||[]).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join(" · ")||"출처 링크 없음"}</div>
-    </article>`;
-  }).join("");
-  drawMap(rows);
+      <div class="src">${esc(p.address)}${(p.sources||[]).length?" · 출처 "+p.sources.map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join(" · "):""}</div>
+    </div>
+   </article></div>`;
 }
-
-// ─── 지도 (개략도) ───
-const B={latMin:37.5040,latMax:37.5160,lngMin:127.0930,lngMax:127.1150};
-const W=720,H=440;
-const X=lng=>(lng-B.lngMin)/(B.lngMax-B.lngMin)*W;
-const Y=lat=>(B.latMax-lat)/(B.latMax-B.latMin)*H;
-function drawMap(rows){
-  const pinColor={strong:"var(--good)",ok:"var(--lake)",meh:"var(--warn)",out:"var(--bad)",pending:"var(--muted)"};
-  const st=(lat,lng,name)=>`<g><rect x="${X(lng)-6}" y="${Y(lat)-6}" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--fg)" stroke-width="2"/><text x="${X(lng)+10}" y="${Y(lat)+4}" font-size="13" font-weight="600" fill="var(--fg)">${name}</text></g>`;
-  let rank=0;
-  const pins=rows.map(({p,e})=>{
-    const ok=e.status!=="pending"&&e.status!=="out"; if(ok) rank++;
-    const x=X(p.lng),y=Y(p.lat);
-    return `<g class="pin" tabindex="0" role="button" aria-label="${esc(p.name)} ${e.label}" data-go="${p.id}">
-      <circle cx="${x}" cy="${y}" r="11" fill="${pinColor[e.status]}" stroke="var(--surface)" stroke-width="2"/>
-      <text x="${x}" y="${y+4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--surface)" font-family="IBM Plex Mono,monospace">${ok?rank:"·"}</text>
-      <title>${esc(p.name)} · ${e.label}</title></g>`;
-  }).join("");
-  document.getElementById("map").innerHTML=`
-    <rect width="${W}" height="${H}" fill="var(--bg)"/>
-    <path d="M0 ${Y(37.5137)} L${W} ${Y(37.5133)}" stroke="var(--road)" stroke-width="14" fill="none"/>
-    <text x="14" y="${Y(37.5137)-12}" font-size="12" fill="var(--muted)">올림픽로</text>
-    <path d="M${X(127.1005)} 0 L${X(127.1075)} ${H}" stroke="var(--road)" stroke-width="12" fill="none"/>
-    <text x="${X(127.1060)+10}" y="${H-14}" font-size="12" fill="var(--muted)">송파대로</text>
-    <path d="M${X(127.0930)} ${Y(37.5058)} L${W} ${Y(37.5060)}" stroke="var(--road)" stroke-width="10" fill="none"/>
-    <text x="14" y="${Y(37.5058)-10}" font-size="12" fill="var(--muted)">백제고분로</text>
-    <ellipse cx="${X(127.0985)}" cy="${Y(37.5093)}" rx="92" ry="44" fill="var(--lake-soft)" stroke="var(--lake)" stroke-width="1.5"/>
-    <text x="${X(127.0985)}" y="${Y(37.5093)+5}" text-anchor="middle" font-size="13" fill="var(--lake)">석촌호수 서호</text>
-    <ellipse cx="${X(127.1052)}" cy="${Y(37.5098)}" rx="64" ry="38" fill="var(--lake-soft)" stroke="var(--lake)" stroke-width="1.5"/>
-    <text x="${X(127.1052)}" y="${Y(37.5098)+5}" text-anchor="middle" font-size="13" fill="var(--lake)">동호</text>
-    <rect x="${X(127.1030)}" y="${Y(37.5143)}" width="${X(127.1060)-X(127.1030)}" height="${Y(37.5118)-Y(37.5143)}" rx="6" fill="var(--blossom-soft)" stroke="var(--blossom)" stroke-dasharray="4 3"/>
-    <text x="${X(127.1062)+6}" y="${Y(37.5145)-6}" font-size="12" fill="var(--blossom)" font-weight="600">롯데월드몰·타워</text>
-    <rect x="${X(127.1060)}" y="${Y(37.5094)}" width="${X(127.1098)-X(127.1060)}" height="${Y(37.5064)-Y(37.5094)}" rx="6" fill="none" stroke="var(--blossom)" stroke-dasharray="4 3"/>
-    <text x="${X(127.1100)+6}" y="${Y(37.5080)}" font-size="12" fill="var(--blossom)" font-weight="600">송리단길</text>
-    ${st(37.5133,127.1001,"잠실역 2·8호선")}
-    ${st(37.5054,127.1069,"석촌역 8·9호선")}
-    ${st(37.5103,127.1122,"송파나루역 9호선")}
-    ${pins}
-    <g transform="translate(${W-34},26)"><path d="M0 12 L6 -6 L12 12 L6 7 Z" fill="var(--fg)"/><text x="6" y="26" text-anchor="middle" font-size="11" fill="var(--muted)">N</text></g>`;
+function renderSlides(){
+  const list=visible(); const n=list.length;
+  if(idx>=n) idx=Math.max(0,n-1);
+  $("#track").innerHTML=n?list.map((p,i)=>slideHTML(p,i,n)).join(""):`<div class="slide"><div class="empty">조건에 맞는 식당이 없습니다. 필터를 풀어 보세요.</div></div>`;
+  $("#dots").innerHTML=list.map((p,i)=>`<button type="button" role="tab" aria-label="${esc(p.name)}" data-dot="${i}"></button>`).join("");
+  document.querySelectorAll(".cover canvas").forEach(drawCover);
+  go(idx,false);
 }
-
-// ─── 편집 다이얼로그 ───
-const dlg=document.getElementById("dlg"); let editing=null;
-function openEdit(id){
-  const p=merged().find(x=>x.id===id); if(!p) return; editing=id;
-  document.getElementById("dlgTitle").textContent=p.name;
-  document.getElementById("dlgLinks").innerHTML=`<a class="btn naver" href="${naverUrl(p)}" target="_blank" rel="noopener">네이버 지도에서 보기</a><a class="btn kakao" href="${kakaoUrl(p)}" target="_blank" rel="noopener">카카오맵에서 보기</a>`;
-  FIELDS.forEach(f=>{
-    const el=document.getElementById("f_"+f); if(!el) return;
-    if(BOOL.has(f)) el.checked=!!p[f];
-    else if(f==="satLunch") el.value=p.satLunch===true?"yes":p.satLunch===false?"no":"";
-    else el.value=p[f]??"";
-  });
-  document.getElementById("formMsg").textContent=mode==="db"?"저장하면 이 페이지를 여는 모든 사람에게 반영됩니다.":"이 브라우저에만 저장됩니다.";
-  if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open","");
+function go(i,animate=true){
+  const n=visible().length; if(!n){$("#counter").textContent="00 / 00";drawMaps();return}
+  idx=(i+n)%n;
+  const tr=$("#track"); if(!animate) tr.classList.add("dragging");
+  tr.style.transform=`translateX(${-idx*100}%)`;
+  if(!animate) requestAnimationFrame(()=>tr.classList.remove("dragging"));
+  document.querySelectorAll("#dots button").forEach((d,j)=>d.setAttribute("aria-current",String(j===idx)));
+  document.querySelectorAll(".slide").forEach((s,j)=>{s.setAttribute("aria-hidden",String(j!==idx));s.querySelectorAll("a,button,input").forEach(el=>el.tabIndex=j===idx?0:-1)});
+  $("#counter").textContent=String(idx+1).padStart(2,"0")+" / "+String(n).padStart(2,"0");
+  drawMaps(); if(playing) restartProgress();
 }
-document.getElementById("cancelBtn").onclick=()=>dlg.close();
-document.getElementById("editForm").addEventListener("submit",async ev=>{
-  ev.preventDefault(); if(!editing) return;
-  const data={};
-  for(const f of FIELDS){
-    const el=document.getElementById("f_"+f); if(!el) continue;
-    if(BOOL.has(f)) data[f]=el.checked;
-    else if(f==="satLunch") data[f]=el.value==="yes"?true:el.value==="no"?false:null;
-    else if(NUM.has(f)) data[f]=el.value===""?null:Number(el.value);
-    else data[f]=el.value.trim()||null;
+// 커버 패턴: 식당마다 다른 물결(석촌호수) 또는 격자(몰) 무늬
+function drawCover(cv){
+  const r=cv.getBoundingClientRect(); const dpr=Math.min(2,devicePixelRatio||1);
+  cv.width=Math.max(1,r.width*dpr); cv.height=Math.max(1,r.height*dpr);
+  const c=cv.getContext("2d"); c.scale(dpr,dpr);
+  const id=cv.dataset.seed; let s=0; for(const ch of id) s=(s*31+ch.charCodeAt(0))>>>0;
+  const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+  const p=PLACES.find(x=>x.id===id); const col=getComputedStyle(document.documentElement).getPropertyValue(p.area==="롯데월드몰"?"--mall":"--alley").trim();
+  c.strokeStyle=col; c.globalAlpha=.18; c.lineWidth=1.4;
+  if(p.area==="롯데월드몰"){
+    const g=14+rnd()*10; for(let x=r.width*.45;x<r.width+40;x+=g){c.beginPath();c.moveTo(x,0);c.lineTo(x-40,r.height);c.stroke()}
+    c.globalAlpha=.12; c.fillStyle=col; c.beginPath(); c.moveTo(r.width*.82,r.height); c.lineTo(r.width*.86,8); c.lineTo(r.width*.9,r.height); c.fill();
+  } else {
+    const amp=4+rnd()*6, f=.02+rnd()*.02;
+    for(let y=20;y<r.height;y+=12){c.beginPath();for(let x=r.width*.35;x<=r.width;x+=6){c.lineTo(x,y+Math.sin(x*f+y*.3)*amp)}c.stroke()}
   }
-  if(data.kakaoRating!=null&&(data.kakaoRating<0||data.kakaoRating>5)){document.getElementById("formMsg").textContent="카카오 별점은 0에서 5 사이로 입력하세요.";return;}
-  data.checkedAt=new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});
-  const msg=document.getElementById("formMsg"); msg.textContent="저장 중…";
-  try{
-    if(mode==="db"){ await db.doc("checks/"+editing).set({...data,checkedBy:me||null}); }
-    else { checks[editing]=data; try{localStorage.setItem("jlg-checks",JSON.stringify(checks));}catch(_){} render(); }
-    const id=editing; dlg.close(); setTimeout(()=>flash(id),50);
-  }catch(err){ msg.textContent="저장하지 못했습니다. 이 페이지의 편집 권한이 있는지 확인하세요. ("+(err&&err.code||"오류")+")"; }
-});
+}
 
-function flash(id){const el=document.getElementById("c-"+id); if(!el) return; el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1400);}
+// 스와이프 / 마우스 끌기 / 휠
+(function(){
+  const st=$("#stage"), tr=$("#track"); let x0=null,y0=0,dx=0,w=1,lock=null;
+  st.addEventListener("pointerdown",e=>{if(e.target.closest("a,button,input,label"))return;x0=e.clientX;y0=e.clientY;dx=0;w=st.clientWidth;lock=null;tr.classList.add("dragging");st.setPointerCapture(e.pointerId)});
+  st.addEventListener("pointermove",e=>{if(x0==null)return;dx=e.clientX-x0;const dy=e.clientY-y0;if(lock==null&&(Math.abs(dx)>6||Math.abs(dy)>6))lock=Math.abs(dx)>Math.abs(dy)?"x":"y";if(lock!=="x")return;tr.style.transform=`translateX(calc(${-idx*100}% + ${dx}px))`});
+  const end=()=>{if(x0==null)return;tr.classList.remove("dragging");if(lock==="x"&&Math.abs(dx)>w*.18){stopPlay();go(idx+(dx<0?1:-1))}else go(idx);x0=null};
+  st.addEventListener("pointerup",end);st.addEventListener("pointercancel",end);
+  let wheelLock=0;
+  st.addEventListener("wheel",e=>{if(Math.abs(e.deltaX)<Math.abs(e.deltaY)||Math.abs(e.deltaX)<20)return;e.preventDefault();const now=Date.now();if(now-wheelLock<500)return;wheelLock=now;go(idx+(e.deltaX>0?1:-1))},{passive:false});
+  // 더블탭 찜
+  let lastTap=0; st.addEventListener("pointerup",e=>{if(e.target.closest("a,button,input,label"))return;const now=Date.now();if(now-lastTap<300&&Math.abs(dx)<6){const p=visible()[idx];if(p)toggleFav(p.id)}lastTap=now});
+})();
+
+// 자동 넘김
+function restartProgress(){const pr=$("#prog");pr.style.transition="none";pr.style.width="0";requestAnimationFrame(()=>{requestAnimationFrame(()=>{pr.style.transition=reduce?"none":"width 4s linear";pr.style.width="100%"})})}
+function startPlay(){playing=true;$("#playBtn").setAttribute("aria-pressed","true");$("#playBtn").textContent="자동 넘김 멈춤";restartProgress();clearInterval(timer);timer=setInterval(()=>go(idx+1),4000)}
+function stopPlay(){if(!playing)return;playing=false;clearInterval(timer);$("#playBtn").setAttribute("aria-pressed","false");$("#playBtn").textContent="자동 넘김 시작";const pr=$("#prog");pr.style.transition="none";pr.style.width="0"}
+$("#playBtn").onclick=()=>playing?stopPlay():startPlay();
+$("#stage").addEventListener("mouseenter",()=>{if(playing)clearInterval(timer)});
+$("#stage").addEventListener("mouseleave",()=>{if(playing){clearInterval(timer);timer=setInterval(()=>go(idx+1),4000);restartProgress()}});
+
+// ─── 목록 ───
+function renderList(){
+  const list=visible();
+  $("#grid").innerHTML=list.length?list.map(p=>`<div class="mini" role="button" tabindex="0" data-open="${p.id}" aria-label="${esc(p.name)} 슬라이드로 보기">
+    <div class="mc" data-area="${p.area}"><span class="tag ${p.area==="롯데월드몰"?"area-mall":"area-alley"}" style="justify-self:start">${p.area} · ${p.kind}</span><div class="mn">${esc(p.name)}</div></div>
+    <button type="button" class="fav" data-fav="${p.id}" aria-pressed="${favs.has(p.id)}" aria-label="찜하기">${heart}</button>
+    <div class="mb"><span>${esc(p.cuisine)}</span><span>${p.price?esc(p.price):"객단가 메뉴판 확인"} · 체크 ${CHECKS.filter(([k])=>(ticks[p.id]||{})[k]).length}/${CHECKS.length}</span>
+      <label class="cmp"><input type="checkbox" data-cmpbox="${p.id}" ${cmp.includes(p.id)?"checked":""}> 비교에 담기</label></div>
+  </div>`).join(""):`<div class="empty">조건에 맞는 식당이 없습니다.</div>`;
+}
+
+// ─── 지도 ───
+const B={latMin:37.5040,latMax:37.5160,lngMin:127.0930,lngMax:127.1150},W=720,H=440;
+const X=l=>(l-B.lngMin)/(B.lngMax-B.lngMin)*W, Y=l=>(B.latMax-l)/(B.latMax-B.latMin)*H;
+let mapSel=null;
+function baseMap(){
+  const st=(lat,lng,name)=>`<rect x="${X(lng)-6}" y="${Y(lat)-6}" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--fg)" stroke-width="2"/><text x="${X(lng)+10}" y="${Y(lat)+4}" font-size="13" font-weight="600" fill="var(--fg)">${name}</text>`;
+  return `<rect width="${W}" height="${H}" fill="var(--bg)"/>
+  <path d="M0 ${Y(37.5137)} L${W} ${Y(37.5133)}" stroke="var(--road)" stroke-width="14" fill="none"/><text x="14" y="${Y(37.5137)-12}" font-size="12" fill="var(--muted)">올림픽로</text>
+  <path d="M${X(127.1005)} 0 L${X(127.1075)} ${H}" stroke="var(--road)" stroke-width="12" fill="none"/><text x="${X(127.1060)+10}" y="${H-14}" font-size="12" fill="var(--muted)">송파대로</text>
+  <path d="M0 ${Y(37.5058)} L${W} ${Y(37.5060)}" stroke="var(--road)" stroke-width="10" fill="none"/><text x="14" y="${Y(37.5058)-10}" font-size="12" fill="var(--muted)">백제고분로</text>
+  <ellipse cx="${X(127.0985)}" cy="${Y(37.5093)}" rx="92" ry="44" fill="var(--lake-soft)" stroke="var(--lake)" stroke-width="1.5"/><text x="${X(127.0985)}" y="${Y(37.5093)+5}" text-anchor="middle" font-size="13" fill="var(--lake)">석촌호수 서호</text>
+  <ellipse cx="${X(127.1052)}" cy="${Y(37.5098)}" rx="64" ry="38" fill="var(--lake-soft)" stroke="var(--lake)" stroke-width="1.5"/><text x="${X(127.1052)}" y="${Y(37.5098)+5}" text-anchor="middle" font-size="13" fill="var(--lake)">동호</text>
+  <rect x="${X(127.1030)}" y="${Y(37.5143)}" width="${X(127.1060)-X(127.1030)}" height="${Y(37.5118)-Y(37.5143)}" rx="6" fill="var(--mall-soft)" stroke="var(--mall)" stroke-dasharray="4 3"/><text x="${X(127.1062)+6}" y="${Y(37.5145)-6}" font-size="12" fill="var(--mall)" font-weight="600">롯데월드몰·타워</text>
+  <rect x="${X(127.1060)}" y="${Y(37.5094)}" width="${X(127.1098)-X(127.1060)}" height="${Y(37.5064)-Y(37.5094)}" rx="6" fill="var(--alley-soft)" stroke="var(--alley)" stroke-dasharray="4 3"/><text x="${X(127.1100)+6}" y="${Y(37.5080)}" font-size="12" fill="var(--alley)" font-weight="600">송리단길</text>
+  ${st(37.5133,127.1001,"잠실역")}${st(37.5054,127.1069,"석촌역")}${st(37.5103,127.1122,"송파나루역")}
+  <g transform="translate(${W-34},26)"><path d="M0 12 L6 -6 L12 12 L6 7 Z" fill="var(--fg)"/><text x="6" y="26" text-anchor="middle" font-size="11" fill="var(--muted)">N</text></g>`;
+}
+function pins(activeId){
+  return visible().map((p,i)=>{const a=p.id===activeId,c=p.area==="롯데월드몰"?"var(--mall)":"var(--alley)";
+    return `<g class="pin${a?" active":""}" tabindex="0" role="button" data-pin="${p.id}" aria-label="${esc(p.name)}">
+      ${a?`<circle cx="${X(p.lng)}" cy="${Y(p.lat)}" r="22" fill="var(--blossom)" opacity=".22"/>`:""}
+      <circle class="dot" cx="${X(p.lng)}" cy="${Y(p.lat)}" r="11" fill="${a?"var(--blossom)":c}" stroke="var(--surface)" stroke-width="2"/>
+      <text x="${X(p.lng)}" y="${Y(p.lat)+4}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace" pointer-events="none">${favs.has(p.id)?"♥":i+1}</text>
+      <title>${esc(p.name)}</title></g>`}).join("");
+}
+function drawMaps(){
+  const cur=visible()[idx];
+  $("#miniMap").innerHTML=baseMap()+pins(cur&&cur.id);
+  const sel=mapSel&&visible().find(p=>p.id===mapSel)?mapSel:(cur&&cur.id);
+  $("#bigMap").innerHTML=baseMap()+pins(sel);
+  const p=PLACES.find(x=>x.id===sel);
+  $("#peek").innerHTML=p?`<div class="eyebrow">${p.area} · ${p.kind}</div><h2 style="font-family:var(--font-display);font-weight:400;font-size:24px">${esc(p.name)} <span style="font-size:.6em;color:var(--muted)">${esc(p.branch)}</span></h2>
+    <div class="note">${esc(p.cuisine)}<br>${esc(p.address)}</div>${p.note?`<p class="note">${esc(p.note)}</p>`:""}
+    <div class="actions"><a class="btn naver" href="${naverUrl(p)}" target="_blank" rel="noopener">네이버 지도</a><a class="btn kakao" href="${kakaoUrl(p)}" target="_blank" rel="noopener">카카오맵</a>
+    <button type="button" class="btn" data-open="${p.id}">슬라이드로 보기</button><button type="button" class="fav" style="position:static" data-fav="${p.id}" aria-pressed="${favs.has(p.id)}" aria-label="찜하기">${heart}</button></div>`
+    :`<p class="note">핀을 누르면 식당 정보가 여기에 나옵니다.</p>`;
+}
+
+// ─── 공통 동작 ───
+function setView(v){view=v;["slide","list","map"].forEach(k=>{$("#v-"+k).hidden=k!==v});document.querySelectorAll("[data-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.view===v)));if(v!=="slide")stopPlay();if(v==="slide")requestAnimationFrame(()=>document.querySelectorAll(".cover canvas").forEach(drawCover));store.set("view",v)}
+function renderAll(){renderSlides();renderList();drawMaps();$("#favCount").textContent=favs.size;renderTray()}
+function toggleFav(id){favs.has(id)?favs.delete(id):favs.add(id);store.set("favs",[...favs]);toast(favs.has(id)?"찜했어요":"찜을 뺐어요");
+  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b=>b.setAttribute("aria-pressed",String(favs.has(id))));$("#favCount").textContent=favs.size;drawMaps();if(favOnly)renderAll()}
+function toggleCmp(id){if(cmp.includes(id))cmp=cmp.filter(x=>x!==id);else{if(cmp.length>=3){toast("비교는 3곳까지 담을 수 있어요");return}cmp.push(id)}renderSlides();renderList();renderTray()}
+function renderTray(){$("#tray").hidden=!cmp.length;$("#trayText").textContent=`비교 ${cmp.length}곳: `+cmp.map(id=>PLACES.find(p=>p.id===id).name).join(", ")}
+function openCmp(){if(cmp.length<2){toast("2곳 이상 담아 주세요");return}
+  const g=$("#cmpGrid");g.style.setProperty("--n",cmp.length);
+  g.innerHTML=cmp.map(id=>{const p=PLACES.find(x=>x.id===id),t=ticks[id]||{};return `<div class="cmpcol"><div class="eyebrow">${p.area} · ${p.kind}</div><h3>${esc(p.name)}</h3><dl>
+    <dt>메뉴</dt><dd>${esc(p.cuisine)}</dd><dt>2인 객단가</dt><dd>${p.price?esc(p.price):"메뉴판 확인"}</dd><dt>토요일 점심</dt><dd>${p.hours?esc(p.hours):"지도에서 확인"}</dd>
+    <dt>분위기</dt><dd>${p.vibe.length?p.vibe.map(esc).join(", "):"–"}</dd><dt>체크 통과</dt><dd>${CHECKS.filter(([k])=>t[k]).map(([,l])=>l).join(" / ")||"아직 없음"}</dd></dl>
+    <div class="actions"><a class="btn naver" href="${naverUrl(p)}" target="_blank" rel="noopener">네이버</a><a class="btn kakao" href="${kakaoUrl(p)}" target="_blank" rel="noopener">카카오</a></div></div>`}).join("");
+  $("#cmpDlg").showModal()}
+function pick(){
+  const list=visible(); if(!list.length){toast("후보가 없습니다");return}
+  setView("slide"); stopPlay();
+  const target=Math.floor(Math.random()*list.length);
+  if(reduce){go(target);toast(list[target].name+" 어때요?");return}
+  let steps=12+target+list.length, k=0, d=60;
+  const spin=()=>{go(idx+1);k++;if(k<steps){d*=1.12;setTimeout(spin,d)}else{go(target);toast(list[target].name+" 어때요?")}};
+  spin();
+}
 
 document.addEventListener("click",e=>{
-  const ed=e.target.closest("[data-edit]"); if(ed){openEdit(ed.dataset.edit);return;}
-  const go=e.target.closest("[data-go]"); if(go){flash(go.dataset.go);return;}
-  const ch=e.target.closest(".chip[data-area]"); if(ch){areaFilter=ch.dataset.area; document.querySelectorAll(".chip[data-area]").forEach(c=>c.setAttribute("aria-pressed",String(c===ch))); render(); return;}
-  if(e.target.id==="hidePending"){onlyJudged=!onlyJudged; e.target.setAttribute("aria-pressed",String(onlyJudged)); render();}
+  const t=e.target;
+  const v=t.closest("[data-view]"); if(v){setView(v.dataset.view);return}
+  const a=t.closest("[data-area]"); if(a&&a.classList.contains("chip")){area=a.dataset.area;document.querySelectorAll(".chip[data-area]").forEach(c=>c.setAttribute("aria-pressed",String(c===a)));idx=0;renderAll();return}
+  const k=t.closest("[data-kind]"); if(k){const kk=k.dataset.kind;kinds.has(kk)?kinds.delete(kk):kinds.add(kk);k.setAttribute("aria-pressed",String(kinds.has(kk)));idx=0;renderAll();return}
+  const f=t.closest("[data-fav]"); if(f){e.stopPropagation();toggleFav(f.dataset.fav);return}
+  const c=t.closest("[data-cmp]"); if(c){toggleCmp(c.dataset.cmp);return}
+  const d=t.closest("[data-dot]"); if(d){stopPlay();go(+d.dataset.dot);return}
+  const pn=t.closest("[data-pin]"); if(pn){const id=pn.dataset.pin; if(pn.closest("#bigMap")){mapSel=id;drawMaps()}else{go(visible().findIndex(p=>p.id===id))}return}
+  if(t.closest("[data-cmpbox]")||t.closest("label.cmp"))return;
+  const o=t.closest("[data-open]"); if(o){const i=visible().findIndex(p=>p.id===o.dataset.open);setView("slide");go(i);return}
 });
-document.addEventListener("keydown",e=>{const go=e.target.closest&&e.target.closest("[data-go]"); if(go&&(e.key==="Enter"||e.key===" ")){e.preventDefault();flash(go.dataset.go);}});
+document.addEventListener("change",e=>{
+  const tk=e.target.dataset.tick; if(tk){const[id,k]=tk.split(":");ticks[id]=ticks[id]||{};ticks[id][k]=e.target.checked;store.set("ticks",ticks);
+    const n=CHECKS.filter(([kk])=>ticks[id][kk]).length;const slide=e.target.closest(".slide");if(slide)slide.querySelector(".kv div:nth-child(3) .v").textContent=n+" / "+CHECKS.length;renderList();if(n===CHECKS.length)toast("6개 기준을 모두 통과했어요");return}
+  const cb=e.target.dataset.cmpbox; if(cb){toggleCmp(cb)}
+});
+$("#prevBtn").onclick=()=>{stopPlay();go(idx-1)};
+$("#nextBtn").onclick=()=>{stopPlay();go(idx+1)};
+$("#favOnly").onclick=e=>{favOnly=!favOnly;e.currentTarget.setAttribute("aria-pressed",String(favOnly));idx=0;renderAll()};
+$("#pickBtn").onclick=pick;
+$("#cmpOpen").onclick=openCmp; $("#cmpClose").onclick=()=>$("#cmpDlg").close();
+$("#cmpClear").onclick=()=>{cmp=[];renderAll()};
+document.addEventListener("keydown",e=>{
+  if(e.target.closest&&e.target.closest("input,textarea,select")||e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.target.closest&&e.target.closest("[data-pin],.mini")&&(e.key==="Enter"||e.key===" ")){e.preventDefault();e.target.click();return}
+  if($("#cmpDlg").open)return;
+  const cur=visible()[idx];
+  switch(e.key){
+    case "ArrowRight": if(view==="slide"){stopPlay();go(idx+1);e.preventDefault()}break;
+    case "ArrowLeft": if(view==="slide"){stopPlay();go(idx-1);e.preventDefault()}break;
+    case "f":case "F": if(cur&&view==="slide")toggleFav(cur.id);break;
+    case "c":case "C": if(cur&&view==="slide")toggleCmp(cur.id);break;
+    case "r":case "R": pick();break;
+    case "1": setView("slide");break; case "2": setView("list");break; case "3": setView("map");break;
+    case " ": if(view==="slide"&&!(e.target.closest&&e.target.closest("button,a"))){e.preventDefault();playing?stopPlay():startPlay()}break;
+  }
+});
+addEventListener("resize",()=>{clearTimeout(drawCover._t);drawCover._t=setTimeout(()=>document.querySelectorAll(".cover canvas").forEach(drawCover),150)});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>document.querySelectorAll(".cover canvas").forEach(drawCover));
 
-// ─── 저장소 연결: 공유 DB가 있으면 사용, 없으면 브라우저 저장 ───
-try{ checks=JSON.parse(localStorage.getItem("jlg-checks")||"{}")||{}; }catch(_){ checks={}; }
-render();
-(async()=>{
-  if(!window.claude||!window.claude.use) return;
-  try{
-    const d=await window.claude.use("db"); if(!d) return;
-    db=d; mode="db";
-    const u=await window.claude.use("user"); if(u){ try{me=await u.id();}catch(_){} }
-    const t=setTimeout(()=>{},10000);
-    db.collection("checks").onSnapshot(snap=>{
-      clearTimeout(t);
-      const next={}; (snap.docs||snap).forEach(doc=>{ next[doc.id]=(typeof doc.data==="function"?doc.data():doc.data)||{}; });
-      checks=next;
-      document.getElementById("dataNotice").innerHTML='<b>근거 데이터 원칙.</b> 별점·리뷰 수는 추정하지 않습니다. <b>근거 입력</b>에 넣은 숫자는 확인일과 함께 공유 저장되어, 이 페이지를 여는 사람 모두에게 같은 판정이 보입니다. 필수 근거가 비어 있으면 <b>판정 보류</b>입니다.';
-      render();
-    },err=>{ clearTimeout(t); mode="local"; db=null; });
-  }catch(_){ mode="local"; }
-})();
+renderAll();
+setView(store.get("view","slide"));
 })();
 </script>
 
